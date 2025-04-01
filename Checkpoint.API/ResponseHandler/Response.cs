@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Checkpoint.API.ResponseHandler
 {
-    public class Response : ControllerBase
+    public class ApiResponseController : ControllerBase
     {
         protected IActionResult Handlers<T>(ResponseDto<T> responseDto)
         {

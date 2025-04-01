@@ -1,5 +1,6 @@
 ﻿using Carter;
 using Checkpoint.API.Common;
+using Checkpoint.API.ResponseHandler;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace Checkpoint.API.Features.Request.Command
             RuleFor(y => y.BaseUrlId).NotEmpty().NotNull();
         }
     }
-    internal class Endpoint : ResponseHandler.Response, ICarterModule
+    internal class Endpoint : ApiResponseController, ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
