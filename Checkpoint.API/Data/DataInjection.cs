@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Checkpoint.API.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Checkpoint.API.Data
 {
@@ -6,8 +7,9 @@ namespace Checkpoint.API.Data
     {
         public static IServiceCollection GetDataServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<CheckpointDbContext>(u => u.UseNpgsql(configuration.GetConnectionString("CheckpointDb")));
 
+            services.AddDbContext<CheckpointDbContext>(u => u.UseNpgsql(configuration.GetConnectionString("postgre")));
+            services.AddSingleton<IApplicationDbContext, CheckpointDbContext>();
             return services;
         }
     }

@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Features\Request\Query\**" />
-    <Content Remove="Features\Request\Query\**" />
-    <EmbeddedResource Remove="Features\Request\Query\**" />
-    <None Remove="Features\Request\Query\**" />
+    <Compile Remove="Data\Configurations\**" />
+    <Content Remove="Data\Configurations\**" />
+    <EmbeddedResource Remove="Data\Configurations\**" />
+    <None Remove="Data\Configurations\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,10 +19,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\Configurations\" />
   </ItemGroup>
 
 </Project>
