@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Checkpoint.API.Features.Request.Command
 {
-
     internal static class Proccessor
     {
         internal sealed class Request : IRequest<ResponseDto<bool>>
@@ -32,16 +31,16 @@ namespace Checkpoint.API.Features.Request.Command
             RuleFor(y => y.BaseUrlId).NotEmpty().NotNull();
         }
     }
-    internal class Endpoint : ICarterModule
+    internal class Endpoint : ResponseHandler.Response, ICarterModule
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
             app.MapPost("api/request/addrequestInfo", Handler);
         }
-        public static async Task<IActionResult> Handler([FromBody] Proccessor.Request.AddRequestDto addRequestDto, IMediator mediator)
+        public async Task<IActionResult> Handler([FromBody] Proccessor.Request.AddRequestDto addRequestDto, IMediator mediator)
         {
             var response = await mediator.Send(new Proccessor.Request());
-            return new ObjectResult(response);
+            return Handlers(response);
         }
     }
 
