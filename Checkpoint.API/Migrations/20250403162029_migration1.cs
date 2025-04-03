@@ -1,0 +1,108 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
+#nullable disable
+
+namespace Checkpoint.API.Migrations
+{
+    /// <inheritdoc />
+    public partial class migration1 : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "BaseUrl",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BasePath = table.Column<string>(type: "text", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BaseUrl", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Controller",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ControllerPath = table.Column<string>(type: "text", nullable: false),
+                    BaseUrlId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Controller", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Controller_BaseUrl_BaseUrlId",
+                        column: x => x.BaseUrlId,
+                        principalTable: "BaseUrl",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Action",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ActionPath = table.Column<string>(type: "text", nullable: false),
+                    ControllerId = table.Column<int>(type: "integer", nullable: false),
+                    RequestType = table.Column<int>(type: "integer", nullable: false),
+                    Body = table.Column<string>(type: "text", nullable: true),
+                    Header = table.Column<string>(type: "text", nullable: true),
+                    Query = table.Column<string>(type: "text", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Action", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Action_Controller_ControllerId",
+                        column: x => x.ControllerId,
+                        principalTable: "Controller",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Action_ControllerId",
+                table: "Action",
+                column: "ControllerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Controller_BaseUrlId",
+                table: "Controller",
+                column: "BaseUrlId");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "Action");
+
+            migrationBuilder.DropTable(
+                name: "Controller");
+
+            migrationBuilder.DropTable(
+                name: "BaseUrl");
+        }
+    }
+}

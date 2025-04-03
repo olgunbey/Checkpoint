@@ -1,5 +1,6 @@
 ﻿using Checkpoint.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace Checkpoint.API.Data
 {
@@ -9,7 +10,12 @@ namespace Checkpoint.API.Data
         public DbSet<Entities.Action> Action { get; set; }
         public DbSet<Entities.Controller> Controller { get; set; }
         public DbSet<Entities.BaseUrl> BaseUrl { get; set; }
-        public DbSet<Entities.RequestInfo> RequestInfo { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
 
     }
 }

@@ -1,5 +1,4 @@
-﻿using Checkpoint.API.Common;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Checkpoint.API.Interfaces
 {
@@ -8,6 +7,6 @@ namespace Checkpoint.API.Interfaces
         public DbSet<Entities.Action> Action { get; set; }
         public DbSet<Entities.Controller> Controller { get; set; }
         public DbSet<Entities.BaseUrl> BaseUrl { get; set; }
-        public DbSet<Entities.RequestInfo> RequestInfo { get; set; }
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }
