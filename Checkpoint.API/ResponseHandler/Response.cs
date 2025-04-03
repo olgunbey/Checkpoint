@@ -5,10 +5,10 @@ namespace Checkpoint.API.ResponseHandler
 {
     public class ApiResponseController : ControllerBase
     {
-        protected IActionResult Handlers<T>(ResponseDto<T> responseDto)
+        protected IActionResult Handlers<T>(ResponseDto<T> responseDto,HttpContext httpContext)
         {
-            Response.StatusCode = responseDto.StatusCode;
-            if (Response.StatusCode == 204)
+            httpContext.Response.StatusCode = responseDto.StatusCode;
+            if (httpContext.Response.StatusCode == 204)
                 return new ObjectResult(null);
 
             return new ObjectResult(responseDto);

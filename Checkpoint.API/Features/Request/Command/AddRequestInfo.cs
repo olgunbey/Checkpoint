@@ -1,9 +1,11 @@
 ﻿using Carter;
 using Checkpoint.API.Common;
+using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Checkpoint.API.Features.Request.Command
 {
@@ -11,39 +13,92 @@ namespace Checkpoint.API.Features.Request.Command
     {
         internal sealed class Request : IRequest<ResponseDto<bool>>
         {
-            internal record AddRequestDto
-            {
-                public string BasePath { get; set; }
-            }
+            public RequestDto RequestDto { get; set; }
 
         }
         internal sealed class Handler : IRequestHandler<Request, ResponseDto<bool>>
         {
-            public Task<ResponseDto<bool>> Handle(Request request, CancellationToken cancellationToken)
+            private readonly IApplicationDbContext _applicationDbContext;
+            public Handler(IApplicationDbContext applicationDbContext)
             {
-                throw new NotImplementedException();
+                _applicationDbContext = applicationDbContext;
+            }
+            public async Task<ResponseDto<bool>> Handle(Request request, CancellationToken cancellationToken)
+            {
+
+                var baseUrlFilter = _applicationDbContext.BaseUrl.Where(y => y.Id == request.RequestDto.BaseUrlId).Include(y => y.Controllers);
+
+                if (request.RequestDto.ControllerId != 0)
+                {
+
+                    Entities.Action addAction = new()
+                    {
+                        CreateUserId = 1,
+                        ControllerId = request.RequestDto.ControllerId,
+                        ActionPath = request.RequestDto.ActionPath,
+                    };
+
+                    var getBaseUrl = await baseUrlFilter
+                        .ThenInclude(y => y.Actions)
+                         .Where(y => y.Controllers.Any(y => y.Id == request.RequestDto.ControllerId))
+                         .SingleAsync();
+
+                    getBaseUrl.Controllers.Single().Actions.Add(addAction);
+
+                }
+                else
+                {
+
+                    (await baseUrlFilter.SingleAsync()).Controllers.Add(new Entities.Controller()
+                    {
+                        ControllerPath = request.RequestDto.ControllerPath,
+                        BaseUrlId = request.RequestDto.BaseUrlId,
+                        Actions = new List<Entities.Action>()
+                        {
+                            new Entities.Action()
+                            {
+                                ActionPath = request.RequestDto.ActionPath,
+                            }
+                        }
+
+                    });
+                }
+                await _applicationDbContext.SaveChangesAsync(cancellationToken);
+                return ResponseDto<bool>.Success(204);
             }
         }
-    }
-    internal sealed class Validator : AbstractValidator<Entities.RequestInfo>
-    {
-        public Validator()
+        public record RequestDto
         {
-            RuleFor(y => y.BaseUrlId).NotEmpty().NotNull();
+            public int BaseUrlId { get; set; }
+            public int ControllerId { get; set; }
+            public string ControllerPath { get; set; }
+            public string ActionPath { get; set; }
+            public Enums.RequestType RequestType { get; set; }
+            public string Query { get; set; }
+            public string Header { get; set; }
+            public string Body { get; set; }
         }
-    }
-    internal class Endpoint : ApiResponseController, ICarterModule
-    {
-        public void AddRoutes(IEndpointRouteBuilder app)
+
+        internal sealed class Validator : AbstractValidator<Entities.BaseUrl>
         {
-            app.MapPost("api/request/addrequestInfo", Handler);
+            public Validator()
+            {
+                RuleFor(y => y.BasePath).NotEmpty().NotNull();
+            }
         }
-        public async Task<IActionResult> Handler([FromBody] Proccessor.Request.AddRequestDto addRequestDto, IMediator mediator)
+        public sealed class Endpoint : ApiResponseController, ICarterModule
         {
-            var response = await mediator.Send(new Proccessor.Request());
-            return Handlers(response);
+            public void AddRoutes(IEndpointRouteBuilder app)
+            {
+                app.MapPost("api/request/addrequestInfo", Handler);
+            }
+            public async Task<IActionResult> Handler([FromBody] RequestDto requestDto, IMediator mediator, HttpContext httpContext)
+            {
+                var response = await mediator.Send(new Proccessor.Request() { RequestDto = requestDto });
+                return Handlers(response, httpContext);
+            }
         }
-    }
 
 
+    }
 }
