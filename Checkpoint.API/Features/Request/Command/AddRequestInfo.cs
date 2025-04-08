@@ -11,49 +11,51 @@ namespace Checkpoint.API.Features.Request.Command
 {
     internal static class Proccessor
     {
-        internal sealed class Request : IRequest<ResponseDto<bool>>
+        internal sealed class Mediatr
         {
-            public RequestDto RequestDto { get; set; }
-
-        }
-        internal sealed class Handler : IRequestHandler<Request, ResponseDto<bool>>
-        {
-            private readonly IApplicationDbContext _applicationDbContext;
-            public Handler(IApplicationDbContext applicationDbContext)
+            internal sealed class Request : CustomIRequest<bool>
             {
-                _applicationDbContext = applicationDbContext;
+                public Proccessor.Request RequestDto { get; set; }
+
             }
-            public async Task<ResponseDto<bool>> Handle(Request request, CancellationToken cancellationToken)
+            internal sealed class Handler : CustomIRequestHandler<Request, bool>
             {
-
-                var baseUrlFilter = _applicationDbContext.BaseUrl.Where(y => y.Id == request.RequestDto.BaseUrlId).Include(y => y.Controllers);
-
-                if (request.RequestDto.ControllerId != 0)
+                private readonly IApplicationDbContext _applicationDbContext;
+                public Handler(IApplicationDbContext applicationDbContext)
                 {
-
-                    Entities.Action addAction = new()
-                    {
-                        CreateUserId = 1,
-                        ControllerId = request.RequestDto.ControllerId,
-                        ActionPath = request.RequestDto.ActionPath,
-                    };
-
-                    var getBaseUrl = await baseUrlFilter
-                        .ThenInclude(y => y.Actions)
-                         .Where(y => y.Controllers.Any(y => y.Id == request.RequestDto.ControllerId))
-                         .SingleAsync();
-
-                    getBaseUrl.Controllers.Single().Actions.Add(addAction);
-
+                    _applicationDbContext = applicationDbContext;
                 }
-                else
+                public async Task<ResponseDto<bool>> Handle(Request request, CancellationToken cancellationToken)
                 {
 
-                    (await baseUrlFilter.SingleAsync()).Controllers.Add(new Entities.Controller()
+                    var baseUrlFilter = _applicationDbContext.BaseUrl.Where(y => y.Id == request.RequestDto.BaseUrlId).Include(y => y.Controllers);
+
+                    if (request.RequestDto.ControllerId != 0)
                     {
-                        ControllerPath = request.RequestDto.ControllerPath,
-                        BaseUrlId = request.RequestDto.BaseUrlId,
-                        Actions = new List<Entities.Action>()
+
+                        Entities.Action addAction = new()
+                        {
+                            CreateUserId = 1,
+                            ControllerId = request.RequestDto.ControllerId,
+                            ActionPath = request.RequestDto.ActionPath,
+                        };
+
+                        var getBaseUrl = await baseUrlFilter
+                            .ThenInclude(y => y.Actions)
+                             .Where(y => y.Controllers.Any(y => y.Id == request.RequestDto.ControllerId))
+                             .SingleAsync();
+
+                        getBaseUrl.Controllers.Single().Actions.Add(addAction);
+
+                    }
+                    else
+                    {
+
+                        (await baseUrlFilter.SingleAsync()).Controllers.Add(new Entities.Controller()
+                        {
+                            ControllerPath = request.RequestDto.ControllerPath,
+                            BaseUrlId = request.RequestDto.BaseUrlId,
+                            Actions = new List<Entities.Action>()
                         {
                             new Entities.Action()
                             {
@@ -61,13 +63,15 @@ namespace Checkpoint.API.Features.Request.Command
                             }
                         }
 
-                    });
+                        });
+                    }
+                    await _applicationDbContext.SaveChangesAsync(cancellationToken);
+                    return ResponseDto<bool>.Success(204);
                 }
-                await _applicationDbContext.SaveChangesAsync(cancellationToken);
-                return ResponseDto<bool>.Success(204);
             }
         }
-        public record RequestDto
+
+        public record Request
         {
             public int BaseUrlId { get; set; }
             public int ControllerId { get; set; }
@@ -92,9 +96,9 @@ namespace Checkpoint.API.Features.Request.Command
             {
                 app.MapPost("api/request/addrequestInfo", Handler);
             }
-            public async Task<IActionResult> Handler([FromBody] RequestDto requestDto, IMediator mediator, HttpContext httpContext)
+            public async Task<IActionResult> Handler([FromBody] Request requestDto, IMediator mediator, HttpContext httpContext)
             {
-                var response = await mediator.Send(new Proccessor.Request() { RequestDto = requestDto });
+                var response = await mediator.Send(new Mediatr.Request() { RequestDto =requestDto});
                 return Handlers(response, httpContext);
             }
         }

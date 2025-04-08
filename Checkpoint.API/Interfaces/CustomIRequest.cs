@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Checkpoint.API.Interfaces
 {
-    public interface IRequestDto<T> : IRequest<ResponseDto<T>>
+    public interface CustomIRequest<T> : IRequest<ResponseDto<T>>
     {
     }
 }
