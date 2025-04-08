@@ -17,7 +17,7 @@ namespace Checkpoint.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.14")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -86,6 +86,9 @@ namespace Checkpoint.API.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("UpdateUserId")
                         .HasColumnType("integer");
 
@@ -93,6 +96,8 @@ namespace Checkpoint.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("BaseUrl");
                 });
@@ -131,6 +136,35 @@ namespace Checkpoint.API.Migrations
                     b.ToTable("Controller");
                 });
 
+            modelBuilder.Entity("Checkpoint.API.Entities.Project", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CreateUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProjectName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UpdateUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Project");
+                });
+
             modelBuilder.Entity("Checkpoint.API.Entities.Action", b =>
                 {
                     b.HasOne("Checkpoint.API.Entities.Controller", "Controller")
@@ -140,6 +174,17 @@ namespace Checkpoint.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Controller");
+                });
+
+            modelBuilder.Entity("Checkpoint.API.Entities.BaseUrl", b =>
+                {
+                    b.HasOne("Checkpoint.API.Entities.Project", "Project")
+                        .WithMany("BaseUrls")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Checkpoint.API.Entities.Controller", b =>
@@ -161,6 +206,11 @@ namespace Checkpoint.API.Migrations
             modelBuilder.Entity("Checkpoint.API.Entities.Controller", b =>
                 {
                     b.Navigation("Actions");
+                });
+
+            modelBuilder.Entity("Checkpoint.API.Entities.Project", b =>
+                {
+                    b.Navigation("BaseUrls");
                 });
 #pragma warning restore 612, 618
         }
