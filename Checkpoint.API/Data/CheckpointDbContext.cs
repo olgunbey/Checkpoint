@@ -1,4 +1,5 @@
-﻿using Checkpoint.API.Interfaces;
+﻿using Checkpoint.API.Entities;
+using Checkpoint.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -10,6 +11,7 @@ namespace Checkpoint.API.Data
         public DbSet<Entities.Action> Action { get; set; }
         public DbSet<Entities.Controller> Controller { get; set; }
         public DbSet<Entities.BaseUrl> BaseUrl { get; set; }
+        public DbSet<Project> Project { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -36,6 +36,7 @@ namespace Checkpoint.API.Features.Request.Query
                     .Query()
                     .Include(y => y.Actions)
                     .LoadAsync();
+
                 var response = new Response()
                 {
                     BasePath = baseUrl.BasePath,

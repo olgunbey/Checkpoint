@@ -7,11 +7,28 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.API.Migrations
 {
     /// <inheritdoc />
-    public partial class migration1 : Migration
+    public partial class ProjectTableAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Project",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProjectName = table.Column<string>(type: "text", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Project", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "BaseUrl",
                 columns: table => new
@@ -19,6 +36,7 @@ namespace Checkpoint.API.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     BasePath = table.Column<string>(type: "text", nullable: false),
+                    ProjectId = table.Column<int>(type: "integer", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreateUserId = table.Column<int>(type: "integer", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -27,6 +45,12 @@ namespace Checkpoint.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BaseUrl", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BaseUrl_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -87,6 +111,11 @@ namespace Checkpoint.API.Migrations
                 column: "ControllerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BaseUrl_ProjectId",
+                table: "BaseUrl",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Controller_BaseUrlId",
                 table: "Controller",
                 column: "BaseUrlId");
@@ -103,6 +132,9 @@ namespace Checkpoint.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "BaseUrl");
+
+            migrationBuilder.DropTable(
+                name: "Project");
         }
     }
 }
