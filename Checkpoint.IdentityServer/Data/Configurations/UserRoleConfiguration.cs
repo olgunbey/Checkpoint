@@ -1,8 +1,8 @@
-﻿using Checkpoint.API.Entities;
+﻿using Checkpoint.IdentityServer.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Checkpoint.API.Data.Configurations
+namespace Checkpoint.IdentityServer.Data.Configurations
 {
     public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
     {
