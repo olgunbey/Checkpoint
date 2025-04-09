@@ -3,6 +3,7 @@ using System;
 using Checkpoint.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.API.Migrations
 {
     [DbContext(typeof(CheckpointDbContext))]
-    partial class CheckpointDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250409153647_UserPermissionNullableColumn")]
+    partial class UserPermissionNullableColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
