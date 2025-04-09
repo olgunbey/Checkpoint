@@ -5,9 +5,8 @@ using System.Reflection;
 
 namespace Checkpoint.API.Data
 {
-    public sealed class CheckpointDbContext : DbContext, IApplicationDbContext
+    public sealed class CheckpointDbContext(DbContextOptions<CheckpointDbContext> dbContextOptions) : DbContext(dbContextOptions), IApplicationDbContext
     {
-        public CheckpointDbContext(DbContextOptions<CheckpointDbContext> dbContextOptions) : base(dbContextOptions) { }
         public DbSet<Entities.Action> Action { get; set; }
         public DbSet<Controller> Controller { get; set; }
         public DbSet<BaseUrl> BaseUrl { get; set; }
