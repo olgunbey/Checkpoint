@@ -136,64 +136,6 @@ namespace Checkpoint.API.Migrations
                     b.ToTable("Controller");
                 });
 
-            modelBuilder.Entity("Checkpoint.API.Entities.Corporate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CreateUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Mail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UpdateUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Corporate");
-                });
-
-            modelBuilder.Entity("Checkpoint.API.Entities.Individual", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CreateUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UpdateUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Individual");
-                });
-
             modelBuilder.Entity("Checkpoint.API.Entities.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -202,17 +144,11 @@ namespace Checkpoint.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CorporateId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("CreateUserId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("IndividualId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("ProjectName")
                         .IsRequired()
@@ -225,10 +161,6 @@ namespace Checkpoint.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CorporateId");
-
-                    b.HasIndex("IndividualId");
 
                     b.ToTable("Project");
                 });
@@ -266,21 +198,6 @@ namespace Checkpoint.API.Migrations
                     b.Navigation("BaseUrl");
                 });
 
-            modelBuilder.Entity("Checkpoint.API.Entities.Project", b =>
-                {
-                    b.HasOne("Checkpoint.API.Entities.Corporate", "Corporate")
-                        .WithMany("Projects")
-                        .HasForeignKey("CorporateId");
-
-                    b.HasOne("Checkpoint.API.Entities.Individual", "Individual")
-                        .WithMany("Projects")
-                        .HasForeignKey("IndividualId");
-
-                    b.Navigation("Corporate");
-
-                    b.Navigation("Individual");
-                });
-
             modelBuilder.Entity("Checkpoint.API.Entities.BaseUrl", b =>
                 {
                     b.Navigation("Controllers");
@@ -289,16 +206,6 @@ namespace Checkpoint.API.Migrations
             modelBuilder.Entity("Checkpoint.API.Entities.Controller", b =>
                 {
                     b.Navigation("Actions");
-                });
-
-            modelBuilder.Entity("Checkpoint.API.Entities.Corporate", b =>
-                {
-                    b.Navigation("Projects");
-                });
-
-            modelBuilder.Entity("Checkpoint.API.Entities.Individual", b =>
-                {
-                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("Checkpoint.API.Entities.Project", b =>

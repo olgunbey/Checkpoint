@@ -9,11 +9,9 @@ namespace Checkpoint.API.Data
     {
         public CheckpointDbContext(DbContextOptions<CheckpointDbContext> dbContextOptions) : base(dbContextOptions) { }
         public DbSet<Entities.Action> Action { get; set; }
-        public DbSet<Controller> Controller { get; set; }
-        public DbSet<BaseUrl> BaseUrl { get; set; }
+        public DbSet<Entities.Controller> Controller { get; set; }
+        public DbSet<Entities.BaseUrl> BaseUrl { get; set; }
         public DbSet<Project> Project { get; set; }
-        public DbSet<Corporate> Corporate { get; set; }
-        public DbSet<Individual> Individual { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
