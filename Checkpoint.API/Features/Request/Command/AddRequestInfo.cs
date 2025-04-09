@@ -15,7 +15,7 @@ namespace Checkpoint.API.Features.Request.Command
         {
             internal sealed class Request : CustomIRequest<bool>
             {
-                public Proccessor.Request RequestDto { get; set; }
+                public Dto.Request RequestDto { get; set; }
 
             }
             internal sealed class Handler : CustomIRequestHandler<Request, bool>
@@ -71,18 +71,20 @@ namespace Checkpoint.API.Features.Request.Command
             }
         }
 
-        public record Request
+        internal sealed class Dto
         {
-            public int BaseUrlId { get; set; }
-            public int ControllerId { get; set; }
-            public string ControllerPath { get; set; }
-            public string ActionPath { get; set; }
-            public Enums.RequestType RequestType { get; set; }
-            public string Query { get; set; }
-            public string Header { get; set; }
-            public string Body { get; set; }
+            internal sealed record Request
+            {
+                public int BaseUrlId { get; set; }
+                public int ControllerId { get; set; }
+                public string ControllerPath { get; set; }
+                public string ActionPath { get; set; }
+                public Enums.RequestType RequestType { get; set; }
+                public string Query { get; set; }
+                public string Header { get; set; }
+                public string Body { get; set; }
+            }
         }
-
         internal sealed class Validator : AbstractValidator<Entities.BaseUrl>
         {
             public Validator()
@@ -96,9 +98,9 @@ namespace Checkpoint.API.Features.Request.Command
             {
                 app.MapPost("api/request/addrequestInfo", Handler);
             }
-            public async Task<IActionResult> Handler([FromBody] Request requestDto, IMediator mediator, HttpContext httpContext)
+            public async Task<IActionResult> Handler([FromBody] Dto.Request requestDto, IMediator mediator, HttpContext httpContext)
             {
-                var response = await mediator.Send(new Mediatr.Request() { RequestDto =requestDto});
+                var response = await mediator.Send(new Mediatr.Request() { RequestDto = requestDto });
                 return Handlers(response, httpContext);
             }
         }
