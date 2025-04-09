@@ -3,6 +3,7 @@ using System;
 using Checkpoint.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.API.Migrations
 {
     [DbContext(typeof(CheckpointDbContext))]
-    partial class CheckpointDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250409153341_PermissionAdded")]
+    partial class PermissionAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -334,7 +337,7 @@ namespace Checkpoint.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CorporateId")
+                    b.Property<int>("CorporateId")
                         .HasColumnType("integer");
 
                     b.Property<int>("CreateUserId")
@@ -507,7 +510,9 @@ namespace Checkpoint.API.Migrations
                 {
                     b.HasOne("Checkpoint.API.Entities.Corporate", "Corporate")
                         .WithMany("UserPermission")
-                        .HasForeignKey("CorporateId");
+                        .HasForeignKey("CorporateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Checkpoint.API.Entities.Individual", "Individual")
                         .WithMany("UserPermissions")
