@@ -6,5 +6,6 @@ namespace Checkpoint.API.Entities
     {
         public required string Email { get; set; }
         public ICollection<Project> Projects { get; set; }
+        public ICollection<UserRole> UserRoles { get; set; }
     }
 }
