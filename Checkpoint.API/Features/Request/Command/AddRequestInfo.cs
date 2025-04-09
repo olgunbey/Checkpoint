@@ -13,19 +13,19 @@ namespace Checkpoint.API.Features.Request.Command
     {
         internal sealed class Mediatr
         {
-            internal sealed class Request : CustomIRequest<bool>
+            internal sealed class Request : CustomIRequest<NoContent>
             {
                 public Dto.Request RequestDto { get; set; }
 
             }
-            internal sealed class Handler : CustomIRequestHandler<Request, bool>
+            internal sealed class Handler : CustomIRequestHandler<Request, NoContent>
             {
                 private readonly IApplicationDbContext _applicationDbContext;
                 public Handler(IApplicationDbContext applicationDbContext)
                 {
                     _applicationDbContext = applicationDbContext;
                 }
-                public async Task<ResponseDto<bool>> Handle(Request request, CancellationToken cancellationToken)
+                public async Task<ResponseDto<NoContent>> Handle(Request request, CancellationToken cancellationToken)
                 {
 
                     var baseUrlFilter = _applicationDbContext.BaseUrl.Where(y => y.Id == request.RequestDto.BaseUrlId).Include(y => y.Controllers);
@@ -66,7 +66,7 @@ namespace Checkpoint.API.Features.Request.Command
                         });
                     }
                     await _applicationDbContext.SaveChangesAsync(cancellationToken);
-                    return ResponseDto<bool>.Success(204);
+                    return ResponseDto<NoContent>.Success(203);
                 }
             }
         }
