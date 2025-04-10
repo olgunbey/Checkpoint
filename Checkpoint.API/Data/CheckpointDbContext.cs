@@ -15,6 +15,5 @@ namespace Checkpoint.API.Data
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
-
     }
 }

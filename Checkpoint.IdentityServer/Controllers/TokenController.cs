@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Checkpoint.IdentityServer.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Checkpoint.IdentityServer.Controllers
 {
@@ -6,5 +7,9 @@ namespace Checkpoint.IdentityServer.Controllers
     [ApiController]
     public class TokenController : ControllerBase
     {
+        public async Task<IActionResult> GetToken(GetTokenRequestDto getTokenRequest)
+        {
+            return Ok();
+        }
     }
 }
