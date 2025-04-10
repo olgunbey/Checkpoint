@@ -1,11 +1,9 @@
 ﻿using Checkpoint.IdentityServer.Entities;
-using Checkpoint.IdentityServer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
-namespace Checkpoint.IdentityServer.Data
+namespace Checkpoint.IdentityServer.Interfaces
 {
-    public class IdentityDbContext(DbContextOptions<IdentityDbContext> dbContextOptions) : DbContext(dbContextOptions), IIdentityDbContext
+    public interface IIdentityDbContext
     {
         public DbSet<Corporate> Corporate { get; set; }
         public DbSet<Individual> Individual { get; set; }
@@ -16,10 +14,6 @@ namespace Checkpoint.IdentityServer.Data
         public DbSet<Team> Team { get; set; }
         public DbSet<Company> Company { get; set; }
         public DbSet<Client> Client { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        }
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public required string Mail { get; set; }
-        public string? Password { get; set; }
+        public required string Password { get; set; }
         public int CompanyId { get; set; }
         public Company Company { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }
