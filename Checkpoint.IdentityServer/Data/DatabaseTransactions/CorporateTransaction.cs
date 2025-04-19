@@ -5,16 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
 {
-    public class CorporateTransaction
+    public class CorporateTransaction(IIdentityDbContext identityDbContext)
     {
-        private readonly IIdentityDbContext _identityDbContext;
-        public CorporateTransaction(IIdentityDbContext identityDbContext)
-        {
-            _identityDbContext = identityDbContext;
-        }
+
         public async Task<Corporate> GetUser(GetTokenRequestDto getTokenRequestDto)
         {
-            Corporate? hasCorporate = await _identityDbContext.Corporate.FirstOrDefaultAsync(y => y.Mail == getTokenRequestDto.Email && y.Password == getTokenRequestDto.Password);
+            Corporate? hasCorporate = await identityDbContext.Corporate.FirstOrDefaultAsync(y => y.Mail == getTokenRequestDto.Email && y.Password == getTokenRequestDto.Password);
 
             if (hasCorporate == null)
             {
@@ -24,13 +20,15 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
         }
         public async Task<Corporate> CorporateSelectedRoleAndPermissionList(Corporate corporate)
         {
-            var taskPermission = _identityDbContext.Corporate.Entry(corporate)
+            var entryCorporate = identityDbContext.Corporate.Entry(corporate);
+
+            var taskPermission = entryCorporate
                 .Collection(y => y.UserPermissions)
                 .Query()
                 .Include(y => y.Permission)
                 .LoadAsync();
 
-            var taskRole = _identityDbContext.Corporate.Entry(corporate)
+            var taskRole = entryCorporate
                 .Collection(y => y.UserRoles)
                 .Query()
                 .Include(y => y.Role)
@@ -39,6 +37,17 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             await Task.WhenAll(taskPermission, taskRole);
             return corporate;
 
+        }
+
+        public async Task AddCorporate(Corporate corporate, CancellationToken cancellationToken)
+        {
+            identityDbContext.Corporate.Add(corporate);
+            await identityDbContext.SaveChangesAsync(cancellationToken);
+        }
+        public async Task CorporateAddRange(IEnumerable<Corporate> corporate, CancellationToken cancellationToken)
+        {
+            identityDbContext.Corporate.AddRange(corporate);
+            await identityDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

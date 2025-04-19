@@ -5,16 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
 {
-    public class ClientTransaction
+    public class ClientTransaction(IIdentityDbContext identityDbContext)
     {
-        private readonly IIdentityDbContext _identityDbContext;
-        public ClientTransaction(IIdentityDbContext identityDbContext)
-        {
-            _identityDbContext = identityDbContext;
-        }
+
         public async Task<Client> GetClient(string clientId, string clientSecret, string grantType)
         {
-            Client? client = await _identityDbContext.Client.FirstOrDefaultAsync(y => y.ClientId == clientId && y.ClientSecret == clientSecret && y.GrantType == grantType);
+            Client? client = await identityDbContext.Client.FirstOrDefaultAsync(y => y.ClientId == clientId && y.ClientSecret == clientSecret && y.GrantType == grantType);
 
             if (client == null)
             {
