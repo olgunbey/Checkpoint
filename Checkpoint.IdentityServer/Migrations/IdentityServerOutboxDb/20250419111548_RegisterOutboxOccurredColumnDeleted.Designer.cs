@@ -3,6 +3,7 @@ using System;
 using Checkpoint.IdentityServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.IdentityServer.Migrations.IdentityServerOutboxDb
 {
     [DbContext(typeof(IdentityServerOutboxDbContext))]
-    partial class IdentityServerOutboxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419111548_RegisterOutboxOccurredColumnDeleted")]
+    partial class RegisterOutboxOccurredColumnDeleted
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
