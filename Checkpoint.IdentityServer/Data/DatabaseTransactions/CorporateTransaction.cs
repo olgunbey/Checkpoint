@@ -1,6 +1,6 @@
-﻿using Checkpoint.IdentityServer.Entities;
+﻿using Checkpoint.IdentityServer.Dtos;
+using Checkpoint.IdentityServer.Entities;
 using Checkpoint.IdentityServer.Interfaces;
-using Checkpoint.IdentityServer.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions

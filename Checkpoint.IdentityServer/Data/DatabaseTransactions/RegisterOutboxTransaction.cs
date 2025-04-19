@@ -7,26 +7,26 @@ using System.Text.Json;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
 {
-    public class RegisterOutboxTransaction(IIdentityServerOutboxDbContext identityServerOutboxContext)
+    public class RegisterOutboxTransaction(IdentityDbContext identityDbContext)
     {
         public async Task AddRegisterOutbox(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
         {
             RegisterOutboxEvent registerOutboxEvent = new()
             {
                 Mail = registerCorporateDto.Mail,
-                CorporateName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0]
+                CompanyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0]
             };
-            identityServerOutboxContext.RegisterOutbox.Add(new Entities.Outbox.RegisterOutbox()
+            identityDbContext.RegisterOutbox.Add(new Entities.Outbox.RegisterOutbox()
             {
                 EventType = registerOutboxEvent.GetType().Name,
                 ProcessedDate = null,
                 Payload = JsonSerializer.Serialize(registerOutboxEvent),
             });
-            await identityServerOutboxContext.SaveChangesAsync(cancellationToken);
+            await identityDbContext.SaveChangesAsync(cancellationToken);
         }
         public async Task<List<RegisterOutbox>> ProcessedRegister()
         {
-            var notProcessedDate = identityServerOutboxContext.RegisterOutbox.Where(y => y.ProcessedDate != null);
+            var notProcessedDate = identityDbContext.RegisterOutbox.Where(y => y.ProcessedDate != null);
 
             await notProcessedDate.ExecuteUpdateAsync(setter => setter.SetProperty(x => x.ProcessedDate, DateTime.UtcNow));
 

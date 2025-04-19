@@ -1,4 +1,4 @@
-﻿namespace Checkpoint.IdentityServer.Models
+﻿namespace Checkpoint.IdentityServer.Dtos
 {
     public class GetTokenRequestDto
     {
