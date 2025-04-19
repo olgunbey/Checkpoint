@@ -1,4 +1,3 @@
-using Checkpoint.IdentityServer.BackgroundJobs;
 using Checkpoint.IdentityServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -7,8 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
-builder.Services.AddHostedService<AddCorporateJob>();
+
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
+builder.Services.AddDbContext<IdentityServerOutboxDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("outbox")));
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
