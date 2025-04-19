@@ -1,9 +1,9 @@
-﻿namespace Checkpoint.MailService.Entities
+﻿namespace Shared.Events
 {
-    public class CorporateMail
+    public class MailSentEvent
     {
         public required string Email { get; set; }
         public required string Password { get; set; }
-        public int CorporateId { get; set; }
+        public required string CompanyName { get; set; }
     }
 }

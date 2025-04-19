@@ -1,15 +1,14 @@
 ﻿
 using Checkpoint.IdentityServer.Data.DatabaseTransactions;
-using Checkpoint.IdentityServer.Entities;
 using MassTransit;
 using Shared.Events;
 using System.Text.Json;
 
 namespace Checkpoint.IdentityServer.BackgroundJobs
 {
-    public class RegisterOutboxJob(RegisterOutboxTransaction registerOutboxTransaction, IPublishEndpoint publishEndpoint, CorporateTransaction corporateTransaction, CompanyTransaction companyTransaction) : BackgroundService
+    public class RegisterOutboxJob(RegisterOutboxTransaction registerOutboxTransaction, IPublishEndpoint publishEndpoint)
     {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public async Task ExecuteJob(CancellationToken cancellationToken)
         {
             var registerOutboxes = await registerOutboxTransaction.ProcessedRegister();
 
@@ -29,15 +28,6 @@ namespace Checkpoint.IdentityServer.BackgroundJobs
                 {
                     Events = registerOutboxEvents
                 };
-
-                var corporates = registerOutboxEvents.Select(y => new Corporate()
-                {
-                    CompanyId = companyTransaction.GetCompanyByCompanyName(y.CompanyName).Result.Id,
-                    Mail = y.Mail,
-                    Password = "random123"
-                });
-                await corporateTransaction.CorporateAddRange(corporates, stoppingToken);
-
 
                 await publishEndpoint.Publish(batchEvent);
             }

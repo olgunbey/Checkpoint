@@ -8,13 +8,15 @@ namespace Checkpoint.IdentityServer.Controllers
     [ApiController]
     public class TokenController(RegisterOutboxTransaction registerOutboxTransaction) : ControllerBase
     {
+        [HttpGet]
         public async Task<IActionResult> GetToken(GetTokenRequestDto getTokenRequest)
         {
             return Ok();
         }
+        [HttpPost]
         public async Task<IActionResult> Register(RegisterCorporateDto registerCorporateDto)
         {
-            await registerOutboxTransaction.AddRegisterOutbox(registerCorporateDto, CancellationToken.None);
+            await registerOutboxTransaction.AddRegisterAsync(registerCorporateDto, CancellationToken.None);
             return Ok();
         }
     }

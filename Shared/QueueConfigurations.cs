@@ -3,5 +3,6 @@
     public static class QueueConfigurations
     {
         public const string RegisterOutboxQueue = "outbox-register";
+        public const string MailSentEvent = "mail-sent-event";
     }
 }
