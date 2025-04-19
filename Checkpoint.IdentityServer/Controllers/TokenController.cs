@@ -1,6 +1,5 @@
 ﻿using Checkpoint.IdentityServer.Data.DatabaseTransactions;
 using Checkpoint.IdentityServer.Dtos;
-using Checkpoint.IdentityServer.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Checkpoint.IdentityServer.Controllers

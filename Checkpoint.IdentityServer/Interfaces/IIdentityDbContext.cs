@@ -1,4 +1,5 @@
 ﻿using Checkpoint.IdentityServer.Entities;
+using Checkpoint.IdentityServer.Entities.Outbox;
 using Microsoft.EntityFrameworkCore;
 
 namespace Checkpoint.IdentityServer.Interfaces
@@ -14,6 +15,7 @@ namespace Checkpoint.IdentityServer.Interfaces
         public DbSet<Team> Team { get; set; }
         public DbSet<Company> Company { get; set; }
         public DbSet<Client> Client { get; set; }
+        public DbSet<RegisterOutbox> RegisterOutbox { get; set; }
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

@@ -12,8 +12,6 @@ namespace Checkpoint.MailService.Consumers
 
             var getAllRegisterOutbox = await mailInboxTransaction.GetAllMailInbox();
 
-            getAll
-
 
         }
     }

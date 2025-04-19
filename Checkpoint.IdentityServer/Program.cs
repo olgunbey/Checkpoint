@@ -11,7 +11,6 @@ builder.Services.AddControllers();
 builder.Services.AddHostedService<RegisterOutboxJob>();
 
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
-builder.Services.AddDbContext<IdentityServerOutboxDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("outbox")));
 builder.Services.AddMassTransit(configure =>
 {
     configure.UsingRabbitMq((context, configurator) =>

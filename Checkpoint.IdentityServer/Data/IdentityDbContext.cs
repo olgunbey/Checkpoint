@@ -1,4 +1,5 @@
 ﻿using Checkpoint.IdentityServer.Entities;
+using Checkpoint.IdentityServer.Entities.Outbox;
 using Checkpoint.IdentityServer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace Checkpoint.IdentityServer.Data
         public DbSet<Team> Team { get; set; }
         public DbSet<Company> Company { get; set; }
         public DbSet<Client> Client { get; set; }
+        public DbSet<RegisterOutbox> RegisterOutbox { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,7 +1,7 @@
 ﻿using Checkpoint.IdentityServer.Data.DatabaseTransactions;
+using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Entities;
 using Checkpoint.IdentityServer.Hash;
-using Checkpoint.IdentityServer.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
