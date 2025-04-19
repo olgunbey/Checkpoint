@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Checkpoint.IdentityServer.BackgroundJobs
 {
-    public class RegisterOutboxJob(RegisterOutboxTransaction registerOutboxTransaction, IPublishEndpoint publishEndpoint)
+    public class RegisterOutboxJob(RegisterOutboxTransaction registerOutboxTransaction, IPublishEndpoint publishEndpoint, CompanyTransaction companyTransaction)
     {
         public async Task ExecuteJob(CancellationToken cancellationToken)
         {
@@ -19,6 +19,7 @@ namespace Checkpoint.IdentityServer.BackgroundJobs
                 if (registerOutbox.EventType == nameof(RegisterOutboxEvent))
                 {
                     RegisterOutboxEvent registerOutboxEvent = JsonSerializer.Deserialize<RegisterOutboxEvent>(registerOutbox.Payload)!;
+                    registerOutboxEvent.CompanyName = companyTransaction.GetCompanyByCompanyKey(registerOutboxEvent.CompanyName).Result!.Name;
                     registerOutboxEvents.Add(registerOutboxEvent);
                 }
             }
