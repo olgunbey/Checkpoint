@@ -5,6 +5,7 @@ namespace Checkpoint.MailService.Interfaces
 {
     public interface IMailDbContext
     {
-        public DbSet<CorporateMail> CorporateMail { get; set; }
+        public DbSet<RegisterInbox> RegisterInbox { get; set; }
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

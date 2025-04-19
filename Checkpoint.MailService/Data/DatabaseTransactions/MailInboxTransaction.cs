@@ -1,11 +1,10 @@
 ﻿using Checkpoint.MailService.Entities;
 using Checkpoint.MailService.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Shared.Events;
 
 namespace Checkpoint.MailService.Data.DatabaseTransactions
 {
-    public class MailInboxTransaction(IMailInboxDbContext mailInboxDbContext)
+    public class MailInboxTransaction(IMailDbContext mailInboxDbContext)
     {
         public async Task AddMailInboxAsync(List<RegisterOutboxEvent> registerOutboxEvents, CancellationToken cancellationToken)
         {
@@ -19,9 +18,13 @@ namespace Checkpoint.MailService.Data.DatabaseTransactions
             mailInboxDbContext.RegisterInbox.AddRange(registerCorporateMails);
             await mailInboxDbContext.SaveChangesAsync(cancellationToken);
         }
-        public async Task<List<RegisterInbox>> GetAllMailInbox()
+        public Task<IQueryable<RegisterInbox>> GetAllMailInbox()
         {
-            return await mailInboxDbContext.RegisterInbox.Where(y => !y.Processed).ToListAsync();
+            return Task.FromResult(mailInboxDbContext.RegisterInbox.Where(y => !y.Processed));
+        }
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            return await mailInboxDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }
