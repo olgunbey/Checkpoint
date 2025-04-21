@@ -7,7 +7,6 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
 {
     public class CorporateTransaction(IIdentityDbContext identityDbContext)
     {
-
         public async Task<Corporate> GetUser(GetTokenRequestDto getTokenRequestDto)
         {
             Corporate? hasCorporate = await identityDbContext.Corporate.FirstOrDefaultAsync(y => y.Mail == getTokenRequestDto.Email && y.Password == getTokenRequestDto.Password);

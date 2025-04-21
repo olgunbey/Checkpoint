@@ -9,25 +9,15 @@ using System.Security.Claims;
 
 namespace Checkpoint.IdentityServer.TokenServices
 {
-    public class CorporateTokenService
+    public class CorporateTokenService(CorporateTransaction corporateTransaction, ClientTransaction clientTransaction)
     {
-        private readonly CorporateTransaction _corporateTransaction;
-        private readonly ClientTransaction _clientTransaction;
-        public CorporateTokenService(CorporateTransaction corporateTransaction, ClientTransaction clientTransaction)
+        public async Task<TokenResponseDto> GetToken(GetTokenRequestDto tokenRequestDto)
         {
-            _corporateTransaction = corporateTransaction;
-            _clientTransaction = clientTransaction;
-        }
-        public async Task GetToken(GetTokenRequestDto tokenRequestDto)
-        {
-            Corporate corporate = await _corporateTransaction.GetUser(tokenRequestDto);
+            Client client = await clientTransaction.GetClient(tokenRequestDto.ClientId, tokenRequestDto.ClientSecret, tokenRequestDto.GrantType);
 
+            Corporate corporate = await corporateTransaction.GetUser(tokenRequestDto);
 
-            var client = await _clientTransaction.GetClient(tokenRequestDto.ClientId, tokenRequestDto.ClientSecret, tokenRequestDto.GrantType);
-
-
-
-            corporate = await _corporateTransaction.CorporateSelectedRoleAndPermissionList(corporate);
+            corporate = await corporateTransaction.CorporateSelectedRoleAndPermissionList(corporate);
 
             var corporateRoles = corporate.UserRoles.Select(y => y.Role.Name);
 
@@ -42,14 +32,22 @@ namespace Checkpoint.IdentityServer.TokenServices
             var securityKey = new SymmetricSecurityKey(Hashing.Hash(client.ClientSecret));
 
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var SecretToken = new JwtSecurityToken(issuer: client.Issuer,
+            var secretToken = new JwtSecurityToken(issuer: client.Issuer,
                 audience: client.Audience,
                 claims: claims,
                 expires: expires,
                 signingCredentials: credentials
                 );
 
-            var token = new JwtSecurityTokenHandler().WriteToken(SecretToken);
+            var token = new JwtSecurityTokenHandler().WriteToken(secretToken);
+
+            return new TokenResponseDto()
+            {
+                AccessToken = token,
+                AccessToken_LifeTime = expires,
+                RefreshToken = "refresh",
+                RefreshToken_LifeTime = DateTime.UtcNow.AddDays(5)
+            };
 
         }
 

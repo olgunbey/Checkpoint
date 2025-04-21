@@ -14,19 +14,16 @@ namespace Checkpoint.MailService.Consumers
 
             var getAllRegisterOutbox = await mailInboxTransaction.GetAllMailInbox();
 
-            var data = getAllRegisterOutbox.Where(y => !y.Processed).ToList();
+            var queryAbleRegisterOutbox = getAllRegisterOutbox.Where(y => !y.Processed).ToList();
 
             Random rnd = new Random();
-            foreach (var item in data)
+            foreach (var item in queryAbleRegisterOutbox)
             {
                 StringBuilder stringBuilder = new StringBuilder();
                 for (int i = 1; i <= 10; i++)
                 {
-                    int ascii = rnd.Next(2) == 0
-                                         ? rnd.Next(48, 58)
-                                         : rnd.Next(65, 91);
+                    int ascii = rnd.Next(48, 91);
                     char ch = (char)ascii;
-
                     stringBuilder.Append(ch);
                 }
 

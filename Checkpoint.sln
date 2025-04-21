@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Checkpoint.MailService", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{96F7FC87-1F22-4CC9-A016-FF65428B7DDD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Checkpoint.IdentityServer.SagaOrchestration", "Checkpoint.IdentityServer.SagaOrchestration\Checkpoint.IdentityServer.SagaOrchestration.csproj", "{C923C0D7-EE2C-4C1A-9F6B-DF2BB6849B94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{96F7FC87-1F22-4CC9-A016-FF65428B7DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96F7FC87-1F22-4CC9-A016-FF65428B7DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96F7FC87-1F22-4CC9-A016-FF65428B7DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C923C0D7-EE2C-4C1A-9F6B-DF2BB6849B94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C923C0D7-EE2C-4C1A-9F6B-DF2BB6849B94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C923C0D7-EE2C-4C1A-9F6B-DF2BB6849B94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C923C0D7-EE2C-4C1A-9F6B-DF2BB6849B94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

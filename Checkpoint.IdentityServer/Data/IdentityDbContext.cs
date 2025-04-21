@@ -18,6 +18,7 @@ namespace Checkpoint.IdentityServer.Data
         public DbSet<Company> Company { get; set; }
         public DbSet<Client> Client { get; set; }
         public DbSet<RegisterOutbox> RegisterOutbox { get; set; }
+        public DbSet<CompanyRoles> CompanyRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

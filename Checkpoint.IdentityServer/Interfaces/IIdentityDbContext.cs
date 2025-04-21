@@ -16,6 +16,7 @@ namespace Checkpoint.IdentityServer.Interfaces
         public DbSet<Company> Company { get; set; }
         public DbSet<Client> Client { get; set; }
         public DbSet<RegisterOutbox> RegisterOutbox { get; set; }
+        public DbSet<CompanyRoles> CompanyRoles { get; set; }
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }
