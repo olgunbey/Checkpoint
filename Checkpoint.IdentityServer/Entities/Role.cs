@@ -5,5 +5,6 @@
         public int Id { get; set; }
         public required string Name { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }
+        public ICollection<CompanyRoles> CompanyRoles { get; set; }
     }
 }
