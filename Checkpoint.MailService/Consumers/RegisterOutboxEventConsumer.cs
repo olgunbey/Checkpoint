@@ -1,16 +1,17 @@
 ﻿using Checkpoint.MailService.Data.DatabaseTransactions;
 using MassTransit;
+using Shared;
 using Shared.Events;
 using System.Data;
 using System.Text;
 
 namespace Checkpoint.MailService.Consumers
 {
-    public class RegisterOutboxEventConsumer(MailInboxTransaction mailInboxTransaction, IPublishEndpoint publishEndpoint) : IConsumer<RegisterOutboxEventBatch>
+    public class RegisterOutboxEventConsumer(MailInboxTransaction mailInboxTransaction, IBus bus) : IConsumer<RegisterOutboxEventBatch>
     {
         public async Task Consume(ConsumeContext<RegisterOutboxEventBatch> context)
         {
-            await mailInboxTransaction.AddMailInboxAsync(context.Message.Events, CancellationToken.None);
+            await mailInboxTransaction.AddMailInboxAsync(context.Message.RegisterOutboxes, CancellationToken.None);
 
             var getAllRegisterOutbox = await mailInboxTransaction.GetAllMailInbox();
 
@@ -27,7 +28,7 @@ namespace Checkpoint.MailService.Consumers
                     stringBuilder.Append(ch);
                 }
 
-                MailSentEvent mailSentEvent = new()
+                MailSentEvent mailSentEvent = new(context.Message.CorrelationId)
                 {
                     Email = item.Mail,
                     CompanyName = item.CorporateName,
@@ -37,7 +38,9 @@ namespace Checkpoint.MailService.Consumers
                 await mailInboxTransaction.SaveChangesAsync(CancellationToken.None);
 
                 //bu kısım mail atma kısmı. Burada password'u kullanıcıya mail yoluyla döneceğiz.
-                await publishEndpoint.Publish(mailSentEvent);
+
+                var sendEndPoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.StateMachine}"));
+                await sendEndPoint.Send(mailSentEvent);
             }
         }
     }
