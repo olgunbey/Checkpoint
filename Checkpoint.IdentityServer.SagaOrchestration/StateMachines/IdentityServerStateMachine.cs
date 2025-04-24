@@ -34,6 +34,7 @@ namespace Checkpoint.IdentityServer.SagaOrchestration.StateMachines
                 .Then(context =>
                 {
                     context.Saga.CreatedDate = DateTime.UtcNow;
+
                     _logger.LogInformation("Event gönderildi correlationId:", context.Saga.CorrelationId);
 
                 })
@@ -49,10 +50,16 @@ namespace Checkpoint.IdentityServer.SagaOrchestration.StateMachines
             During(RegisterOutboxEventBatchState,
                 When(MailSentEvent)
                 .TransitionTo(MailSentEventState)
+                .Then(context =>
+                {
+                    context.Saga.Email = context.Message.Email;
+                })
                 .Send(new Uri($"queue:{QueueConfigurations.MailSentEvent}"),
                 context => new MailSentEvent(context.Saga.CorrelationId)
                 {
                     Email = context.Message.Email,
+                    Password = context.Message.Password,
+                    CompanyName = context.Message.CompanyName,
                 }));
 
             SetCompletedWhenFinalized();

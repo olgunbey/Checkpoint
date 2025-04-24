@@ -8,7 +8,7 @@ namespace Checkpoint.IdentityServer.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Corporate> builder)
         {
-            builder.Property(y => y.Password).IsRequired(false);
+            builder.Property(y => y.InvitationId).IsRequired(false);
         }
     }
 }

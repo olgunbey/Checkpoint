@@ -12,6 +12,7 @@ namespace Checkpoint.MailService.Data.DatabaseTransactions
             {
                 Mail = y.Mail,
                 CorporateName = y.CompanyName,
+                Password = y.Password,
                 Processed = false
             });
 

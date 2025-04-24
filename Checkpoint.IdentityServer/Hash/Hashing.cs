@@ -14,5 +14,22 @@ namespace Checkpoint.IdentityServer.Hash
             }
             return byteSecretKey;
         }
+
+        public static string HashPassword(string data)
+        {
+            byte[] byteSecretKey;
+            using (var hash = SHA512.Create())
+            {
+                byteSecretKey = hash.ComputeHash(Encoding.UTF8.GetBytes(data));
+            }
+
+            StringBuilder strBuilder = new();
+
+            foreach (var key in byteSecretKey)
+            {
+                strBuilder.Append(key.ToString("x2"));
+            }
+            return strBuilder.ToString();
+        }
     }
 }

@@ -6,6 +6,7 @@
         public bool Processed { get; set; }
         public string Mail { get; set; }
         public required string CorporateName { get; set; }
+        public string Password { get; set; }
 
     }
 }

@@ -31,5 +31,10 @@ namespace Checkpoint.IdentityServer.Controllers
         {
             return Ok();
         }
+        [HttpGet]
+        public async Task<IActionResult> CorporateVerification([FromQuery] string email, [FromHeader] string verificationData)
+        {
+            return Ok();
+        }
     }
 }

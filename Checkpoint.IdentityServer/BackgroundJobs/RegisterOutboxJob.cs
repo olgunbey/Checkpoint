@@ -32,6 +32,7 @@ namespace Checkpoint.IdentityServer.BackgroundJobs
                     {
                         Mail = y.Mail,
                         CompanyName = y.CompanyName,
+                        Password = y.Password
                     }).ToList()
                 };
 
