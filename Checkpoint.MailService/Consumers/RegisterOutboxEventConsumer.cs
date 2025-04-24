@@ -32,12 +32,13 @@ namespace Checkpoint.MailService.Consumers
                 {
                     Email = item.Mail,
                     CompanyName = item.CorporateName,
-                    Password = stringBuilder.ToString()
+                    Password = item.Password
                 };
                 item.Processed = true;
                 await mailInboxTransaction.SaveChangesAsync(CancellationToken.None);
 
                 //bu kısım mail atma kısmı. Burada password'u kullanıcıya mail yoluyla döneceğiz.
+
 
                 var sendEndPoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.StateMachine}"));
                 await sendEndPoint.Send(mailSentEvent);

@@ -1,4 +1,5 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
+using Checkpoint.IdentityServer.Hash;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -11,7 +12,8 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             Shared.Events.RegisterOutbox registerOutboxEvent = new()
             {
                 Mail = registerCorporateDto.Mail,
-                CompanyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0]
+                CompanyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0],
+                Password = Hashing.HashPassword(registerCorporateDto.Password)
             };
             identityDbContext.RegisterOutbox.Add(new Entities.Outbox.RegisterOutbox()
             {
@@ -20,6 +22,8 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
                 Payload = JsonSerializer.Serialize(registerOutboxEvent),
             });
             await identityDbContext.SaveChangesAsync(cancellationToken);
+
+
         }
         public async Task<List<Entities.Outbox.RegisterOutbox>> ProcessedRegister()
         {

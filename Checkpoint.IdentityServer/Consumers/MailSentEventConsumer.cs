@@ -13,6 +13,7 @@ namespace Checkpoint.IdentityServer.Consumers
             {
                 Mail = context.Message.Email,
                 Password = context.Message.Password,
+                VerificationCode = Verification.GenerateVerification(),
                 CompanyId = companyTransaction.GetCompanyByCompanyName(context.Message.CompanyName).Result!.Id,
             });
             await identityDbContext.SaveChangesAsync(CancellationToken.None);
