@@ -1,8 +1,9 @@
 ﻿namespace Shared.Events
 {
-    public class RegisterOutboxEvent
+    public class RegisterOutbox
     {
         public string Mail { get; set; }
         public string CompanyName { get; set; }
+
     }
 }

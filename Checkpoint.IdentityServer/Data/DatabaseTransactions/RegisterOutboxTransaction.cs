@@ -1,7 +1,5 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
-using Checkpoint.IdentityServer.Entities.Outbox;
 using Microsoft.EntityFrameworkCore;
-using Shared.Events;
 using System.Text.Json;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
@@ -10,7 +8,7 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
     {
         public async Task AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
         {
-            RegisterOutboxEvent registerOutboxEvent = new()
+            Shared.Events.RegisterOutbox registerOutboxEvent = new()
             {
                 Mail = registerCorporateDto.Mail,
                 CompanyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0]
@@ -23,7 +21,7 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             });
             await identityDbContext.SaveChangesAsync(cancellationToken);
         }
-        public async Task<List<RegisterOutbox>> ProcessedRegister()
+        public async Task<List<Entities.Outbox.RegisterOutbox>> ProcessedRegister()
         {
             var notProcessedDate = identityDbContext.RegisterOutbox.Where(y => y.ProcessedDate == null);
             var data = await notProcessedDate.ToListAsync();

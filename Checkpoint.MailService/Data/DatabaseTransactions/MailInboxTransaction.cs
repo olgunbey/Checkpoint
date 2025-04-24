@@ -6,7 +6,7 @@ namespace Checkpoint.MailService.Data.DatabaseTransactions
 {
     public class MailInboxTransaction(IMailDbContext mailInboxDbContext)
     {
-        public async Task AddMailInboxAsync(List<RegisterOutboxEvent> registerOutboxEvents, CancellationToken cancellationToken)
+        public async Task AddMailInboxAsync(List<RegisterOutbox> registerOutboxEvents, CancellationToken cancellationToken)
         {
             var registerCorporateMails = registerOutboxEvents.Select(y => new RegisterInbox()
             {
