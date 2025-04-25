@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddServices();
 builder.Services.AddDbContext<MailDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
-builder.Services.AddMassTransit(config =>
+builder.Services.AddMassTransit<IBus>(config =>
 {
     config.AddConsumer<RegisterOutboxEventConsumer>();
     config.UsingRabbitMq((context, configurator) =>

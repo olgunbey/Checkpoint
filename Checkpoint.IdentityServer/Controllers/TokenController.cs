@@ -12,7 +12,6 @@ namespace Checkpoint.IdentityServer.Controllers
         [HttpGet]
         public async Task<IActionResult> GetToken(GetTokenRequestDto getTokenRequest)
         {
-            //burda kaldım
             var response = await corporateTokenService.GetToken(getTokenRequest);
             return Ok(response);
         }

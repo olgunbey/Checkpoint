@@ -33,7 +33,8 @@ namespace Checkpoint.IdentityServer.BackgroundJobs
                         Mail = y.Mail,
                         CompanyName = y.CompanyName,
                         Password = y.Password
-                    }).ToList()
+                    }).ToList(),
+                    Email = JsonSerializer.Serialize(registerOutboxEvents.Select(y => y.Mail).ToList())
                 };
 
                 var sendEndPoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.StateMachine}"));
