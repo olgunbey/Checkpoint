@@ -2,9 +2,9 @@
 
 namespace Shared.Events
 {
-    public class RegisterOutboxEventBatch : CorrelatedBy<Guid>
+    public class RegisterOutboxEvent : CorrelatedBy<Guid>
     {
-        public RegisterOutboxEventBatch(Guid correlationId)
+        public RegisterOutboxEvent(Guid correlationId)
         {
             CorrelationId = correlationId;
         }

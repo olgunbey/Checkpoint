@@ -11,10 +11,8 @@ namespace Checkpoint.IdentityServer.SagaOrchestration.StateMachines
         private readonly ILogger<IdentityServerStateMachine> _logger;
 
         public Event<RegisterStartEvent> RegisterStartEvent { get; set; }
-        public Event<RegisterOutboxEventBatch> RegisterOutboxEventBatchEvent { get; set; }
-        public Event<MailSentEvent> MailSentEvent { get; set; }
-        public State RegisterOutboxEventBatchState { get; set; }
-        public State MailSentEventState { get; set; }
+        public Event<RegisterOutboxEvent> RegisterOutboxEvent { get; set; }
+        public State RegisterInbox { get; set; }
         public IdentityServerStateMachine(ILogger<IdentityServerStateMachine> logger)
         {
             _logger = logger;
@@ -24,43 +22,24 @@ namespace Checkpoint.IdentityServer.SagaOrchestration.StateMachines
                  x => x.SelectId(context => Guid.NewGuid()));
 
 
-            Event(() => RegisterOutboxEventBatchEvent, stateInstance => stateInstance.CorrelateById(@event => @event.Message.CorrelationId));
+            Event(() => RegisterOutboxEvent, stateInstance => stateInstance.CorrelateById(@event => @event.Message.CorrelationId));
 
-
-            Event(() => MailSentEvent, stateInstance => stateInstance.CorrelateById(@event => @event.Message.CorrelationId));
 
 
             Initially(When(RegisterStartEvent)
                 .Then(context =>
                 {
                     context.Saga.CreatedDate = DateTime.UtcNow;
-
-                    _logger.LogInformation("Event gönderildi correlationId:", context.Saga.CorrelationId);
-
+                    context.Saga.Email = context.Message.Email;
                 })
-                .TransitionTo(RegisterOutboxEventBatchState)
+                .TransitionTo(RegisterInbox)
                 .Send(new Uri($"queue:{QueueConfigurations.RegisterOutboxQueue}"),
-                context => new RegisterOutboxEventBatch(context.Saga.CorrelationId)
+                context => new RegisterOutboxEvent(context.Saga.CorrelationId)
                 {
-                    RegisterOutboxes = context.Message.RegisterOutboxes
-
+                    RegisterOutboxes = context.Message.RegisterOutboxes,
                 })
                 );
 
-            During(RegisterOutboxEventBatchState,
-                When(MailSentEvent)
-                .TransitionTo(MailSentEventState)
-                .Then(context =>
-                {
-                    context.Saga.Email = context.Message.Email;
-                })
-                .Send(new Uri($"queue:{QueueConfigurations.MailSentEvent}"),
-                context => new MailSentEvent(context.Saga.CorrelationId)
-                {
-                    Email = context.Message.Email,
-                    Password = context.Message.Password,
-                    CompanyName = context.Message.CompanyName,
-                }));
 
             SetCompletedWhenFinalized();
 

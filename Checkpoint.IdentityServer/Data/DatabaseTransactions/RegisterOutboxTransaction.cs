@@ -9,17 +9,32 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
     {
         public async Task AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
         {
+            string companyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0];
+            string hashingPassword = Hashing.HashPassword(registerCorporateDto.Password);
             Shared.Events.RegisterOutbox registerOutboxEvent = new()
             {
                 Mail = registerCorporateDto.Mail,
-                CompanyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0],
-                Password = Hashing.HashPassword(registerCorporateDto.Password)
+                CompanyName = companyName,
+                Password = hashingPassword
             };
             identityDbContext.RegisterOutbox.Add(new Entities.Outbox.RegisterOutbox()
             {
                 EventType = registerOutboxEvent.GetType().Name,
                 ProcessedDate = null,
                 Payload = JsonSerializer.Serialize(registerOutboxEvent),
+            });
+            var hasCompany = await identityDbContext.Company.FirstOrDefaultAsync(y => y.Key == companyName);
+
+            if (hasCompany == null)
+            {
+                throw new Exception("Not found Company!!");
+            }
+            identityDbContext.Corporate.Add(new Entities.Corporate()
+            {
+                Mail = registerCorporateDto.Mail,
+                Password = hashingPassword,
+                VerificationCode = Verification.GenerateVerification(),
+                CompanyId = hasCompany.Id
             });
             await identityDbContext.SaveChangesAsync(cancellationToken);
 

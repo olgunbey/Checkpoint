@@ -1,47 +1,42 @@
-﻿using Checkpoint.MailService.Data.DatabaseTransactions;
+﻿using Checkpoint.MailService.Entities;
+using Checkpoint.MailService.Interfaces;
 using MassTransit;
-using Shared;
 using Shared.Events;
 using System.Data;
-using System.Text;
 
 namespace Checkpoint.MailService.Consumers
 {
-    public class RegisterOutboxEventConsumer(MailInboxTransaction mailInboxTransaction, IBus bus) : IConsumer<RegisterOutboxEventBatch>
+    public class RegisterOutboxEventConsumer(IBus bus, IMailDbContext mailDbContext) : IConsumer<RegisterOutboxEvent>
     {
-        public async Task Consume(ConsumeContext<RegisterOutboxEventBatch> context)
+        public async Task Consume(ConsumeContext<RegisterOutboxEvent> context)
         {
-            await mailInboxTransaction.AddMailInboxAsync(context.Message.RegisterOutboxes, CancellationToken.None);
-
-            var getAllRegisterOutbox = await mailInboxTransaction.GetAllMailInbox();
-
-            var queryAbleRegisterOutbox = getAllRegisterOutbox.Where(y => !y.Processed).ToList();
-
-            Random rnd = new Random();
-            foreach (var item in queryAbleRegisterOutbox)
+            var registerCorporateMails = context.Message.RegisterOutboxes.Select(y => new RegisterInbox()
             {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 1; i <= 10; i++)
+                Mail = y.Mail,
+                CorporateName = y.CompanyName,
+                Password = y.Password,
+                Processed = false
+            });
+
+            mailDbContext.RegisterInbox.AddRange(registerCorporateMails);
+            await mailDbContext.SaveChangesAsync(CancellationToken.None);
+
+            var getAllRegisterInbox = mailDbContext.RegisterInbox.Where(y => !y.Processed).ToList();
+
+            foreach (var registerInbox in getAllRegisterInbox)
+            {
+                try
                 {
-                    int ascii = rnd.Next(48, 91);
-                    char ch = (char)ascii;
-                    stringBuilder.Append(ch);
+                    registerInbox.Processed = true;
+                    await mailDbContext.SaveChangesAsync(CancellationToken.None);
+
+                    //bu kısım mail atma kısmı. Burada password'u kullanıcıya mail yoluyla döneceğiz.
+
                 }
-
-                MailSentEvent mailSentEvent = new(context.Message.CorrelationId)
+                catch (Exception)
                 {
-                    Email = item.Mail,
-                    CompanyName = item.CorporateName,
-                    Password = item.Password
-                };
-                item.Processed = true;
-                await mailInboxTransaction.SaveChangesAsync(CancellationToken.None);
-
-                //bu kısım mail atma kısmı. Burada password'u kullanıcıya mail yoluyla döneceğiz.
-
-
-                var sendEndPoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.StateMachine}"));
-                await sendEndPoint.Send(mailSentEvent);
+                    continue;
+                }
             }
         }
     }
