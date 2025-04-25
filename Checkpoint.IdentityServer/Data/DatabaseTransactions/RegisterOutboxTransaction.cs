@@ -1,13 +1,14 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Hash;
 using Microsoft.EntityFrameworkCore;
+using Shared.Common;
 using System.Text.Json;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
 {
     public class RegisterOutboxTransaction(IdentityDbContext identityDbContext)
     {
-        public async Task AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
+        public async Task<ResponseDto<NoContent>> AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
         {
             string companyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0];
 
@@ -43,6 +44,9 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             await identityDbContext.SaveChangesAsync(cancellationToken);
 
 
+            return ResponseDto<NoContent>.Success(204);
+
+
         }
         public async Task<List<Entities.Outbox.RegisterOutbox>> ProcessedRegister()
         {
@@ -50,6 +54,18 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             var data = await notProcessedDate.ToListAsync();
             await notProcessedDate.ExecuteUpdateAsync(setter => setter.SetProperty(x => x.ProcessedDate, DateTime.UtcNow));
             return data;
+        }
+        public async Task<ResponseDto<NoContent>> CorporateVerification(string email, string verificationCode)
+        {
+            bool hasCorporate = await identityDbContext.Corporate.AnyAsync(y => y.Mail == email && y.VerificationCode == verificationCode);
+
+            if (!hasCorporate)
+            {
+                return ResponseDto<NoContent>.Fail("Not found corporate", 404);
+            }
+            return ResponseDto<NoContent>.Success(204);
+
+
         }
     }
 }

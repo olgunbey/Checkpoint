@@ -1,5 +1,6 @@
 ﻿using Checkpoint.API.Common;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Common;
 
 namespace Checkpoint.API.ResponseHandler
 {

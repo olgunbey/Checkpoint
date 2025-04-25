@@ -1,6 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
-namespace Checkpoint.API.Common
+namespace Shared.Common
 {
     public class ResponseDto<T>
     {
@@ -28,5 +33,4 @@ namespace Checkpoint.API.Common
         }
 
     }
-
 }

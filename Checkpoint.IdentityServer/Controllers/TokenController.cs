@@ -15,25 +15,7 @@ namespace Checkpoint.IdentityServer.Controllers
             var response = await corporateTokenService.GetToken(getTokenRequest);
             return Ok(response);
         }
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterCorporateDto registerCorporateDto)
-        {
-            await registerOutboxTransaction.AddRegisterAsync(registerCorporateDto, CancellationToken.None);
-            return Ok("kayıt yapıldı");
-        }
-        [HttpGet]
+  
 
-        //burada bir Authorize attribute'si olacak. Bu kullanıcının role( yani çalıştığı ekibi alacak,
-        //ardından bu ekibe dahil olan kullanıcıları listeleyecek)
-        //
-        public async Task<IActionResult> GetAllUserInSelectedCompany()
-        {
-            return Ok();
-        }
-        [HttpGet]
-        public async Task<IActionResult> CorporateVerification([FromQuery] string email, [FromHeader] string verificationData)
-        {
-            return Ok();
-        }
     }
 }
