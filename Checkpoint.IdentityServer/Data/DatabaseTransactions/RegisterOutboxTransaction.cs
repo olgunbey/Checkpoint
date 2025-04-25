@@ -10,12 +10,16 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
         public async Task AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
         {
             string companyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0];
+
             string hashingPassword = Hashing.HashPassword(registerCorporateDto.Password);
+            string verificationCode = Verification.GenerateVerification();
+
             Shared.Events.RegisterOutbox registerOutboxEvent = new()
             {
                 Mail = registerCorporateDto.Mail,
                 CompanyName = companyName,
-                Password = hashingPassword
+                Password = hashingPassword,
+                VerificationCode = verificationCode
             };
             identityDbContext.RegisterOutbox.Add(new Entities.Outbox.RegisterOutbox()
             {
@@ -33,7 +37,7 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             {
                 Mail = registerCorporateDto.Mail,
                 Password = hashingPassword,
-                VerificationCode = Verification.GenerateVerification(),
+                VerificationCode = verificationCode,
                 CompanyId = hasCompany.Id
             });
             await identityDbContext.SaveChangesAsync(cancellationToken);

@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Checkpoint.MailService.Consumers
 {
-    public class RegisterOutboxEventConsumer(IBus bus, IMailDbContext mailDbContext) : IConsumer<RegisterOutboxEvent>
+    public class RegisterOutboxEventConsumer(IBus bus, IMailDbContext mailDbContext, MailServices.MailService mailService) : IConsumer<RegisterOutboxEvent>
     {
         public async Task Consume(ConsumeContext<RegisterOutboxEvent> context)
         {
@@ -15,7 +15,8 @@ namespace Checkpoint.MailService.Consumers
                 Mail = y.Mail,
                 CorporateName = y.CompanyName,
                 Password = y.Password,
-                Processed = false
+                Processed = false,
+                VerificationCode = y.VerificationCode
             });
 
             mailDbContext.RegisterInbox.AddRange(registerCorporateMails);
@@ -25,16 +26,22 @@ namespace Checkpoint.MailService.Consumers
 
             foreach (var registerInbox in getAllRegisterInbox)
             {
+                registerInbox.Processed = true;
+                await mailDbContext.SaveChangesAsync(CancellationToken.None);
+
                 try
                 {
-                    registerInbox.Processed = true;
-                    await mailDbContext.SaveChangesAsync(CancellationToken.None);
-
-                    //bu kısım mail atma kısmı. Burada password'u kullanıcıya mail yoluyla döneceğiz.
+                    await mailService.SendEmail(registerInbox.Mail, "Verification", registerInbox.VerificationCode);
 
                 }
                 catch (Exception)
                 {
+                    mailDbContext.NotSentMail.Add(new NotSentMail()
+                    {
+                        Email = registerInbox.Mail,
+                        VerificationCode = registerInbox.VerificationCode,
+                    });
+                    await mailDbContext.SaveChangesAsync(CancellationToken.None);
                     continue;
                 }
             }

@@ -21,6 +21,30 @@ namespace Checkpoint.MailService.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Checkpoint.MailService.Entities.NotSentMail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Processed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NotSentMail");
+                });
+
             modelBuilder.Entity("Checkpoint.MailService.Entities.RegisterInbox", b =>
                 {
                     b.Property<int>("Id")
@@ -43,6 +67,10 @@ namespace Checkpoint.MailService.Migrations
 
                     b.Property<bool>("Processed")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

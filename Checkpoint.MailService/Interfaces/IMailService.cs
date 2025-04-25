@@ -2,6 +2,6 @@
 {
     public interface IMailService
     {
-        void SendEmail(string toEmail, string subject);
+        Task SendEmail(string toEmail, string subject, string verificationCode);
     }
 }

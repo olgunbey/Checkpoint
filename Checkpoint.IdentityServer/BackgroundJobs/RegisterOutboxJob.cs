@@ -32,7 +32,8 @@ namespace Checkpoint.IdentityServer.BackgroundJobs
                     {
                         Mail = y.Mail,
                         CompanyName = y.CompanyName,
-                        Password = y.Password
+                        Password = y.Password,
+                        VerificationCode = y.VerificationCode,
                     }).ToList(),
                     Email = JsonSerializer.Serialize(registerOutboxEvents.Select(y => y.Mail).ToList())
                 };
