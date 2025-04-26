@@ -7,15 +7,21 @@ namespace Checkpoint.IdentityServer.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class TokenController(RegisterOutboxTransaction registerOutboxTransaction, CorporateTokenService corporateTokenService) : ControllerBase
+    public class TokenController(RegisterOutboxTransaction registerOutboxTransaction, CorporateTokenService corporateTokenService) : BaseController
     {
         [HttpGet]
         public async Task<IActionResult> GetToken(GetTokenRequestDto getTokenRequest)
         {
-            var response = await corporateTokenService.GetToken(getTokenRequest);
-            return Ok(response);
+            //return Handlers(await corporateTokenService.GetToken(getTokenRequest));
+            return Ok();
         }
-  
+        //bunu şuan UserLoginDto olarak düşün
+        [HttpPost]
+        public async Task<IActionResult> Login(CorporateLoginDto corporateLoginDto)
+        {
+
+            return Ok();
+        }
 
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Carter;
-using Checkpoint.API.Common;
 using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Common;
 
 namespace Checkpoint.API.Features.Project.Command
 {
@@ -16,22 +16,19 @@ namespace Checkpoint.API.Features.Project.Command
             {
                 public Dto.Request RequestDto { get; set; }
             }
-            internal sealed class Handler : CustomIRequestHandler<Request, NoContent>
+            internal sealed class Handler(IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, NoContent>
             {
-                private readonly IApplicationDbContext _applicationDbContext;
-                public Handler(IApplicationDbContext applicationDbContext)
-                {
-                    _applicationDbContext = applicationDbContext;
-                }
+
+
                 public async Task<ResponseDto<NoContent>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    _applicationDbContext.Project.Add(new Entities.Project()
+                    applicationDbContext.Project.Add(new Entities.Project()
                     {
                         ProjectName = request.RequestDto.ProjectName,
                         CreateUserId = request.RequestDto.CreateUserId,
                     });
-                    await _applicationDbContext.SaveChangesAsync(cancellationToken);
-                    return ResponseDto<NoContent>.Success(203);
+                    await applicationDbContext.SaveChangesAsync(cancellationToken);
+                    return ResponseDto<NoContent>.Success(204);
                 }
             }
         }

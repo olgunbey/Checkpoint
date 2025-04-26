@@ -17,26 +17,26 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             }
             return hasCorporate;
         }
-        public async Task<Corporate> CorporateSelectedRoleAndPermissionList(Corporate corporate)
-        {
-            var entryCorporate = identityDbContext.Corporate.Entry(corporate);
+        //public async Task<Corporate> CorporateSelectedRoleAndPermissionList(Corporate corporate)
+        //{
+        //    var entryCorporate = identityDbContext.Corporate.Entry(corporate);
 
-            var taskPermission = entryCorporate
-                .Collection(y => y.UserPermissions)
-                .Query()
-                .Include(y => y.Permission)
-                .LoadAsync();
+        //    var taskPermission = entryCorporate
+        //        .Collection(y => y.UserPermissions)
+        //        .Query()
+        //        .Include(y => y.Permission)
+        //        .LoadAsync();
 
-            var taskRole = entryCorporate
-                .Collection(y => y.UserRoles)
-                .Query()
-                .Include(y => y.Role)
-                .LoadAsync();
+        //    var taskRole = entryCorporate
+        //        .Collection(y => y.UserRoles)
+        //        .Query()
+        //        .Include(y => y.Role)
+        //        .LoadAsync();
 
-            await Task.WhenAll(taskPermission, taskRole);
-            return corporate;
+        //    await Task.WhenAll(taskPermission, taskRole);
+        //    return corporate;
 
-        }
+        //}
 
         public async Task AddCorporate(Corporate corporate, CancellationToken cancellationToken)
         {

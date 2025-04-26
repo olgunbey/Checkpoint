@@ -1,11 +1,11 @@
 ﻿using Carter;
-using Checkpoint.API.Common;
 using Checkpoint.API.Enums;
 using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared.Common;
 
 namespace Checkpoint.API.Features.Project.Query
 {
@@ -17,21 +17,17 @@ namespace Checkpoint.API.Features.Project.Query
             {
                 public Dto.Request RequestDto { get; set; }
             }
-            internal sealed class Handler : CustomIRequestHandler<Request, Dto.Response>
+            internal sealed class Handler(IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, Dto.Response>
             {
-                private readonly IApplicationDbContext _applicationDbContext;
-                public Handler(IApplicationDbContext applicationDbContext)
-                {
-                    _applicationDbContext = applicationDbContext;
-                }
+
                 public async Task<ResponseDto<Dto.Response>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    Entities.Project? project = await _applicationDbContext.Project.FindAsync(request.RequestDto.Id);
+                    Entities.Project? project = await applicationDbContext.Project.FindAsync(request.RequestDto.Id);
 
                     if (project == null)
                         throw new NotFoundProjectException("proje bulunamadı");
 
-                    await _applicationDbContext.Project.Entry(project).Collection(y => y.BaseUrls).Query()
+                    await applicationDbContext.Project.Entry(project).Collection(y => y.BaseUrls).Query()
                           .Include(y => y.Controllers)
                           .ThenInclude(y => y.Actions)
                           .LoadAsync(cancellationToken);

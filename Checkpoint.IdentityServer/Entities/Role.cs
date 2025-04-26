@@ -3,8 +3,8 @@
     public class Role
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
-        public ICollection<UserRole> UserRoles { get; set; }
-        public ICollection<CompanyRoles> CompanyRoles { get; set; }
+        public string Name { get; set; }
+        public ICollection<UserTeamRole> UserTeamRoles { get; set; }
+        public ICollection<CompanyRole> CompanyRoles { get; set; }
     }
 }

@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public required string Name { get; set; }
         public required string Key { get; set; }
-        public ICollection<Corporate> Corporate { get; set; }
-        public ICollection<CompanyRoles> CompanyRoles { get; set; }
+
+        public ICollection<CompanyRole> CompanyRole { get; set; }
     }
 }

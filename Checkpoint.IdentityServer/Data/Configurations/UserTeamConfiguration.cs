@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Checkpoint.IdentityServer.Data.Configurations
 {
-    public class UserPermissionConfiguration : IEntityTypeConfiguration<UserPermission>
+    public class UserTeamConfiguration : IEntityTypeConfiguration<UserTeam>
     {
-        public void Configure(EntityTypeBuilder<UserPermission> builder)
+        public void Configure(EntityTypeBuilder<UserTeam> builder)
         {
             builder.Property(y => y.IndividualId).IsRequired(false);
             builder.Property(y => y.CorporateId).IsRequired(false);

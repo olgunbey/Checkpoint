@@ -1,5 +1,4 @@
 ﻿using Carter;
-using Checkpoint.API.Common;
 using Checkpoint.API.Entities;
 using Checkpoint.API.Enums;
 using Checkpoint.API.Interfaces;
@@ -8,6 +7,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared.Common;
 
 namespace Checkpoint.API.Features.Request.Query
 {
@@ -19,22 +19,17 @@ namespace Checkpoint.API.Features.Request.Query
             {
                 public Dto.Request RequestDto { get; set; }
             }
-            internal sealed class Handler : CustomIRequestHandler<Request, Dto.Response>
+            internal sealed class Handler(IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, Dto.Response>
             {
-                private readonly IApplicationDbContext _applicationDbContext;
-                public Handler(IApplicationDbContext applicationDbContext)
-                {
-                    _applicationDbContext = applicationDbContext;
-                }
 
                 public async Task<ResponseDto<Dto.Response>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    BaseUrl? baseUrl = await _applicationDbContext.BaseUrl.FindAsync(request.RequestDto.Id);
+                    BaseUrl? baseUrl = await applicationDbContext.BaseUrl.FindAsync(request.RequestDto.Id);
                     if (baseUrl == null)
                         throw new BaseUrlNotFoundException($"Not found BaseUrl-{request.RequestDto.Id} ");
 
 
-                    await _applicationDbContext.BaseUrl.Entry(baseUrl)
+                    await applicationDbContext.BaseUrl.Entry(baseUrl)
                         .Collection(y => y.Controllers)
                         .Query()
                         .Include(y => y.Actions)

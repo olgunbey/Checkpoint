@@ -4,8 +4,10 @@ using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using FluentValidation;
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared.Common;
 
 namespace Checkpoint.API.Features.Request.Command
 {
@@ -18,17 +20,13 @@ namespace Checkpoint.API.Features.Request.Command
                 public Dto.Request RequestDto { get; set; }
 
             }
-            internal sealed class Handler : CustomIRequestHandler<Request, NoContent>
+            internal sealed class Handler(IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, NoContent>
             {
-                private readonly IApplicationDbContext _applicationDbContext;
-                public Handler(IApplicationDbContext applicationDbContext)
-                {
-                    _applicationDbContext = applicationDbContext;
-                }
+
                 public async Task<ResponseDto<NoContent>> Handle(Request request, CancellationToken cancellationToken)
                 {
 
-                    var baseUrlFilter = _applicationDbContext.BaseUrl.Where(y => y.Id == request.RequestDto.BaseUrlId).Include(y => y.Controllers);
+                    var baseUrlFilter = applicationDbContext.BaseUrl.Where(y => y.Id == request.RequestDto.BaseUrlId).Include(y => y.Controllers);
 
                     if (request.RequestDto.ControllerId != 0)
                     {
@@ -65,7 +63,7 @@ namespace Checkpoint.API.Features.Request.Command
 
                         });
                     }
-                    await _applicationDbContext.SaveChangesAsync(cancellationToken);
+                    await applicationDbContext.SaveChangesAsync(cancellationToken);
                     return ResponseDto<NoContent>.Success(203);
                 }
             }

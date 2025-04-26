@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.IdentityServer.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20250419142650_RegisterOutboxTable")]
-    partial class RegisterOutboxTable
+    [Migration("20250426113038_rolepermissiontableupdated")]
+    partial class rolepermissiontableupdated
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,6 +79,52 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.ToTable("Company");
                 });
 
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.CompanyPermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("CompanyPermission");
+                });
+
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.CompanyRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("CompanyRole");
+                });
+
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Corporate", b =>
                 {
                     b.Property<int>("Id")
@@ -90,11 +136,22 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("InvitationId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Mail")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Verification")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -191,26 +248,16 @@ namespace Checkpoint.IdentityServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CorporateId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("IndividualId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CorporateId");
-
-                    b.HasIndex("IndividualId");
-
                     b.ToTable("Team");
                 });
 
-            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserPermission", b =>
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeam", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -223,22 +270,45 @@ namespace Checkpoint.IdentityServer.Migrations
 
                     b.Property<int?>("IndividualId")
                         .HasColumnType("integer");
+
+                    b.Property<int>("TeamId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorporateId");
+
+                    b.HasIndex("IndividualId");
+
+                    b.HasIndex("TeamId");
+
+                    b.ToTable("UserTeam");
+                });
+
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeamPermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PermissionId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("UserTeamId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("CorporateId");
-
-                    b.HasIndex("IndividualId");
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("UserPermission");
+                    b.HasIndex("UserTeamId");
+
+                    b.ToTable("UserTeamPermission");
                 });
 
-            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserRole", b =>
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeamRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -246,30 +316,63 @@ namespace Checkpoint.IdentityServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CorporateId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("IndividualId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("RoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserTeamId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CorporateId");
-
-                    b.HasIndex("IndividualId");
-
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRole");
+                    b.HasIndex("UserTeamId");
+
+                    b.ToTable("UserTeamRole");
+                });
+
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.CompanyPermission", b =>
+                {
+                    b.HasOne("Checkpoint.IdentityServer.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Checkpoint.IdentityServer.Entities.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Permission");
+                });
+
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.CompanyRole", b =>
+                {
+                    b.HasOne("Checkpoint.IdentityServer.Entities.Company", "Company")
+                        .WithMany("CompanyRole")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Checkpoint.IdentityServer.Entities.Role", "Role")
+                        .WithMany("CompanyRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Corporate", b =>
                 {
                     b.HasOne("Checkpoint.IdentityServer.Entities.Company", "Company")
-                        .WithMany("Corporate")
+                        .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -277,98 +380,104 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Team", b =>
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeam", b =>
                 {
                     b.HasOne("Checkpoint.IdentityServer.Entities.Corporate", "Corporate")
                         .WithMany("Teams")
                         .HasForeignKey("CorporateId");
 
                     b.HasOne("Checkpoint.IdentityServer.Entities.Individual", "Individual")
-                        .WithMany("Teams")
+                        .WithMany("UserTeams")
                         .HasForeignKey("IndividualId");
+
+                    b.HasOne("Checkpoint.IdentityServer.Entities.Team", "Team")
+                        .WithMany("UserTeams")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Corporate");
 
                     b.Navigation("Individual");
+
+                    b.Navigation("Team");
                 });
 
-            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserPermission", b =>
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeamPermission", b =>
                 {
-                    b.HasOne("Checkpoint.IdentityServer.Entities.Corporate", "Corporate")
-                        .WithMany("UserPermissions")
-                        .HasForeignKey("CorporateId");
-
-                    b.HasOne("Checkpoint.IdentityServer.Entities.Individual", "Individual")
-                        .WithMany("UserPermissions")
-                        .HasForeignKey("IndividualId");
-
                     b.HasOne("Checkpoint.IdentityServer.Entities.Permission", "Permission")
-                        .WithMany("UserPermissions")
+                        .WithMany("CorporateTeamPermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Corporate");
-
-                    b.Navigation("Individual");
+                    b.HasOne("Checkpoint.IdentityServer.Entities.UserTeam", "UserTeam")
+                        .WithMany("UserTeamPermissions")
+                        .HasForeignKey("UserTeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Permission");
+
+                    b.Navigation("UserTeam");
                 });
 
-            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserRole", b =>
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeamRole", b =>
                 {
-                    b.HasOne("Checkpoint.IdentityServer.Entities.Corporate", "Corporate")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("CorporateId");
-
-                    b.HasOne("Checkpoint.IdentityServer.Entities.Individual", "Individual")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("IndividualId");
-
                     b.HasOne("Checkpoint.IdentityServer.Entities.Role", "Role")
-                        .WithMany("UserRoles")
+                        .WithMany("UserTeamRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Corporate");
-
-                    b.Navigation("Individual");
+                    b.HasOne("Checkpoint.IdentityServer.Entities.UserTeam", "UserTeam")
+                        .WithMany("UserTeamRoles")
+                        .HasForeignKey("UserTeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Role");
+
+                    b.Navigation("UserTeam");
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Company", b =>
                 {
-                    b.Navigation("Corporate");
+                    b.Navigation("CompanyRole");
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Corporate", b =>
                 {
                     b.Navigation("Teams");
-
-                    b.Navigation("UserPermissions");
-
-                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Individual", b =>
                 {
-                    b.Navigation("Teams");
-
-                    b.Navigation("UserPermissions");
-
-                    b.Navigation("UserRoles");
+                    b.Navigation("UserTeams");
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Permission", b =>
                 {
-                    b.Navigation("UserPermissions");
+                    b.Navigation("CorporateTeamPermissions");
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Role", b =>
                 {
-                    b.Navigation("UserRoles");
+                    b.Navigation("CompanyRoles");
+
+                    b.Navigation("UserTeamRoles");
+                });
+
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Team", b =>
+                {
+                    b.Navigation("UserTeams");
+                });
+
+            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeam", b =>
+                {
+                    b.Navigation("UserTeamPermissions");
+
+                    b.Navigation("UserTeamRoles");
                 });
 #pragma warning restore 612, 618
         }
