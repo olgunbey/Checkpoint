@@ -16,8 +16,8 @@ namespace Checkpoint.IdentityServer.TokenServices
         {
             var teams = corporate.UserTeams.Select(y => new
             {
-                TeamId = y.TeamId,
-                RoleId = y.UserTeamRoles.Single().RoleId,
+                y.TeamId,
+                y.UserTeamRoles.Single().RoleId,
                 PermissionIds = y.UserTeamPermissions.Select(p => p.PermissionId).ToList()
             }).ToList();
 
@@ -27,7 +27,6 @@ namespace Checkpoint.IdentityServer.TokenServices
             {
                 new Claim("teams", teamsJson)
             };
-
 
 
             DateTime expires = DateTime.UtcNow.AddMinutes(1);

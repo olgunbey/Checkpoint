@@ -30,11 +30,8 @@ namespace Checkpoint.IdentityServer.Services
 
             await corporate.Collection(y => y.UserTeams)
                 .Query()
-                .Include(y => y.Team)
                 .Include(y => y.UserTeamRoles)
-                .ThenInclude(y => y.Role)
                 .Include(y => y.UserTeamPermissions)
-                .ThenInclude(y => y.Permission)
                  .LoadAsync();
 
             var responseToken = await corporateTokenService.CorporateToken(corporate.Entity, hasClient.Issuer, hasClient.Audience, hasClient.ClientSecret);
