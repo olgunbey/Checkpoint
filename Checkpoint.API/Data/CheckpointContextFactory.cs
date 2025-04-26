@@ -7,8 +7,13 @@ namespace Checkpoint.API.Data
     {
         public CheckpointDbContext CreateDbContext(string[] args)
         {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.Development.json")
+            .Build();
+
             var dbContextOptions = new DbContextOptionsBuilder<CheckpointDbContext>();
-            dbContextOptions.UseNpgsql("Host=localhost;Username=postgres;Password=checkpointpassword;Port=5432;Database=CheckpointDb");
+            dbContextOptions.UseNpgsql(configuration.GetConnectionString("checkpoint"));
             return new CheckpointDbContext(dbContextOptions.Options);
 
         }
