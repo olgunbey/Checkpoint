@@ -1,0 +1,46 @@
+﻿using Checkpoint.IdentityServer.Dtos;
+using Checkpoint.IdentityServer.Entities;
+using Checkpoint.IdentityServer.Hash;
+using Checkpoint.IdentityServer.Interfaces;
+using Checkpoint.IdentityServer.TokenServices;
+using Microsoft.EntityFrameworkCore;
+using Shared.Common;
+
+namespace Checkpoint.IdentityServer.Services
+{
+    public class UserServices(IIdentityDbContext identityDbContext, TokenService corporateTokenService)
+    {
+        public async Task<ResponseDto<TokenResponseDto>> Login(CorporateLoginDto corporateLoginDto)
+        {
+            var hasClient = await identityDbContext.Client.FirstOrDefaultAsync(y => y.ClientId == corporateLoginDto.ClientId && y.ClientSecret == corporateLoginDto.ClientSecret);
+
+            if (hasClient == null)
+            {
+                return ResponseDto<TokenResponseDto>.Fail("not found client", 404);
+            }
+
+            Corporate? hasCorporate = await identityDbContext.Corporate.FirstOrDefaultAsync(y => y.Mail == corporateLoginDto.Email && y.Password == Hashing.HashPassword(corporateLoginDto.Password));
+
+            if (hasCorporate == null)
+            {
+                return ResponseDto<TokenResponseDto>.Fail("not found corporate", 404);
+            }
+
+            var corporate = identityDbContext.Corporate.Entry(hasCorporate);
+
+            await corporate.Collection(y => y.UserTeams)
+                .Query()
+                .Include(y => y.Team)
+                .Include(y => y.UserTeamRoles)
+                .ThenInclude(y => y.Role)
+                .Include(y => y.UserTeamPermissions)
+                .ThenInclude(y => y.Permission)
+                 .LoadAsync();
+
+            var responseToken = await corporateTokenService.CorporateToken(corporate.Entity, hasClient.Issuer, hasClient.Audience, hasClient.ClientSecret);
+
+            return ResponseDto<TokenResponseDto>.Success(responseToken, 200);
+
+        }
+    }
+}

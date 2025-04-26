@@ -8,7 +8,7 @@
         public int CompanyId { get; set; }
         public int? InvitationId { get; set; }
         public Company Company { get; set; }
-        public ICollection<UserTeam> Teams { get; set; }
+        public ICollection<UserTeam> UserTeams { get; set; }
         public string VerificationCode { get; set; }
         public bool Verification { get; set; } = false;
     }

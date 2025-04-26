@@ -7,7 +7,7 @@ namespace Checkpoint.IdentityServer.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class TokenController(RegisterOutboxTransaction registerOutboxTransaction, CorporateTokenService corporateTokenService) : BaseController
+    public class TokenController(RegisterOutboxTransaction registerOutboxTransaction, TokenService corporateTokenService) : BaseController
     {
         [HttpGet]
         public async Task<IActionResult> GetToken(GetTokenRequestDto getTokenRequest)

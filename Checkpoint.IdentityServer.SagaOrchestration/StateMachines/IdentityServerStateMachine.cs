@@ -31,6 +31,7 @@ namespace Checkpoint.IdentityServer.SagaOrchestration.StateMachines
                 {
                     context.Saga.CreatedDate = DateTime.UtcNow;
                     context.Saga.Email = context.Message.Email;
+                    _logger.LogInformation("Saga:  "+context.Saga.CorrelationId.ToString()+ context.Saga.Email);
                 })
                 .TransitionTo(RegisterInbox)
                 .Send(new Uri($"queue:{QueueConfigurations.RegisterOutboxQueue}"),
