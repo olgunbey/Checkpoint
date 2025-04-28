@@ -1,5 +1,6 @@
 ﻿using Checkpoint.IdentityServer.Data;
 using Checkpoint.IdentityServer.Data.DatabaseTransactions;
+using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Interfaces;
 using Checkpoint.IdentityServer.Services;
 using Checkpoint.IdentityServer.TokenServices;
@@ -17,6 +18,7 @@ namespace Checkpoint.IdentityServer
             services.AddScoped<TokenService>();
             services.AddScoped<ClientTransaction>();
             services.AddScoped<UserServices>();
+            services.AddSingleton<CorporateTokenDto>();
             return services;
         }
     }

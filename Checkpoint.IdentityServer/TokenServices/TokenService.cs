@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 
+
 namespace Checkpoint.IdentityServer.TokenServices
 {
     public class TokenService(IdentityDbContext identityDbContext)
@@ -25,9 +26,11 @@ namespace Checkpoint.IdentityServer.TokenServices
 
             var claims = new List<Claim>
             {
-                new Claim("teams", teamsJson)
+                new Claim("teams", teamsJson),
+                new Claim(JwtRegisteredClaimNames.Sub,corporate.Id.ToString())
             };
 
+            
 
             DateTime expires = DateTime.UtcNow.AddMinutes(1);
 

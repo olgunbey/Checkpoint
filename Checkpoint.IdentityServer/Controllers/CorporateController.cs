@@ -1,5 +1,6 @@
 ﻿using Checkpoint.IdentityServer.Data.DatabaseTransactions;
 using Checkpoint.IdentityServer.Dtos;
+using Checkpoint.IdentityServer.Filters;
 using Checkpoint.IdentityServer.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,7 @@ namespace Checkpoint.IdentityServer.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserServices userServices) : BaseController
+    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserServices userServices, CorporateLoginDto corporateLoginDto) : BaseController
     {
         [HttpPost]
         public async Task<IActionResult> CorporateRegister([FromBody] RegisterCorporateDto registerCorporateDto)
@@ -24,6 +25,12 @@ namespace Checkpoint.IdentityServer.Controllers
         public async Task<IActionResult> CorporateVerification([FromQuery] string email, [FromHeader] string verificationData)
         {
             return Handlers(await registerOutboxTransaction.CorporateVerification(email, verificationData));
+
+        }
+        [HttpGet]
+        [ServiceFilter(typeof(CorporateFilter))]
+        public async Task<IActionResult> CorporateAddRole(string teamId)
+        {
 
         }
     }

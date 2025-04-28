@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Checkpoint.IdentityServer.Dtos;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Checkpoint.IdentityServer.Filters
 {
@@ -11,6 +12,8 @@ namespace Checkpoint.IdentityServer.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            var corporateTokenDto = context.HttpContext.RequestServices.GetRequiredService<CorporateTokenDto>();
+            var userClams = context.HttpContext.User.Claims.ToList();
             throw new NotImplementedException();
         }
     }
