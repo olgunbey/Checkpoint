@@ -47,10 +47,14 @@ namespace Checkpoint.IdentityServer.TokenServices
             {
                 AccessToken = token,
                 AccessToken_LifeTime = expires,
-                RefreshToken = "refresh",
+                RefreshToken = GenerateRefreshToken(),
                 RefreshToken_LifeTime = DateTime.UtcNow.AddDays(5)
             });
 
+        }
+        private string GenerateRefreshToken()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 }
