@@ -2,8 +2,10 @@
 using Checkpoint.IdentityServer.Data.DatabaseTransactions;
 using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Interfaces;
+using Checkpoint.IdentityServer.Policies;
 using Checkpoint.IdentityServer.Services;
 using Checkpoint.IdentityServer.TokenServices;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Checkpoint.IdentityServer
 {
@@ -19,6 +21,7 @@ namespace Checkpoint.IdentityServer
             services.AddScoped<ClientTransaction>();
             services.AddScoped<UserServices>();
             services.AddSingleton<CorporateTokenDto>();
+            services.AddSingleton<IAuthorizationHandler, CorporateAddRole>();
             return services;
         }
     }

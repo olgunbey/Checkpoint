@@ -1,6 +1,7 @@
 using Checkpoint.IdentityServer;
 using Checkpoint.IdentityServer.BackgroundJobs;
 using Checkpoint.IdentityServer.Data;
+using Checkpoint.IdentityServer.Policies;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using MassTransit;
@@ -13,6 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddServices();
+
+builder.Services.AddAuthorization(configure =>
+configure.AddPolicy("CorporateAddRole", configureBuilder =>
+configureBuilder.AddRequirements(new CorporateAddRoleRequirement())));
+
+
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
 builder.Services.AddMassTransit<IBus>(configure =>
 {

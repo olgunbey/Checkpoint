@@ -10,7 +10,7 @@ namespace Checkpoint.IdentityServer.Services
 {
     public class UserServices(IIdentityDbContext identityDbContext, TokenService corporateTokenService)
     {
-        public async Task<ResponseDto<TokenResponseDto>> Login(CorporateLoginDto corporateLoginDto)
+        public async Task<ResponseDto<TokenResponseDto>> LoginAsync(CorporateLoginDto corporateLoginDto)
         {
             var hasClient = await identityDbContext.Client.FirstOrDefaultAsync(y => y.ClientId == corporateLoginDto.ClientId && y.ClientSecret == corporateLoginDto.ClientSecret);
 
@@ -38,6 +38,19 @@ namespace Checkpoint.IdentityServer.Services
 
             return ResponseDto<TokenResponseDto>.Success(responseToken, 200);
 
+        }
+
+        public async Task AddRoleAsync(int teamId, string roleName, int userId)
+        {
+            identityDbContext.Role.Add(
+                new Role()
+                {
+                    CreateUserId = userId,
+                    Name = roleName,
+                    TeamId = teamId,
+                });
+
+            await identityDbContext.SaveChangesAsync(CancellationToken.None);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Checkpoint.IdentityServer.TokenServices
                 new Claim(JwtRegisteredClaimNames.Sub,corporate.Id.ToString())
             };
 
-            
+
 
             DateTime expires = DateTime.UtcNow.AddMinutes(1);
 
