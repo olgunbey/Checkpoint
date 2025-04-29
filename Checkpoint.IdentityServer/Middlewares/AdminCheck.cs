@@ -18,7 +18,6 @@ namespace Checkpoint.IdentityServer.Middlewares
             {
                 var userTeams = httpContext.User.Claims.Single(y => y.Type == "teams");
                 var deserializeData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
-
                 if (deserializeData.Any(y => y.Permissions.Any(y => y == Constants.Permission.Admin)))
                 {
                     httpContext.Items["AdminByPass"] = true;

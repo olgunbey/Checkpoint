@@ -28,12 +28,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = "https://localhost:5000",
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            RequireExpirationTime = true,
             IssuerSigningKey = new SymmetricSecurityKey(Hashing.Hash("checkpointsecret"))
         };
     });
-
-
 builder.Services.AddServices();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorization(configure =>
