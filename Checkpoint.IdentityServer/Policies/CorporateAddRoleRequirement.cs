@@ -1,22 +1,35 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace Checkpoint.IdentityServer.Policies
 {
-    //Burada corporate'ye rol ekleme yetkisi olanlar erişebilecek
     public class CorporateAddRoleRequirement : IAuthorizationRequirement
     {
     }
-    public class CorporateAddRole : AuthorizationHandler<CorporateAddRoleRequirement>
+    public class CorporateAddRole(CorporateTokenDto corporateTokenDto, IHttpContextAccessor httpContext) : AuthorizationHandler<CorporateAddRoleRequirement>
     {
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, CorporateAddRoleRequirement requirement)
         {
-            var userClaims = context.User.Claims.ToList();
-            var userTeam = context.User.Claims.Single(y => y.Value == "teams");
+            var userTeams = context.User.Claims.Single(y => y.Type == "teams");
 
-            var data = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeam.Value);
-            Console.WriteLine("test123");
+
+            var deserializeData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
+
+
+            if ((bool)httpContext.HttpContext.Items["AdminByPass"] == true)
+            {
+                corporateTokenDto.CorporateId = Int16.Parse(context.User.Claims.Single(y => y.Type == ClaimTypes.NameIdentifier).Value);
+                corporateTokenDto.CompanyId = Int16.Parse(context.User.Claims.Single(y => y.Type == "companyId").Value);
+                context.Succeed(requirement);
+            }
+            else if (deserializeData.Any(y => y.Permissions.Any(x => x == Constants.Permission.Rol_Ekleme)))
+            {
+                corporateTokenDto.CorporateId = Int16.Parse(context.User.Claims.Single(y => y.Type == ClaimTypes.NameIdentifier).Value);
+                corporateTokenDto.CompanyId = Int16.Parse(context.User.Claims.Single(y => y.Type == "companyId").Value);
+                context.Succeed(requirement);
+            }
             return;
         }
     }

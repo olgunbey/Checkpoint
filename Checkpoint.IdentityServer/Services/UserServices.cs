@@ -31,7 +31,9 @@ namespace Checkpoint.IdentityServer.Services
             await corporate.Collection(y => y.UserTeams)
                 .Query()
                 .Include(y => y.UserTeamRoles)
+                .ThenInclude(y => y.Role)
                 .Include(y => y.UserTeamPermissions)
+                .ThenInclude(y => y.Permission)
                  .LoadAsync();
 
             var responseToken = await corporateTokenService.CorporateToken(corporate.Entity, hasClient.Issuer, hasClient.Audience, hasClient.ClientSecret);
@@ -40,16 +42,18 @@ namespace Checkpoint.IdentityServer.Services
 
         }
 
-        public async Task AddRoleAsync(int teamId, string roleName, int userId)
+        public async Task<ResponseDto<NoContent>> AddRoleAsync(int teamId, string roleName, int userId)
         {
             identityDbContext.Role.Add(
                 new Role()
                 {
                     CreateUserId = userId,
-                    Name = roleName
+                    Name = roleName,
+                    TeamId = teamId,
                 });
 
             await identityDbContext.SaveChangesAsync(CancellationToken.None);
+            return ResponseDto<NoContent>.Success(204);
         }
     }
 }

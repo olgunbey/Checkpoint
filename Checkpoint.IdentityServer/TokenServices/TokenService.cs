@@ -18,21 +18,23 @@ namespace Checkpoint.IdentityServer.TokenServices
             var teams = corporate.UserTeams.Select(y => new
             {
                 y.TeamId,
-                y.UserTeamRoles.Single().RoleId,
-                PermissionIds = y.UserTeamPermissions.Select(p => p.PermissionId).ToList()
+                Role = y.UserTeamRoles.Select(y => y.Role.Name).Single(),
+                Permissions = y.UserTeamPermissions.Select(p => p.Permission.Name).ToList(),
             }).ToList();
 
             var teamsJson = JsonConvert.SerializeObject(teams);
 
+
             var claims = new List<Claim>
             {
                 new Claim("teams", teamsJson),
+                new Claim("companyId",corporate.CompanyId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub,corporate.Id.ToString())
             };
 
 
 
-            DateTime expires = DateTime.UtcNow.AddMinutes(1);
+            DateTime expires = DateTime.UtcNow.AddMinutes(30);
 
             var securityKey = new SymmetricSecurityKey(Hashing.Hash(clientSecret));
 
