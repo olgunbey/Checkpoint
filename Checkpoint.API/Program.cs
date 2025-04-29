@@ -1,11 +1,14 @@
 using Carter;
 using Checkpoint.API.Data;
+using FluentValidation;
 using Scalar.AspNetCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
 
 builder.Services.AddOpenApi();
 

@@ -1,4 +1,4 @@
-﻿namespace Checkpoint.IdentityServer.Dtos
+﻿namespace Shared.Dtos
 {
     public class CorporateJwtModel
     {

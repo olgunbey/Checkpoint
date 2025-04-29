@@ -1,4 +1,5 @@
 ﻿using Carter;
+using Carter.ModelBinding;
 using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using FluentValidation;
@@ -6,7 +7,10 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Shared.Common;
+using Shared.Constants;
+using Shared.Dtos;
 
 namespace Checkpoint.API.Features.Request.Command
 {
@@ -21,7 +25,6 @@ namespace Checkpoint.API.Features.Request.Command
             }
             internal sealed class Handler(IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, NoContent>
             {
-
                 public async Task<ResponseDto<NoContent>> Handle(Request request, CancellationToken cancellationToken)
                 {
 
@@ -59,6 +62,9 @@ namespace Checkpoint.API.Features.Request.Command
                                 new Entities.Action()
                                 {
                                     ActionPath = request.RequestDto.ActionPath,
+                                    Query = request.RequestDto.Query,
+                                    Header = request.RequestDto.Header,
+                                    Body = request.RequestDto.Body,
                                 }
                             }
 
@@ -103,12 +109,42 @@ namespace Checkpoint.API.Features.Request.Command
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapPost("api/request/addrequestInfo", Handler);
+                app.MapPost("api/request/addrequestInfo", Handler).AddEndpointFilter<EndpointFilter>();
             }
             public async Task<IActionResult> Handler([FromBody] Dto.Request requestDto, IMediator mediator, HttpContext httpContext)
             {
                 var response = await mediator.Send(new Mediatr.Request() { RequestDto = requestDto });
                 return Handlers(response, httpContext);
+            }
+        }
+
+        public class EndpointFilter : IEndpointFilter
+        {
+            public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+            {
+                var requestDto = context.Arguments.FirstOrDefault(arg => arg is Dto.Request) as Dto.Request;
+
+                var result = await context.HttpContext.Request.ValidateAsync(requestDto);
+                if (!result.IsValid)
+                {
+                    var errors = result.Errors.Select(y => y.ErrorMessage).ToList();
+                    return Results.BadRequest(new
+                    {
+                        Message = "Validation Failed",
+                        Errors = errors
+                    });
+                }
+
+                var userTeams = context.HttpContext.User.Claims.Single(y => y.Type == "teams");
+
+                var deserializerData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
+
+                if (!deserializerData.Any(y => y.Permissions.Any(y => y == Permission.Ekleme)))
+                {
+                    return Results.Forbid();
+                }
+                return await next(context);
+
             }
         }
 
