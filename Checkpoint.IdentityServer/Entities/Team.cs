@@ -6,6 +6,7 @@
         public string Name { get; set; }
         public int CompanyId { get; set; }
         public Company Company { get; set; }
+        public ICollection<Role> Roles { get; set; }
         public ICollection<UserTeam> UserTeams { get; set; }
     }
 }
