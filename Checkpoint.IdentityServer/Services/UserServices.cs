@@ -46,8 +46,7 @@ namespace Checkpoint.IdentityServer.Services
                 new Role()
                 {
                     CreateUserId = userId,
-                    Name = roleName,
-                    TeamId = teamId,
+                    Name = roleName
                 });
 
             await identityDbContext.SaveChangesAsync(CancellationToken.None);
