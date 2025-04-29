@@ -1,5 +1,4 @@
 ﻿using Carter;
-using Checkpoint.API.Common;
 using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using FluentValidation;
@@ -26,14 +25,16 @@ namespace Checkpoint.API.Features.Request.Command
                 public async Task<ResponseDto<NoContent>> Handle(Request request, CancellationToken cancellationToken)
                 {
 
-                    var baseUrlFilter = applicationDbContext.BaseUrl.Where(y => y.Id == request.RequestDto.BaseUrlId).Include(y => y.Controllers);
+                    var baseUrlFilter = applicationDbContext.BaseUrl
+                        .Where(y => y.Id == request.RequestDto.BaseUrlId)
+                        .Include(y => y.Controllers);
 
                     if (request.RequestDto.ControllerId != 0)
                     {
 
                         Entities.Action addAction = new()
                         {
-                            CreateUserId = 1,
+                            CreateUserId = request.RequestDto.CreateUserId,
                             ControllerId = request.RequestDto.ControllerId,
                             ActionPath = request.RequestDto.ActionPath,
                         };
@@ -54,17 +55,17 @@ namespace Checkpoint.API.Features.Request.Command
                             ControllerPath = request.RequestDto.ControllerPath,
                             BaseUrlId = request.RequestDto.BaseUrlId,
                             Actions = new List<Entities.Action>()
-                        {
-                            new Entities.Action()
                             {
-                                ActionPath = request.RequestDto.ActionPath,
+                                new Entities.Action()
+                                {
+                                    ActionPath = request.RequestDto.ActionPath,
+                                }
                             }
-                        }
 
                         });
                     }
                     await applicationDbContext.SaveChangesAsync(cancellationToken);
-                    return ResponseDto<NoContent>.Success(203);
+                    return ResponseDto<NoContent>.Success(204);
                 }
             }
         }
@@ -81,13 +82,21 @@ namespace Checkpoint.API.Features.Request.Command
                 public string Query { get; set; }
                 public string Header { get; set; }
                 public string Body { get; set; }
+                public int CreateUserId { get; set; }
             }
         }
-        internal sealed class Validator : AbstractValidator<Entities.BaseUrl>
+        internal sealed class Validator : AbstractValidator<Dto.Request>
         {
             public Validator()
             {
-                RuleFor(y => y.BasePath).NotEmpty().NotNull();
+                RuleFor(y => y.BaseUrlId).NotEmpty().NotNull();
+                RuleFor(y => y.ControllerId).Empty().Null();
+                RuleFor(y => y.ControllerPath).NotEmpty().NotNull();
+                RuleFor(y => y.ActionPath).NotEmpty().NotNull();
+                RuleFor(y => y.Query).Null().Empty();
+                RuleFor(y => y.Header).Null().Empty();
+                RuleFor(y => y.Body).Null().Empty();
+
             }
         }
         public sealed class Endpoint : ApiResponseController, ICarterModule

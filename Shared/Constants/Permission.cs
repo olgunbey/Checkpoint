@@ -1,4 +1,4 @@
-﻿namespace Checkpoint.IdentityServer.Constants
+﻿namespace Shared.Constants
 {
     public class Permission
     {

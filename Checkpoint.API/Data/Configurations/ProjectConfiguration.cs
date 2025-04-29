@@ -9,6 +9,7 @@ namespace Checkpoint.API.Data.Configurations
         public void Configure(EntityTypeBuilder<Project> builder)
         {
             builder.Property(y => y.IndividualId).IsRequired(false);
+            builder.Property(y => y.TeamId).IsRequired(false);
         }
     }
 }
