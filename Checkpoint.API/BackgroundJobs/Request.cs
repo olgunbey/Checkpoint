@@ -1,5 +1,7 @@
-﻿using Checkpoint.API.Interfaces;
+﻿using Checkpoint.API.Events;
+using Checkpoint.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -12,6 +14,7 @@ namespace Checkpoint.API.BackgroundJobs
             var actions = await checkpointDbContext.Action.Include(y => y.Controller)
                   .ThenInclude(y => y.BaseUrl).ToListAsync();
 
+            ConcurrentBag<EventData> eventDatas = new();
             await Parallel.ForEachAsync(actions, async (_action, ct) =>
             {
                 var stopWatch = new Stopwatch();
@@ -76,17 +79,21 @@ namespace Checkpoint.API.BackgroundJobs
 
                     stopWatch.Stop();
                     long responseTime = stopWatch.ElapsedMilliseconds;
-                    if (httpResponseMessage.IsSuccessStatusCode)
+
+                    EventData @event = new EventData()
                     {
-
-                    }
-                    else
-                    {
-
-                    }
-
+                        ActionId = _action.ActionPath,
+                        RequestStatus = httpResponseMessage.IsSuccessStatusCode,
+                        ResponseTimeMs = responseTime,
+                        StatusCode = (int)httpResponseMessage.StatusCode,
+                        TimeStamp = DateTime.UtcNow,
+                        Url = endUrl,
+                    };
+                    eventDatas.Add(@event);
                 }
             });
+
+            //burda eventStore ekle
         }
     }
 }
