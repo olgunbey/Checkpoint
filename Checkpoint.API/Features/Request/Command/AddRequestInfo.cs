@@ -120,8 +120,11 @@ namespace Checkpoint.API.Features.Request.Command
         {
             public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
             {
+                if (context.HttpContext.Items.TryGetValue("AdminByPass", out object? data))
+                {
+                    return await next(context);
+                }
                 var requestDto = context.Arguments.FirstOrDefault(arg => arg is Dto.Request) as Dto.Request;
-
                 var result = await context.HttpContext.Request.ValidateAsync(requestDto);
                 if (!result.IsValid)
                 {
@@ -133,10 +136,13 @@ namespace Checkpoint.API.Features.Request.Command
                     });
                 }
 
-                var userTeams = context.HttpContext.User.Claims.Single(y => y.Type == "teams");
+                var userTeams = context.HttpContext.User.Claims.FirstOrDefault(y => y.Type == "teams");
+                if (userTeams == null)
+                {
+                    return Results.Forbid();
+                }
 
                 var deserializerData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
-
                 if (!deserializerData.Any(y => y.Permissions.Any(y => y == Permission.Ekleme)))
                 {
                     return Results.Forbid();
