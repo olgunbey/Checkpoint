@@ -62,9 +62,9 @@ namespace Checkpoint.API.Features.Request.Command
                                 new Entities.Action()
                                 {
                                     ActionPath = request.RequestDto.ActionPath,
-                                    Query = JsonConvert.DeserializeObject<RequestPayloads.Query>(request.RequestDto.Query),
-                                    Header = JsonConvert.DeserializeObject<RequestPayloads.Header>(request.RequestDto.Header),
-                                    Body = JsonConvert.DeserializeObject<RequestPayloads.Body>(request.RequestDto.Body),
+                                    Query = JsonConvert.DeserializeObject<List<RequestPayloads.Query>>(request.RequestDto.Query),
+                                    Header = JsonConvert.DeserializeObject<List<RequestPayloads.Header>>(request.RequestDto.Header),
+                                    Body = JsonConvert.DeserializeObject<List<RequestPayloads.Body>>(request.RequestDto.Body),
                                 }
                             }
 

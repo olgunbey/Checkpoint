@@ -1,5 +1,6 @@
 ﻿using Checkpoint.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Checkpoint.API.Data
 {
@@ -7,7 +8,10 @@ namespace Checkpoint.API.Data
     {
         public static IServiceCollection GetDataServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<CheckpointDbContext>(u => u.UseNpgsql(configuration.GetConnectionString("checkpoint")));
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(configuration.GetConnectionString("checkpoint"));
+            dataSourceBuilder.EnableDynamicJson();
+            var dataSource = dataSourceBuilder.Build();
+            services.AddDbContext<CheckpointDbContext>(u => u.UseNpgsql(dataSource));
             services.AddScoped<IApplicationDbContext, CheckpointDbContext>();
             return services;
         }

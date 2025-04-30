@@ -10,8 +10,8 @@ namespace Checkpoint.API.Entities
         public int ControllerId { get; set; }
         public Controller? Controller { get; set; }
         public RequestType RequestType { get; set; }
-        public Body? Body { get; set; }
-        public Header? Header { get; set; }
-        public Query? Query { get; set; }
+        public List<Body>? Body { get; set; }
+        public List<Header>? Header { get; set; }
+        public List<Query>? Query { get; set; }
     }
 }

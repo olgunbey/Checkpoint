@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Checkpoint.API.RequestPayloads;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -8,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.API.Migrations
 {
     /// <inheritdoc />
-    public partial class BaseMigration : Migration
+    public partial class BaseMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,9 +90,9 @@ namespace Checkpoint.API.Migrations
                     ActionPath = table.Column<string>(type: "text", nullable: false),
                     ControllerId = table.Column<int>(type: "integer", nullable: false),
                     RequestType = table.Column<int>(type: "integer", nullable: false),
-                    Body = table.Column<Body>(type: "jsonb", nullable: true),
-                    Header = table.Column<Header>(type: "jsonb", nullable: true),
-                    Query = table.Column<Query>(type: "jsonb", nullable: true),
+                    Body = table.Column<List<Body>>(type: "jsonb", nullable: true),
+                    Header = table.Column<List<Header>>(type: "jsonb", nullable: true),
+                    Query = table.Column<List<Query>>(type: "jsonb", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreateUserId = table.Column<int>(type: "integer", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
