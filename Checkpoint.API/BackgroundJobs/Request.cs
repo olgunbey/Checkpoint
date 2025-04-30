@@ -1,4 +1,6 @@
 ﻿using Checkpoint.API.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace Checkpoint.API.BackgroundJobs
@@ -7,98 +9,84 @@ namespace Checkpoint.API.BackgroundJobs
     {
         public async Task ExecuteJob(CancellationToken cancellationToken)
         {
-            var action = checkpointDbContext.Action.FirstOrDefault();
+            var actions = await checkpointDbContext.Action.Include(y => y.Controller)
+                  .ThenInclude(y => y.BaseUrl).ToListAsync();
 
-            Dictionary<string, object> bodyDict = new();
-            Dictionary<string, object> queryDict = new();
-            Dictionary<string, object> headerDict = new();
-            if (action == null)
+            await Parallel.ForEachAsync(actions, async (_action, ct) =>
             {
-                return;
-            }
-            if (action.Query != null)
-            {
-                foreach (var item in action.Query!)
+                var stopWatch = new Stopwatch();
+                stopWatch.Start();
+                List<string> paths = new List<string>()
                 {
-                    if (item.Value is JsonElement element)
+                    _action.Controller!.BaseUrl!.BasePath,
+                    _action.Controller.ControllerPath,
+                    _action.ActionPath
+                };
+
+                HttpRequestMessage httpRequestMessage = new();
+                string url = string.Join("/", paths);
+
+                if (_action.Header != null)
+                {
+                    foreach (var header in _action.Header)
                     {
-                        RequestPayloadDeserializer.ParseJsonElementValue(element, out object data);
-                        queryDict[item.Key] = data;
+                        if (header.Value is JsonElement element)
+                        {
+                            httpRequestMessage.Headers.Add(header.Key, header.Value.ToString());
+                        }
+                    }
+                }
+                if (_action.Body != null)
+                {
+                    Dictionary<string, object> bodyDict = new();
+                    foreach (var body in _action.Body)
+                    {
+                        if (body.Value is JsonElement element)
+                        {
+                            RequestPayloadDeserializer.ParseJsonElementValue(element, out object data);
+                            bodyDict[body.Key] = data;
+                        }
+                    }
+                    httpRequestMessage.Content = JsonContent.Create(bodyDict);
+                }
+                if (_action.Query != null)
+                {
+                    List<string> queries = new List<string>();
+                    foreach (var query in _action.Query)
+                    {
+                        if (query.Value is JsonElement element)
+                        {
+                            queries.Add($"{query.Key}={Uri.EscapeDataString(query.Value.ToString())}");
+                        }
+                    }
+                    string queryUrl = string.Join("&", queries);
+
+                    string endUrl = string.Join("?", url, queryUrl);
+                    httpRequestMessage.RequestUri = new Uri(endUrl);
+
+                    httpRequestMessage.Method = _action.RequestType switch
+                    {
+                        Enums.RequestType.Get => HttpMethod.Get,
+                        Enums.RequestType.Put => HttpMethod.Put,
+                        Enums.RequestType.Delete => HttpMethod.Delete,
+                        Enums.RequestType.Post => HttpMethod.Post,
+                    };
+
+                    HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
+
+                    stopWatch.Stop();
+                    long responseTime = stopWatch.ElapsedMilliseconds;
+                    if (httpResponseMessage.IsSuccessStatusCode)
+                    {
+
+                    }
+                    else
+                    {
+
                     }
 
                 }
-            }
-            if (action.Body != null)
-            {
-                foreach (var item in action.Query!)
-                {
-                    if (item.Value is JsonElement element)
-                    {
-                        RequestPayloadDeserializer.ParseJsonElementValue(element, out object data);
-                        bodyDict[item.Key] = data;
-                    }
-                }
-            }
-            if (action.Header != null)
-            {
-                foreach (var item in action.Query!)
-                {
-                    if (item.Value is JsonElement element)
-                    {
-                        RequestPayloadDeserializer.ParseJsonElementValue(element, out object data);
-                        headerDict[item.Key] = data;
-                    }
-
-                }
-            }
-
-            HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
-
-            HttpMethod httpMethod = action.RequestType switch
-            {
-                Enums.RequestType.Get => HttpMethod.Get,
-                Enums.RequestType.Put => HttpMethod.Put,
-                Enums.RequestType.Delete => HttpMethod.Delete,
-                Enums.RequestType.Post => HttpMethod.Post,
-            };
-            httpRequestMessage.Method = httpMethod;
-
-            if (queryDict.Any())
-            {
-                string queryString = string.Join("&", queryDict.Where(kvp => kvp.Value != null)
-                      .Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value.ToString())}"));
-
-                string url = $"https://localhost:5000/api/user/getUser?{queryString}";
-
-                httpRequestMessage.RequestUri = new Uri(url);
-
-            }
-            if (headerDict.Any())
-            {
-                foreach (var item in headerDict)
-                {
-                    httpRequestMessage.Headers.Add(item.Key, item.Value.ToString());
-                }
-            }
-            if (bodyDict.Any())
-            {
-                httpRequestMessage.Content = JsonContent.Create(bodyDict);
-            }
-
-
-            HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-
-            if (httpResponseMessage.IsSuccessStatusCode)
-            {
-                Console.WriteLine("Başarılı");
-            }
-            else
-            {
-                Console.WriteLine("Başarısız");
-            }
-
-
-            return;
+            });
         }
     }
 }
