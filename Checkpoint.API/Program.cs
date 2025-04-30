@@ -1,6 +1,9 @@
 using Carter;
+using Checkpoint.API.BackgroundJobs;
 using Checkpoint.API.Data;
 using FluentValidation;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -12,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
+builder.Services.AddHangfire(y => y.UseMemoryStorage());
+builder.Services.AddHangfireServer();
 builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -38,13 +43,15 @@ builder.Services.AddCarter();
 var app = builder.Build();
 
 
+app.UseHangfireDashboard();
+RecurringJob.AddOrUpdate<Request>("request-job", req => req.ExecuteJob(CancellationToken.None), "*/15 * * * * *");
 
 app.MapScalarApiReference();
 
 app.MapOpenApi();
 
 app.UseHttpsRedirection();
-
+app.UseHangfireDashboard();
 app.UseAuthentication();
 app.UseMiddleware<AdminCheck>();
 app.UseAuthorization();

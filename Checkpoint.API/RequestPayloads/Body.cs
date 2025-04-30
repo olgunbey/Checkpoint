@@ -5,7 +5,7 @@ namespace Checkpoint.API.RequestPayloads
     public class Body : IRequestPayload
     {
         public string Key { get; set; }
-        public string Value { get; set; }
-        public Enums.ValueType ValueType { get; set; }
+        public object Value { get; set; }
+
     }
 }

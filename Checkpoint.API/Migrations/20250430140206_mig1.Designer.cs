@@ -14,8 +14,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.API.Migrations
 {
     [DbContext(typeof(CheckpointDbContext))]
-    [Migration("20250430135509_BaseMig")]
-    partial class BaseMig
+    [Migration("20250430140206_mig1")]
+    partial class mig1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
