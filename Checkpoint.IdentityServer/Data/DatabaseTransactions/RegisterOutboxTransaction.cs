@@ -1,7 +1,7 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
-using Checkpoint.IdentityServer.Hash;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
+using Shared.Hash;
 using System.Text.Json;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions

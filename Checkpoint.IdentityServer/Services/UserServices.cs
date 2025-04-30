@@ -1,10 +1,10 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Entities;
-using Checkpoint.IdentityServer.Hash;
 using Checkpoint.IdentityServer.Interfaces;
 using Checkpoint.IdentityServer.TokenServices;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
+using Shared.Hash;
 
 namespace Checkpoint.IdentityServer.Services
 {

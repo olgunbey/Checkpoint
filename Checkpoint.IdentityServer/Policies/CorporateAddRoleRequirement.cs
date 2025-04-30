@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
 using Shared.Constants;
+using Shared.Dtos;
 using System.Security.Claims;
 
 namespace Checkpoint.IdentityServer.Policies

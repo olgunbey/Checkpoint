@@ -75,7 +75,6 @@ namespace Checkpoint.API.Features.Request.Command
                 }
             }
         }
-
         internal sealed class Dto
         {
             internal sealed record Request
@@ -117,7 +116,6 @@ namespace Checkpoint.API.Features.Request.Command
                 return Handlers(response, httpContext);
             }
         }
-
         public class EndpointFilter : IEndpointFilter
         {
             public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
@@ -144,10 +142,8 @@ namespace Checkpoint.API.Features.Request.Command
                     return Results.Forbid();
                 }
                 return await next(context);
-
             }
         }
-
 
     }
 }

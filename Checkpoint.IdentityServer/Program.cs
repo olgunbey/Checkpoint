@@ -1,8 +1,6 @@
 using Checkpoint.IdentityServer;
 using Checkpoint.IdentityServer.BackgroundJobs;
 using Checkpoint.IdentityServer.Data;
-using Checkpoint.IdentityServer.Hash;
-using Checkpoint.IdentityServer.Middlewares;
 using Checkpoint.IdentityServer.Policies;
 using Hangfire;
 using Hangfire.MemoryStorage;
@@ -11,6 +9,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Shared.Hash;
+using Shared.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,8 +1,9 @@
-﻿using Checkpoint.IdentityServer.Dtos;
+﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Shared.Constants;
+using Shared.Dtos;
 
-namespace Checkpoint.IdentityServer.Middlewares
+namespace Shared.Middlewares
 {
     public class AdminCheck
     {

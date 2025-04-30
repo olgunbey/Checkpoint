@@ -1,9 +1,9 @@
 ﻿using Checkpoint.IdentityServer.Data;
 using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Entities;
-using Checkpoint.IdentityServer.Hash;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Shared.Hash;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 

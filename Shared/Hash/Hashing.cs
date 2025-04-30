@@ -1,7 +1,11 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace Checkpoint.IdentityServer.Hash
+namespace Shared.Hash
 {
     public class Hashing
     {
