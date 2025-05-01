@@ -1,6 +1,6 @@
 ﻿namespace Checkpoint.API.Events
 {
-    public class EventData
+    public class RequestEvent
     {
         public string ActionId { get; set; }
         public string Url { get; set; }

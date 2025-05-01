@@ -1,6 +1,7 @@
 using Carter;
 using Checkpoint.API.BackgroundJobs;
 using Checkpoint.API.Data;
+using EventStore.Client;
 using FluentValidation;
 using Hangfire;
 using Hangfire.MemoryStorage;
