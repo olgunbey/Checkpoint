@@ -8,7 +8,7 @@ namespace Checkpoint.API.BackgroundJobs
 {
     public class Request(IApplicationDbContext checkpointDbContext, HttpClient httpClient, EventStoreClient eventStoreClient)
     {
-        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(3, 3);
+        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         public async Task ExecuteJob(CancellationToken cancellationToken)
         {
             var actions = await checkpointDbContext.Action.Include(y => y.Controller)

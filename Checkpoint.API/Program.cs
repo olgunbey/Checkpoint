@@ -46,6 +46,7 @@ var app = builder.Build();
 
 app.UseHangfireDashboard();
 RecurringJob.AddOrUpdate<Request>("request-job", req => req.ExecuteJob(CancellationToken.None), "*/15 * * * * *");
+RecurringJob.AddOrUpdate<Analysis>("analysis-job", req => req.ExecuteJob(CancellationToken.None), "*/30 * * * * *");
 
 app.MapScalarApiReference();
 
