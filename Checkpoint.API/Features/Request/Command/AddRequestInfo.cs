@@ -40,6 +40,10 @@ namespace Checkpoint.API.Features.Request.Command
                             CreateUserId = request.RequestDto.CreateUserId,
                             ControllerId = request.RequestDto.ControllerId,
                             ActionPath = request.RequestDto.ActionPath,
+                            Query = JsonConvert.DeserializeObject<List<RequestPayloads.Query>>(request.RequestDto.Query),
+                            Body = JsonConvert.DeserializeObject<List<RequestPayloads.Body>>(request.RequestDto.Body),
+                            Header = JsonConvert.DeserializeObject<List<RequestPayloads.Header>>(request.RequestDto.Header),
+                            RequestType = request.RequestDto.RequestType,
                         };
 
                         var getBaseUrl = await baseUrlFilter

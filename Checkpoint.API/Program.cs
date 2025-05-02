@@ -1,7 +1,6 @@
 using Carter;
 using Checkpoint.API.BackgroundJobs;
 using Checkpoint.API.Data;
-using EventStore.Client;
 using FluentValidation;
 using Hangfire;
 using Hangfire.MemoryStorage;
@@ -18,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddHangfire(y => y.UseMemoryStorage());
 builder.Services.AddHangfireServer();
+builder.Services.AddHttpClient();
 builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
