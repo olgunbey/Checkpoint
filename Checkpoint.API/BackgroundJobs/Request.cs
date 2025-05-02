@@ -8,7 +8,7 @@ namespace Checkpoint.API.BackgroundJobs
 {
     public class Request(IApplicationDbContext checkpointDbContext, HttpClient httpClient, EventStoreClient eventStoreClient)
     {
-        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(3, 3);
         public async Task ExecuteJob(CancellationToken cancellationToken)
         {
             var actions = await checkpointDbContext.Action.Include(y => y.Controller)
@@ -69,8 +69,6 @@ namespace Checkpoint.API.BackgroundJobs
                                 }
                                 queryUrl = string.Join("&", queries);
                             }
-
-
                             if (queryUrl != string.Empty)
                             {
                                 endUrl = string.Join("?", queryUrl);
@@ -104,7 +102,7 @@ namespace Checkpoint.API.BackgroundJobs
                                data: JsonSerializer.SerializeToUtf8Bytes(@event));
 
 
-                            await semaphore.WaitAsync();
+                            await semaphore.WaitAsync(cancellationToken);
                             try
                             {
                                 await eventStoreClient.AppendToStreamAsync(
