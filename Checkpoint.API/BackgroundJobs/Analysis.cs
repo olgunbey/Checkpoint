@@ -1,4 +1,4 @@
-﻿using Checkpoint.API.Data;
+using Checkpoint.API.Data;
 using Checkpoint.API.Entities;
 using Checkpoint.API.Events;
 using EventStore.Client;
@@ -96,7 +96,7 @@ namespace Checkpoint.API.BackgroundJobs
                              {
                                  if ((double)notProcessedEvent.Value.ResponseTimeMs > averageResponseTime)
                                  {
-                                     Console.WriteLine(notProcessedEvent.Value.Url + "" + notProcessedEvent.Value.ResponseTimeMs + "Artış var imdaaat!!");
+                                 
                                  }
                              }
                              var processedEventIds = notProcessedEvents.Keys.Select(y => new RequestedEndpointId() { EventId = y }).ToList();
