@@ -7,13 +7,18 @@ namespace Checkpoint.IdentityServer.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class TeamController(TeamService teamService, TokenDto corporateTokenDto) : BaseController
+    public class TeamController(TeamService teamService, TokenDto tokenDto) : BaseController
     {
         [HttpPost]
         [Authorize(Policy = "Add")]
         public async Task<IActionResult> AddTeam(AddTeamRequestDto addTeamRequestDto)
         {
-            return Handlers(await teamService.AddTeam(corporateTokenDto.CorporateId, addTeamRequestDto.TeamName));
+            return Handlers(await teamService.AddTeam(tokenDto.CorporateId, addTeamRequestDto.TeamName));
+        }
+        [HttpGet]
+        public async Task<IActionResult> UserTeamRegister([FromQuery] int teamId)
+        {
+            return Handlers(await teamService.UserTeamRegister(tokenDto.CorporateId, teamId));
         }
     }
 }
