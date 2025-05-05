@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Checkpoint.MailService.Consumers
 {
-    public class RegisterOutboxEventConsumer(IBus bus, IMailDbContext mailDbContext, MailServices.MailService mailService) : IConsumer<RegisterOutboxEvent>
+    public class RegisterOutboxEventConsumer(IMailDbContext mailDbContext, MailServices.MailService mailService) : IConsumer<RegisterOutboxEvent>
     {
         public async Task Consume(ConsumeContext<RegisterOutboxEvent> context)
         {
@@ -31,7 +31,7 @@ namespace Checkpoint.MailService.Consumers
 
                 try
                 {
-                    await mailService.SendEmail(registerInbox.Mail, "Verification", registerInbox.VerificationCode);
+                    await mailService.SendEmail(registerInbox.Mail, "Verification", registerInbox.VerificationCode, Enums.SendEmailType.Verification);
 
                 }
                 catch (Exception)

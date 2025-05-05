@@ -12,7 +12,7 @@ namespace Checkpoint.MailService.BackgroundJobs
             {
                 try
                 {
-                    await mailService.SendEmail(notProcessed.Email, "Verification", notProcessed.VerificationCode);
+                    await mailService.SendEmail(notProcessed.Email, "Verification", notProcessed.VerificationCode, Enums.SendEmailType.Verification);
                     notProcessed.Processed = true;
                     await mailDbContext.SaveChangesAsync(cancellationToken);
                 }

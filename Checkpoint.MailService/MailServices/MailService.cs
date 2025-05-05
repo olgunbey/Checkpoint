@@ -1,16 +1,15 @@
-﻿using Checkpoint.MailService.Interfaces;
+﻿using Checkpoint.MailService.Enums;
+using Checkpoint.MailService.Interfaces;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-using System.Text;
-
 namespace Checkpoint.MailService.MailServices
 {
-    public class MailService(SmtpClient smtpClient,IOptions<MailInformation> mailInformation) : IMailService
+    public class MailService(SmtpClient smtpClient, IOptions<MailInformation> mailInformation) : IMailService
     {
 
-        public async Task SendEmail(string toEmail, string subject, string verificationCode)
+        public async Task SendEmail(string toEmail, string subject, string verificationCode, SendEmailType sendEmailType)
         {
             using (MimeMessage mailMessage = new())
             {
@@ -18,9 +17,11 @@ namespace Checkpoint.MailService.MailServices
                 mailMessage.From.Add(MailboxAddress.Parse(mailInformation.Value.Username));
                 mailMessage.To.Add(MailboxAddress.Parse(toEmail));
 
-                mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                if (SendEmailType.Verification == sendEmailType)
                 {
-                    Text = $@"<!DOCTYPE html>
+                    mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                    {
+                        Text = $@"<!DOCTYPE html>
 <html lang=""tr"">
 
 <head>
@@ -86,7 +87,18 @@ namespace Checkpoint.MailService.MailServices
 </body>
 
 </html>",
-                };
+                    };
+                }
+                else if (SendEmailType.Analysis == sendEmailType)
+                {
+                    mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                    {
+                        Text = $@""
+                    };
+                }
+
+
+
                 await smtpClient.SendAsync(mailMessage);
 
             }
