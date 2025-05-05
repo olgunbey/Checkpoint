@@ -37,11 +37,8 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthorization(configure =>
 {
-    configure.AddPolicy("CorporateAddRole", configureBuilder =>
-    configureBuilder.AddRequirements(new CorporateAddRoleRequirement()));
-
-    configure.AddPolicy("AddTeam", configureBuilder =>
-    configureBuilder.AddRequirements(new AddTeamRequirement()));
+    configure.AddPolicy("Add", configureBuilder =>
+    configureBuilder.AddRequirements(new AddRequirement()));
 });
 
 

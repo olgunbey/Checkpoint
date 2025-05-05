@@ -1,6 +1,6 @@
 ﻿namespace Checkpoint.IdentityServer.Dtos
 {
-    public class CorporateTokenDto
+    public class TokenDto
     {
         public int CorporateId { get; set; }
         public int CompanyId { get; set; }

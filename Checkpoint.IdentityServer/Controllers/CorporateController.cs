@@ -8,7 +8,7 @@ namespace Checkpoint.IdentityServer.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserService userServices, CorporateTokenDto corporateTokenDto) : BaseController
+    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserService userServices, TokenDto corporateTokenDto) : BaseController
     {
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterCorporateDto registerCorporateDto)
@@ -28,7 +28,7 @@ namespace Checkpoint.IdentityServer.Controllers
 
         }
         [HttpGet]
-        [Authorize(Policy = "CorporateAddRole")]
+        [Authorize(Policy = "Add")]
         public async Task<IActionResult> AddRole([FromQuery] int teamId, [FromHeader] string roleName)
         {
             return Handlers(await userServices.AddRoleAsync(teamId, roleName, corporateTokenDto.CorporateId));
