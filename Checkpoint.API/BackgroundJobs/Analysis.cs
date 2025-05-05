@@ -98,6 +98,13 @@ namespace Checkpoint.API.BackgroundJobs
                              {
                                  if ((double)notProcessedEvent.Value.ResponseTimeMs > averageResponseTime)
                                  {
+                                     AnalysisNotAvgEvent analysisStartEvent = new()
+                                     {
+                                         IndividualId = notProcessedEvent.Value.IndividualId,
+                                         TeamId = notProcessedEvent.Value.TeamId
+                                     };
+                                     var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
+                                     await getSendEndpoint.Send(analysisStartEvent);
                                  }
                              }
                              var processedEventIds = notProcessedEvents.Keys.Select(y => new RequestedEndpointId() { EventId = y }).ToList();
