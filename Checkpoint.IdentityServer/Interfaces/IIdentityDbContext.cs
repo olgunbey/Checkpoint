@@ -11,9 +11,9 @@ namespace Checkpoint.IdentityServer.Interfaces
         public DbSet<Permission> Permission { get; set; }
         public DbSet<Role> Role { get; set; }
         public DbSet<UserTeam> UserTeam { get; set; }
+        public DbSet<Team> Team { get; set; }
         public DbSet<UserTeamPermission> UserTeamPermission { get; set; }
         public DbSet<UserTeamRole> UserTeamRole { get; set; }
-        public DbSet<UserTeam> Team { get; set; }
         public DbSet<Company> Company { get; set; }
         public DbSet<Client> Client { get; set; }
         public DbSet<RegisterOutbox> RegisterOutbox { get; set; }

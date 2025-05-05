@@ -12,7 +12,8 @@ namespace Checkpoint.API.BackgroundJobs
         public async Task ExecuteJob(CancellationToken cancellationToken)
         {
             var actions = await checkpointDbContext.Action.Include(y => y.Controller)
-                  .ThenInclude(y => y.BaseUrl).ToListAsync();
+                  .ThenInclude(y => y.BaseUrl)
+                  .ThenInclude(y => y.Project).ToListAsync();
 
             if (actions.Any())
             {
@@ -94,6 +95,8 @@ namespace Checkpoint.API.BackgroundJobs
                                 StatusCode = (int)httpResponseMessage.StatusCode,
                                 TimeStamp = DateTime.UtcNow,
                                 Url = endUrl,
+                                TeamId = _action.Controller.BaseUrl.Project.TeamId,
+                                IndividualId = _action.Controller.BaseUrl.Project.IndividualId
                             };
 
                             EventData @eventData = new(

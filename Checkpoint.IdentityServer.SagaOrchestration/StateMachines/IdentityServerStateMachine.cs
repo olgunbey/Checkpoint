@@ -8,14 +8,12 @@ namespace Checkpoint.IdentityServer.SagaOrchestration.StateMachines
     public class IdentityServerStateMachine : MassTransitStateMachine<IdentityServerStateInstance>
     {
 
-        private readonly ILogger<IdentityServerStateMachine> _logger;
 
         public Event<RegisterStartEvent> RegisterStartEvent { get; set; }
         public Event<RegisterOutboxEvent> RegisterOutboxEvent { get; set; }
         public State RegisterInbox { get; set; }
-        public IdentityServerStateMachine(ILogger<IdentityServerStateMachine> logger)
+        public IdentityServerStateMachine()
         {
-            _logger = logger;
             InstanceState(y => y.CurrentState);
 
             Event(() => RegisterStartEvent,
@@ -31,7 +29,6 @@ namespace Checkpoint.IdentityServer.SagaOrchestration.StateMachines
                 {
                     context.Saga.CreatedDate = DateTime.UtcNow;
                     context.Saga.Email = context.Message.Email;
-                    _logger.LogInformation("Saga:  "+context.Saga.CorrelationId.ToString()+ context.Saga.Email);
                 })
                 .TransitionTo(RegisterInbox)
                 .Send(new Uri($"queue:{QueueConfigurations.RegisterOutboxQueue}"),

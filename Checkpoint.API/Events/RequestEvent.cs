@@ -8,5 +8,7 @@
         public long ResponseTimeMs { get; set; }
         public DateTime TimeStamp { get; set; }
         public bool Processed { get; set; } = false;
+        public int? IndividualId { get; set; }
+        public int? TeamId { get; set; }
     }
 }

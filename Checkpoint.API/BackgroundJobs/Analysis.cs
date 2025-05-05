@@ -1,19 +1,21 @@
 ﻿using Checkpoint.API.Data;
 using Checkpoint.API.Entities;
 using Checkpoint.API.Events;
+using Checkpoint.API.Interfaces;
 using EventStore.Client;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Shared;
+using Shared.Events;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace Checkpoint.API.BackgroundJobs
 {
-    public class Analysis(EventStoreClient eventStoreClient, IServiceScopeFactory serviceScopeFactory)
+    public class Analysis(EventStoreClient eventStoreClient, IServiceScopeFactory serviceScopeFactory, IApplicationDbContext applicationDbContext, IBus bus)
     {
         public async Task ExecuteJob(CancellationToken cancellationToken)
         {
-            using var scope = serviceScopeFactory.CreateScope();
-            var applicationDbContext = scope.ServiceProvider.GetRequiredService<CheckpointDbContext>();
 
             var actionList = await applicationDbContext.Action
                   .Include(y => y.Controller)
@@ -96,6 +98,13 @@ namespace Checkpoint.API.BackgroundJobs
                              {
                                  if ((double)notProcessedEvent.Value.ResponseTimeMs > averageResponseTime)
                                  {
+                                     AnalysisNotAvgEvent analysisStartEvent = new()
+                                     {
+                                         IndividualId = notProcessedEvent.Value.IndividualId,
+                                         TeamId = notProcessedEvent.Value.TeamId
+                                     };
+                                     var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
+                                     await getSendEndpoint.Send(analysisStartEvent);
                                      Console.WriteLine(notProcessedEvent.Value.Url + "" + notProcessedEvent.Value.ResponseTimeMs + "Artış var imdaaat!!");
                                  }
                              }
