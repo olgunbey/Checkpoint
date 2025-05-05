@@ -3,12 +3,13 @@ using Checkpoint.IdentityServer.Entities;
 using Checkpoint.IdentityServer.Interfaces;
 using Checkpoint.IdentityServer.TokenServices;
 using Microsoft.EntityFrameworkCore;
+using ServiceStack.Redis;
 using Shared.Common;
 using Shared.Hash;
 
 namespace Checkpoint.IdentityServer.Services
 {
-    public class UserService(IIdentityDbContext identityDbContext, TokenService corporateTokenService)
+    public class UserService(IIdentityDbContext identityDbContext, TokenService corporateTokenService, IRedisClientAsync redisClientAsync)
     {
         public async Task<ResponseDto<TokenResponseDto>> LoginAsync(CorporateLoginDto corporateLoginDto)
         {
@@ -38,6 +39,23 @@ namespace Checkpoint.IdentityServer.Services
 
             var responseToken = await corporateTokenService.CorporateToken(corporate.Entity, hasClient.Issuer, hasClient.Audience, hasClient.ClientSecret);
 
+            CacheRefreshTokenDto cacheRefreshTokenDto = new()
+            {
+                RefreshToken = responseToken.RefreshToken,
+                UserId = corporate.Entity.Id,
+                ValidityPeriod = responseToken.RefreshToken_LifeTime
+            };
+
+            var getRedisRefreshToken = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>("refresh-token");
+
+            List<CacheRefreshTokenDto> refreshTokenDtos = new();
+            if (getRedisRefreshToken != null)
+            {
+                refreshTokenDtos = getRedisRefreshToken;
+            }
+
+            refreshTokenDtos.Add(cacheRefreshTokenDto);
+            await redisClientAsync.SetAsync("refresh-token", refreshTokenDtos);
             return ResponseDto<TokenResponseDto>.Success(responseToken, 200);
 
         }

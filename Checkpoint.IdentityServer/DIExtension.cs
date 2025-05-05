@@ -6,6 +6,7 @@ using Checkpoint.IdentityServer.Policies;
 using Checkpoint.IdentityServer.Services;
 using Checkpoint.IdentityServer.TokenServices;
 using Microsoft.AspNetCore.Authorization;
+using ServiceStack.Redis;
 
 namespace Checkpoint.IdentityServer
 {
@@ -21,9 +22,9 @@ namespace Checkpoint.IdentityServer
             services.AddScoped<ClientTransaction>();
             services.AddScoped<UserService>();
             services.AddSingleton<TokenDto>();
-            services.AddSingleton<IAuthorizationHandler, CorporateAddRole>();
-            services.AddSingleton<IAuthorizationHandler, AddTeam>();
+            services.AddSingleton<IAuthorizationHandler, Add>();
             services.AddScoped<TeamService>();
+            services.AddSingleton<IRedisClientAsync>(y => new RedisClient("localhost", 6379));
             return services;
         }
     }

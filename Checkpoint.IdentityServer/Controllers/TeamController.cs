@@ -16,6 +16,7 @@ namespace Checkpoint.IdentityServer.Controllers
             return Handlers(await teamService.AddTeam(tokenDto.CorporateId, addTeamRequestDto.TeamName));
         }
         [HttpGet]
+        [Authorize(Policy = "Add")]
         public async Task<IActionResult> UserTeamRegister([FromQuery] int teamId)
         {
             return Handlers(await teamService.UserTeamRegister(tokenDto.CorporateId, teamId));
