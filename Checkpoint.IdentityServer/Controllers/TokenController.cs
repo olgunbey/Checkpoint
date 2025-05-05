@@ -21,5 +21,16 @@ namespace Checkpoint.IdentityServer.Controllers
 
             return NoContent();
         }
+        [HttpPost]
+        public async Task<IActionResult> GenerateRefreshToken([FromBody] string refreshToken)
+        {
+            var refreshTokens = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>("refresh-token");
+
+            if (refreshTokens.Any(y => y.RefreshToken == refreshToken && y.ValidityPeriod <= DateTime.UtcNow))
+            {
+                return NoContent();
+            }
+            return Unauthorized();
+        }
     }
 }
