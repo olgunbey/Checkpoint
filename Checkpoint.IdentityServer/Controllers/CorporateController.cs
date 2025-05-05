@@ -8,7 +8,7 @@ namespace Checkpoint.IdentityServer.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserServices userServices, CorporateTokenDto corporateTokenDto) : BaseController
+    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserService userServices, CorporateTokenDto corporateTokenDto) : BaseController
     {
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterCorporateDto registerCorporateDto)

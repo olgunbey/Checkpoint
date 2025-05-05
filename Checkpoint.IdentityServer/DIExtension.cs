@@ -19,9 +19,10 @@ namespace Checkpoint.IdentityServer
             services.AddScoped<IIdentityDbContext, IdentityDbContext>();
             services.AddScoped<TokenService>();
             services.AddScoped<ClientTransaction>();
-            services.AddScoped<UserServices>();
+            services.AddScoped<UserService>();
             services.AddSingleton<CorporateTokenDto>();
             services.AddSingleton<IAuthorizationHandler, CorporateAddRole>();
+            services.AddScoped<TeamService>();
             return services;
         }
     }

@@ -8,7 +8,7 @@ using Shared.Hash;
 
 namespace Checkpoint.IdentityServer.Services
 {
-    public class UserServices(IIdentityDbContext identityDbContext, TokenService corporateTokenService)
+    public class UserService(IIdentityDbContext identityDbContext, TokenService corporateTokenService)
     {
         public async Task<ResponseDto<TokenResponseDto>> LoginAsync(CorporateLoginDto corporateLoginDto)
         {

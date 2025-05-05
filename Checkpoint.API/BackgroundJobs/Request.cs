@@ -83,40 +83,76 @@ namespace Checkpoint.API.BackgroundJobs
                                 Enums.RequestType.Delete => HttpMethod.Delete,
                                 Enums.RequestType.Post => HttpMethod.Post
                             };
-
-                            HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-                            stopWatch.Stop();
-                            long responseTime = stopWatch.ElapsedMilliseconds;
-
-                            Events.RequestEvent @event = new Events.RequestEvent()
-                            {
-                                RequestStatus = httpResponseMessage.IsSuccessStatusCode,
-                                ResponseTimeMs = responseTime,
-                                StatusCode = (int)httpResponseMessage.StatusCode,
-                                TimeStamp = DateTime.UtcNow,
-                                Url = endUrl,
-                                TeamId = _action.Controller.BaseUrl.Project.TeamId,
-                                IndividualId = _action.Controller.BaseUrl.Project.IndividualId
-                            };
-
-                            EventData @eventData = new(
-                               eventId: Uuid.NewUuid(),
-                               type: @event.GetType().Name,
-                               data: JsonSerializer.SerializeToUtf8Bytes(@event));
-
-
-                            await semaphore.WaitAsync(cancellationToken);
+                            HttpResponseMessage httpResponseMessage = new();
                             try
                             {
-                                await eventStoreClient.AppendToStreamAsync(
-                                 streamName: endUrl,
-                                 expectedState: StreamState.Any,
-                                 eventData: [@eventData]);
+                                httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
+                                stopWatch.Stop();
+                                long responseTime = stopWatch.ElapsedMilliseconds;
+
+                                Events.RequestEvent @event = new Events.RequestEvent()
+                                {
+                                    RequestStatus = httpResponseMessage.IsSuccessStatusCode,
+                                    ResponseTimeMs = responseTime,
+                                    StatusCode = (int)httpResponseMessage.StatusCode,
+                                    TimeStamp = DateTime.UtcNow,
+                                    Url = endUrl,
+                                    TeamId = _action.Controller.BaseUrl.Project.TeamId,
+                                    IndividualId = _action.Controller.BaseUrl.Project.IndividualId
+                                };
+
+                                EventData @eventData = new(
+                                   eventId: Uuid.NewUuid(),
+                                   type: @event.GetType().Name,
+                                   data: JsonSerializer.SerializeToUtf8Bytes(@event));
+
+
+                                await semaphore.WaitAsync(cancellationToken);
+                                try
+                                {
+                                    await eventStoreClient.AppendToStreamAsync(
+                                     streamName: endUrl,
+                                     expectedState: StreamState.Any,
+                                     eventData: [@eventData]);
+                                }
+                                finally
+                                {
+                                    semaphore.Release();
+                                }
                             }
-                            finally
+                            catch (Exception)
                             {
-                                semaphore.Release();
+                                Events.RequestEvent @event = new Events.RequestEvent()
+                                {
+                                    RequestStatus = false,
+                                    ResponseTimeMs = 0,
+                                    StatusCode = 0,
+                                    TimeStamp = DateTime.UtcNow,
+                                    Url = endUrl,
+                                    TeamId = _action.Controller.BaseUrl.Project.TeamId,
+                                    IndividualId = _action.Controller.BaseUrl.Project.IndividualId
+                                };
+                                EventData @eventData = new(
+                                   eventId: Uuid.NewUuid(),
+                                   type: @event.GetType().Name,
+                                   data: JsonSerializer.SerializeToUtf8Bytes(@event));
+
+
+                                await semaphore.WaitAsync(cancellationToken);
+                                try
+                                {
+                                    await eventStoreClient.AppendToStreamAsync(
+                                     streamName: endUrl,
+                                     expectedState: StreamState.Any,
+                                     eventData: [@eventData]);
+                                }
+                                finally
+                                {
+                                    semaphore.Release();
+                                }
                             }
+
+
                         }
                     });
                 }

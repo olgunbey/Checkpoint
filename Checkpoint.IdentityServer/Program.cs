@@ -33,9 +33,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddServices();
 builder.Services.AddHttpContextAccessor();
+
+
 builder.Services.AddAuthorization(configure =>
-configure.AddPolicy("CorporateAddRole", configureBuilder =>
-configureBuilder.AddRequirements(new CorporateAddRoleRequirement())));
+{
+    configure.AddPolicy("CorporateAddRole", configureBuilder =>
+    configureBuilder.AddRequirements(new CorporateAddRoleRequirement()));
+
+    configure.AddPolicy("AddTeam", configureBuilder =>
+    configureBuilder.AddRequirements(new AddTeamRequirement()));
+});
+
 
 
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
