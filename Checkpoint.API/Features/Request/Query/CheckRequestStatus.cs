@@ -81,15 +81,6 @@ namespace Checkpoint.API.Features.Request.Query
             }
         }
 
-        internal sealed class Validator
-        {
-
-        }
-        internal sealed class Dto
-        {
-
-        }
-
         public sealed class Endpoint : ApiResponseController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
