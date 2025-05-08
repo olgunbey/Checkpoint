@@ -22,7 +22,7 @@ namespace Checkpoint.IdentityServer.Controllers
             return NoContent();
         }
         [HttpPost]
-        public async Task<IActionResult> GenerateRefreshToken([FromBody] string refreshToken)
+        public async Task<IActionResult> ControlRefreshToken([FromBody] string refreshToken)
         {
             var refreshTokens = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>("refresh-token");
 
@@ -31,6 +31,13 @@ namespace Checkpoint.IdentityServer.Controllers
                 return NoContent();
             }
             return Unauthorized();
+        }
+        [HttpPost]
+        public async Task<IActionResult> GenerateAccessToken([FromBody] string refreshToken)
+        {
+            //accesstoken üretmek için bir refresh token alınır. Bu refresh tokene göre yeni bir access token üretilir
+            //ve refres token güncellenir
+            return Ok();
         }
     }
 }
