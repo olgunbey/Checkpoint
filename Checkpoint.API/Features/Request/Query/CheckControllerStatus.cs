@@ -85,16 +85,18 @@ namespace Checkpoint.API.Features.Request.Query
                             }
                         }
 
-
-                        var groupBy = requestEvents.GroupBy(u => (u.Url.Split('/')[0] + '/' + u.Url.Split('/')[1] + '/' + u.Url.Split('/')[2] + '/' + u.Url.Split('/')[3] + '/' + u.Url.Split('/')[4]));
-
+                        var groupBy = requestEvents.GroupBy(u =>
+                          {
+                              string[] splitUrl = u.Url.Split('/');
+                              return splitUrl[0] + '/' + splitUrl[1] + '/' + splitUrl[2] + '/' + splitUrl[3] + '/' + splitUrl[4];
+                          });
 
 
                         foreach (var groupByEvents in groupBy)
                         {
                             int successCount = 0;
                             int unSuccessCount = 0;
-                            foreach (var _groupBy in groupByEvents) //keyler'in valuesi
+                            foreach (var _groupBy in groupByEvents)
                             {
                                 if (_groupBy.RequestStatus)
                                 {
