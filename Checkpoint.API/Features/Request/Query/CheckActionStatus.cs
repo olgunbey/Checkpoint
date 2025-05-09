@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace Checkpoint.API.Features.Request.Query
 {
-    internal static class CheckRequestStatus
+    internal static class CheckActionStatus
     {
         internal sealed class Mediatr
         {
@@ -76,7 +76,6 @@ namespace Checkpoint.API.Features.Request.Query
                     }
 
                     return ResponseDto<Dictionary<string, bool>>.Success(results, 200);
-
                 }
             }
         }

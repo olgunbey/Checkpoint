@@ -64,6 +64,7 @@ namespace Checkpoint.API.BackgroundJobs
 
                 ConcurrentDictionary<string, RequestEvent> eventDictionary = new ConcurrentDictionary<string, RequestEvent>();
 
+                //bu kýsmý subscribe olmadan yapacaðým!!!
                 await eventStoreClient.SubscribeToStreamAsync(
                      streamName: requestUrl,
                      start: FromStream.Start,

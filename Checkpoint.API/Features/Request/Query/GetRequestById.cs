@@ -11,7 +11,7 @@ using Shared.Common;
 
 namespace Checkpoint.API.Features.Request.Query
 {
-    internal static class Processor
+    internal static class GetRequestById
     {
         internal sealed class Mediatr
         {
