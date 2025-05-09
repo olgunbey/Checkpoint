@@ -20,23 +20,23 @@ builder.Services.AddHangfireServer();
 builder.Services.AddHttpClient();
 builder.Services.GetDataServices(builder.Configuration);
 
-using var scope = builder.Services.BuildServiceProvider().CreateScope();
-var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-dbContext.Action.Add(new Checkpoint.API.Entities.Action()
-{
-    ActionPath = "getAllUser",
-    ControllerId = 1,
-    RequestType = Checkpoint.API.Enums.RequestType.Get,
-    Header = new List<Checkpoint.API.RequestPayloads.Header>()
-    {
-        new Checkpoint.API.RequestPayloads.Header()
-        {
-            Key="userId",
-            Value=1
-        }
-    }
-});
-await dbContext.SaveChangesAsync(CancellationToken.None);
+//using var scope = builder.Services.BuildServiceProvider().CreateScope();
+//var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+//dbContext.Action.Add(new Checkpoint.API.Entities.Action()
+//{
+//    ActionPath = "getAllUser",
+//    ControllerId = 1,
+//    RequestType = Checkpoint.API.Enums.RequestType.Get,
+//    Header = new List<Checkpoint.API.RequestPayloads.Header>()
+//    {
+//        new Checkpoint.API.RequestPayloads.Header()
+//        {
+//            Key="userId",
+//            Value=1
+//        }
+//    }
+//});
+//await dbContext.SaveChangesAsync(CancellationToken.None);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
