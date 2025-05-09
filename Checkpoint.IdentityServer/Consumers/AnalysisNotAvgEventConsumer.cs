@@ -15,7 +15,7 @@ namespace Checkpoint.IdentityServer.Consumers
             var sendEndPoint = await context.GetSendEndpoint(new Uri($"{QueueConfigurations.Identity_Server_UserTeamSelected_Mail_Service}"));
             if (context.Message.IndividualId != 0)
             {
-                Individual individual = await identityDbContext.Individual.FindAsync(context.Message.IndividualId)!;
+                Individual individual = (await identityDbContext.Individual.FindAsync(context.Message.IndividualId))!;
 
                 UserTeamSelectedEvent userTeamSelectedEvent = new UserTeamSelectedEvent()
                 {
