@@ -1,5 +1,6 @@
 using Checkpoint.IdentityServer;
 using Checkpoint.IdentityServer.BackgroundJobs;
+using Checkpoint.IdentityServer.Consumers;
 using Checkpoint.IdentityServer.Data;
 using Checkpoint.IdentityServer.Policies;
 using Hangfire;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Shared;
 using Shared.Hash;
 using Shared.Middlewares;
 
@@ -46,6 +48,7 @@ builder.Services.AddAuthorization(configure =>
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
 builder.Services.AddMassTransit<IBus>(configure =>
 {
+    configure.AddConsumer<AnalysisNotAvgEventConsumer>();
     configure.UsingRabbitMq((context, configurator) =>
     {
         configurator.Host(builder.Configuration.GetSection("AmqpConf")["Host"], config =>
@@ -54,7 +57,9 @@ builder.Services.AddMassTransit<IBus>(configure =>
             config.Password(builder.Configuration.GetSection("AmqpConf")["Password"]!);
 
         });
+        configurator.ReceiveEndpoint(QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity, cnf => cnf.ConfigureConsumer<AnalysisNotAvgEventConsumer>(context));
     });
+
 });
 builder.Services.AddHangfire(y => y.UseMemoryStorage());
 builder.Services.AddHangfireServer();

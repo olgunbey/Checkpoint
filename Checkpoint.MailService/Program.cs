@@ -34,6 +34,7 @@ builder.Services.AddDbContext<MailDbContext>(y => y.UseNpgsql(builder.Configurat
 builder.Services.AddMassTransit<IBus>(config =>
 {
     config.AddConsumer<RegisterOutboxEventConsumer>();
+    config.AddConsumer<UserTeamSelectedEventConsumer>();
     config.UsingRabbitMq((context, configurator) =>
     {
         configurator.Host(builder.Configuration.GetSection("AmqpConf")["Host"], config =>
@@ -45,6 +46,8 @@ builder.Services.AddMassTransit<IBus>(config =>
 
         configurator.ReceiveEndpoint(QueueConfigurations.RegisterOutboxQueue,
             conf => conf.ConfigureConsumer<RegisterOutboxEventConsumer>(context));
+
+        configurator.ReceiveEndpoint(QueueConfigurations.Identity_Server_UserTeamSelected_Mail_Service, conf => conf.ConfigureConsumer<UserTeamSelectedEventConsumer>(context));
     });
 });
 var app = builder.Build();
