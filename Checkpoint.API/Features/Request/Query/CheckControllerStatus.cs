@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
+using System.Text;
 using System.Text.Json;
 
 namespace Checkpoint.API.Features.Request.Query
@@ -85,10 +86,16 @@ namespace Checkpoint.API.Features.Request.Query
                             }
                         }
 
+                        StringBuilder stringBuilder = new StringBuilder();
                         var groupBy = requestEvents.GroupBy(u =>
                           {
+                              stringBuilder.Clear();
                               string[] splitUrl = u.Url.Split('/');
-                              return splitUrl[0] + '/' + splitUrl[1] + '/' + splitUrl[2] + '/' + splitUrl[3] + '/' + splitUrl[4];
+                              for (int i = 0; i <= 4; i++)
+                              {
+                                  stringBuilder.Append(splitUrl[i]);
+                              }
+                              return stringBuilder.ToString();
                           });
 
 
