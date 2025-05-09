@@ -49,22 +49,17 @@ namespace Checkpoint.API.Features.Project.Query
                                     Id = y.Id,
                                     ActionPath = y.ActionPath,
                                     RequestType = y.RequestType,
-                                    //Body = y.Body,
-                                    //Header = y.Header,
-                                    //Query = y.Query
+                                    Body = y.Body,
+                                    Header = y.Header,
+                                    Query = y.Query
                                 }).ToList()
                             }).ToList()
                         }).ToList()
                     };
-
                     return ResponseDto<Dto.Response>.Success(data, 200);
-
-
-
                 }
             }
         }
-
         internal sealed class Dto
         {
             internal sealed class Response
@@ -86,9 +81,9 @@ namespace Checkpoint.API.Features.Project.Query
                     public int Id { get; set; }
                     public string ActionPath { get; set; }
                     public RequestType RequestType { get; set; }
-                    public string? Query { get; set; }
-                    public string? Header { get; set; }
-                    public string? Body { get; set; }
+                    public List<RequestPayloads.Query>? Query { get; set; }
+                    public List<RequestPayloads.Header>? Header { get; set; }
+                    public List<RequestPayloads.Body>? Body { get; set; }
                 }
                 public int Id { get; set; }
                 public string ProjectName { get; set; }

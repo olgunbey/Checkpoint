@@ -1,7 +1,7 @@
 using Carter;
 using Checkpoint.API.BackgroundJobs;
 using Checkpoint.API.Data;
-using FluentValidation;
+using Checkpoint.API.Interfaces;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,7 +18,26 @@ builder.Services.AddControllers();
 builder.Services.AddHangfire(y => y.UseMemoryStorage());
 builder.Services.AddHangfireServer();
 builder.Services.AddHttpClient();
-builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
+builder.Services.GetDataServices(builder.Configuration);
+
+using var scope = builder.Services.BuildServiceProvider().CreateScope();
+var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+dbContext.Action.Add(new Checkpoint.API.Entities.Action()
+{
+    ActionPath = "getAllUser",
+    ControllerId = 1,
+    RequestType = Checkpoint.API.Enums.RequestType.Get,
+    Header = new List<Checkpoint.API.RequestPayloads.Header>()
+    {
+        new Checkpoint.API.RequestPayloads.Header()
+        {
+            Key="userId",
+            Value=1
+        }
+    }
+});
+await dbContext.SaveChangesAsync(CancellationToken.None);
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -37,7 +56,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddMediatR(conf => conf.RegisterServicesFromAssemblyContaining<Program>());
 
-builder.Services.GetDataServices(builder.Configuration);
+
 
 builder.Services.AddCarter();
 

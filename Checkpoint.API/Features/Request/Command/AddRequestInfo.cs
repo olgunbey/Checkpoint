@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Shared.Common;
+using Shared.Constants;
+using Shared.Dtos;
 
 namespace Checkpoint.API.Features.Request.Command
 {
@@ -92,25 +94,11 @@ namespace Checkpoint.API.Features.Request.Command
                 public int CreateUserId { get; set; }
             }
         }
-        internal sealed class Validator : AbstractValidator<Dto.Request>
-        {
-            public Validator()
-            {
-                RuleFor(y => y.BaseUrlId).NotEmpty().NotNull();
-                RuleFor(y => y.ControllerId).Empty().Null();
-                RuleFor(y => y.ControllerPath).NotEmpty().NotNull();
-                RuleFor(y => y.ActionPath).NotEmpty().NotNull();
-                RuleFor(y => y.Query).Null().Empty();
-                RuleFor(y => y.Header).Null().Empty();
-                RuleFor(y => y.Body).Null().Empty();
-
-            }
-        }
         public sealed class Endpoint : ApiResponseController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapPost("api/request/addrequestInfo", Handler);/*.AddEndpointFilter<EndpointFilter>();*/
+                app.MapPost("api/request/addrequestInfo", Handler).AddEndpointFilter<EndpointFilter>();
             }
             public async Task<IActionResult> Handler([FromBody] Dto.Request requestDto, IMediator mediator, HttpContext httpContext)
             {
@@ -118,40 +106,31 @@ namespace Checkpoint.API.Features.Request.Command
                 return Handlers(response, httpContext);
             }
         }
-        //public class EndpointFilter : IEndpointFilter
-        //{
-        //    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
-        //    {
-        //        if (context.HttpContext.Items.TryGetValue("AdminByPass", out object? data))
-        //        {
-        //            return await next(context);
-        //        }
-        //        var requestDto = context.Arguments.FirstOrDefault(arg => arg is Dto.Request) as Dto.Request;
-        //        var result = await context.HttpContext.Request.ValidateAsync(requestDto);
-        //        if (!result.IsValid)
-        //        {
-        //            var errors = result.Errors.Select(y => y.ErrorMessage).ToList();
-        //            return Results.BadRequest(new
-        //            {
-        //                Message = "Validation Failed",
-        //                Errors = errors
-        //            });
-        //        }
+        public class EndpointFilter : IEndpointFilter
+        {
+            public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+            {
+                var requestDto = context.Arguments.FirstOrDefault(arg => arg is Dto.Request) as Dto.Request;
+                if (context.HttpContext.Items.TryGetValue("AdminByPass", out object? data))
+                {
+                    return await next(context);
+                }
 
-        //        var userTeams = context.HttpContext.User.Claims.FirstOrDefault(y => y.Type == "teams");
-        //        if (userTeams == null)
-        //        {
-        //            return Results.Forbid();
-        //        }
 
-        //        var deserializerData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
-        //        if (!deserializerData.Any(y => y.Permissions.Any(y => y == Permission.Ekleme)))
-        //        {
-        //            return Results.Forbid();
-        //        }
-        //        return await next(context);
-        //    }
-        //}
+                var userTeams = context.HttpContext.User.Claims.FirstOrDefault(y => y.Type == "teams");
+                if (userTeams == null)
+                {
+                    return Results.Forbid();
+                }
+
+                var deserializerData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
+                if (!deserializerData.Any(y => y.Permissions.Any(y => y == Permission.Ekleme)))
+                {
+                    return Results.Forbid();
+                }
+                return await next(context);
+            }
+        }
 
     }
 }

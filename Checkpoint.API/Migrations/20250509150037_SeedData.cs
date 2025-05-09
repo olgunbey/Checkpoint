@@ -6,10 +6,12 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Checkpoint.API.Migrations
 {
     /// <inheritdoc />
-    public partial class mig1 : Migration
+    public partial class SeedData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,6 +33,19 @@ namespace Checkpoint.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Project", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RequestedEndpointId",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EventId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RequestedEndpointId", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,6 +124,33 @@ namespace Checkpoint.API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Project",
+                columns: new[] { "Id", "CreateUserId", "CreatedDate", "IndividualId", "ProjectName", "TeamId", "UpdateUserId", "UpdatedDate" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Job Projesi", 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Otoyol Projesi", 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                });
+
+            migrationBuilder.InsertData(
+                table: "BaseUrl",
+                columns: new[] { "Id", "BasePath", "CreateUserId", "CreatedDate", "ProjectId", "UpdateUserId", "UpdatedDate" },
+                values: new object[,]
+                {
+                    { 1, "https://localhost:5000/api", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, "https://localhost:5001/api", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Controller",
+                columns: new[] { "Id", "BaseUrlId", "ControllerPath", "CreateUserId", "CreatedDate", "UpdateUserId", "UpdatedDate" },
+                values: new object[,]
+                {
+                    { 1, 1, "User", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, 1, "Teacher", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Action_ControllerId",
                 table: "Action",
@@ -130,6 +172,9 @@ namespace Checkpoint.API.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Action");
+
+            migrationBuilder.DropTable(
+                name: "RequestedEndpointId");
 
             migrationBuilder.DropTable(
                 name: "Controller");

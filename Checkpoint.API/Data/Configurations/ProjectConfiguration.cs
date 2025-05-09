@@ -10,6 +10,22 @@ namespace Checkpoint.API.Data.Configurations
         {
             builder.Property(y => y.IndividualId).IsRequired(false);
             builder.Property(y => y.TeamId).IsRequired(false);
+            builder.HasData(new Project()
+            {
+                Id = 1,
+                ProjectName = "Job Projesi",
+                TeamId = 1,
+                CreateUserId = 1,
+                UpdateUserId = 1,
+            },
+            new Project()
+            {
+                Id = 2,
+                ProjectName = "Otoyol Projesi",
+                TeamId = 1,
+                CreateUserId= 1,
+                UpdateUserId= 1,
+            });
         }
     }
 }

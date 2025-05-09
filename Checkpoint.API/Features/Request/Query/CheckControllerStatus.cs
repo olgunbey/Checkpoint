@@ -30,8 +30,6 @@ namespace Checkpoint.API.Features.Request.Query
 
 
                     List<Dto.Response> response = new List<Dto.Response>();
-
-
                     foreach (var controller in controllers)
                     {
                         List<RequestEvent> requestEvents = new List<RequestEvent>();

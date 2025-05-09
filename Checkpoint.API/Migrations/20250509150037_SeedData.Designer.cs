@@ -14,8 +14,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.API.Migrations
 {
     [DbContext(typeof(CheckpointDbContext))]
-    [Migration("20250430140206_mig1")]
-    partial class mig1
+    [Migration("20250509150037_SeedData")]
+    partial class SeedData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,6 +105,28 @@ namespace Checkpoint.API.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("BaseUrl");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BasePath = "https://localhost:5000/api",
+                            CreateUserId = 1,
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ProjectId = 1,
+                            UpdateUserId = 1,
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BasePath = "https://localhost:5001/api",
+                            CreateUserId = 1,
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ProjectId = 2,
+                            UpdateUserId = 1,
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.API.Entities.Controller", b =>
@@ -139,6 +161,28 @@ namespace Checkpoint.API.Migrations
                     b.HasIndex("BaseUrlId");
 
                     b.ToTable("Controller");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BaseUrlId = 1,
+                            ControllerPath = "User",
+                            CreateUserId = 1,
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UpdateUserId = 1,
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BaseUrlId = 1,
+                            ControllerPath = "Teacher",
+                            CreateUserId = 1,
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UpdateUserId = 1,
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.API.Entities.Project", b =>
@@ -174,6 +218,45 @@ namespace Checkpoint.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Project");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreateUserId = 1,
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ProjectName = "Job Projesi",
+                            TeamId = 1,
+                            UpdateUserId = 1,
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreateUserId = 1,
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ProjectName = "Otoyol Projesi",
+                            TeamId = 1,
+                            UpdateUserId = 1,
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
+            modelBuilder.Entity("Checkpoint.API.Entities.RequestedEndpointId", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RequestedEndpointId");
                 });
 
             modelBuilder.Entity("Checkpoint.API.Entities.Action", b =>
