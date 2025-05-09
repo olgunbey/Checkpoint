@@ -30,11 +30,13 @@ namespace Checkpoint.API.Features.Request.Query
 
 
                     List<Dto.Response> response = new List<Dto.Response>();
-                    int successCount = 0;
-                    int unSuccessCount = 0;
-                    List<RequestEvent> requestEvents = new List<RequestEvent>();
+
+
                     foreach (var controller in controllers)
                     {
+                        List<RequestEvent> requestEvents = new List<RequestEvent>();
+                        int successCount = 0;
+                        int unSuccessCount = 0;
                         List<string> requestUrls = new List<string>()
                         {
                             controller.BaseUrl.BasePath,
@@ -78,37 +80,36 @@ namespace Checkpoint.API.Features.Request.Query
                                     switch (deserializerEvent)
                                     {
                                         case RequestEvent req:
-
                                             requestEvents.Add(req);
                                             break;
                                     }
                                 }
                             }
-                            var groupBy = requestEvents.GroupBy(u =>
-                            {
-                                return u.Url.Split('/')[0] + '/' + u.Url.Split('/')[1] + '/' + u.Url.Split('/')[2] + '/' + u.Url.Split('/')[3] + '/' + u.Url.Split('/')[4];
-                            });
+                        }
+                        var groupBy = requestEvents.GroupBy(u =>
+                        {
+                            return u.Url.Split('/')[0] + '/' + u.Url.Split('/')[1] + '/' + u.Url.Split('/')[2] + '/' + u.Url.Split('/')[3] + '/' + u.Url.Split('/')[4];
+                        });
 
-                            foreach (var groupByEvents in groupBy)
+                        foreach (var groupByEvents in groupBy)
+                        {
+                            foreach (var _groupBy in groupByEvents)
                             {
-                                foreach (var _groupBy in groupByEvents)
+                                if (_groupBy.RequestStatus)
                                 {
-                                    if (_groupBy.RequestStatus)
-                                    {
-                                        successCount++;
-                                    }
-                                    else
-                                    {
-                                        unSuccessCount++;
-                                    }
+                                    successCount++;
                                 }
-                                response.Add(new Dto.Response
+                                else
                                 {
-                                    Controller = groupByEvents.Key,
-                                    SuccessCount = successCount,
-                                    UnSuccessCount = unSuccessCount
-                                });
+                                    unSuccessCount++;
+                                }
                             }
+                            response.Add(new Dto.Response
+                            {
+                                Controller = groupByEvents.Key,
+                                SuccessCount = successCount,
+                                UnSuccessCount = unSuccessCount
+                            });
                         }
                     }
                     return ResponseDto<List<Dto.Response>>.Success(response, 200);

@@ -66,6 +66,7 @@ namespace Checkpoint.API.Features.Request.Command
                                     Query = JsonConvert.DeserializeObject<List<RequestPayloads.Query>>(request.RequestDto.Query),
                                     Header = JsonConvert.DeserializeObject<List<RequestPayloads.Header>>(request.RequestDto.Header),
                                     Body = JsonConvert.DeserializeObject<List<RequestPayloads.Body>>(request.RequestDto.Body),
+                                    RequestType = request.RequestDto.RequestType
                                 }
                             }
 
