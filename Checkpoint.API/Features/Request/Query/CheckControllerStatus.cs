@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
-using System.Text;
 using System.Text.Json;
 
 namespace Checkpoint.API.Features.Request.Query
@@ -31,6 +30,9 @@ namespace Checkpoint.API.Features.Request.Query
 
 
                     List<Dto.Response> response = new List<Dto.Response>();
+                    int successCount = 0;
+                    int unSuccessCount = 0;
+                    List<RequestEvent> requestEvents = new List<RequestEvent>();
                     foreach (var controller in controllers)
                     {
                         List<string> requestUrls = new List<string>()
@@ -46,7 +48,8 @@ namespace Checkpoint.API.Features.Request.Query
 
                             foreach (var action in controller.Actions)
                             {
-                                endUrl = string.Join("/", endUrl, action.ActionPath);
+                                string finishEndUrl = "";
+                                finishEndUrl = string.Join("/", endUrl, action.ActionPath);
                                 if (action.Query != null)
                                 {
                                     string queryUrl = string.Join("&", action.Query.Where(y => y.Value != null)
@@ -55,76 +58,59 @@ namespace Checkpoint.API.Features.Request.Query
                                 }
 
 
-                            }
-                        }
+                                var getAll = eventStoreClient.ReadStreamAsync(
+                                direction: Direction.Forwards,
+                                streamName: finishEndUrl,
+                                revision: StreamPosition.Start);
 
-                        var getAll = eventStoreClient.ReadStreamAsync(
-                             direction: Direction.Forwards,
-                             streamName: endUrl,
-                             revision: StreamPosition.Start);
-
-                        var getAllEvents = await getAll.ToListAsync();
+                                var getAllEvents = await getAll.ToListAsync();
 
 
-
-                        List<RequestEvent> requestEvents = new List<RequestEvent>();
-                        foreach (var requestEvent in getAllEvents)
-                        {
-                            var type = requestEvent.Event.EventType;
-                            Type selectType = type switch
-                            {
-                                nameof(RequestEvent) => typeof(RequestEvent)
-                            };
-                            object deserializerEvent = JsonSerializer.Deserialize(requestEvent.Event.Data.ToArray(), selectType)!;
-
-                            switch (deserializerEvent)
-                            {
-                                case RequestEvent req:
-
-                                    requestEvents.Add(req);
-                                    break;
-                            }
-                        }
-
-                        StringBuilder stringBuilder = new StringBuilder();
-                        var groupBy = requestEvents.GroupBy(u =>
-                          {
-                              stringBuilder.Clear();
-                              string[] splitUrl = u.Url.Split('/');
-                              for (int i = 0; i <= 4; i++)
-                              {
-                                  stringBuilder.Append(splitUrl[i]);
-                              }
-                              return stringBuilder.ToString();
-                          });
-
-
-                        foreach (var groupByEvents in groupBy)
-                        {
-                            int successCount = 0;
-                            int unSuccessCount = 0;
-                            foreach (var _groupBy in groupByEvents)
-                            {
-                                if (_groupBy.RequestStatus)
+                                foreach (var requestEvent in getAllEvents)
                                 {
-                                    successCount++;
-                                }
-                                else
-                                {
-                                    unSuccessCount++;
+                                    var type = requestEvent.Event.EventType;
+                                    Type selectType = type switch
+                                    {
+                                        nameof(RequestEvent) => typeof(RequestEvent)
+                                    };
+                                    object deserializerEvent = JsonSerializer.Deserialize(requestEvent.Event.Data.ToArray(), selectType)!;
+
+                                    switch (deserializerEvent)
+                                    {
+                                        case RequestEvent req:
+
+                                            requestEvents.Add(req);
+                                            break;
+                                    }
                                 }
                             }
-                            response.Add(new Dto.Response
+                            var groupBy = requestEvents.GroupBy(u =>
                             {
-                                Controller = groupByEvents.Key,
-                                SuccessCount = successCount,
-                                UnSuccessCount = unSuccessCount
+                                return u.Url.Split('/')[0] + '/' + u.Url.Split('/')[1] + '/' + u.Url.Split('/')[2] + '/' + u.Url.Split('/')[3] + '/' + u.Url.Split('/')[4];
                             });
+
+                            foreach (var groupByEvents in groupBy)
+                            {
+                                foreach (var _groupBy in groupByEvents)
+                                {
+                                    if (_groupBy.RequestStatus)
+                                    {
+                                        successCount++;
+                                    }
+                                    else
+                                    {
+                                        unSuccessCount++;
+                                    }
+                                }
+                                response.Add(new Dto.Response
+                                {
+                                    Controller = groupByEvents.Key,
+                                    SuccessCount = successCount,
+                                    UnSuccessCount = unSuccessCount
+                                });
+                            }
                         }
-
                     }
-
-                    Console.WriteLine();
                     return ResponseDto<List<Dto.Response>>.Success(response, 200);
                 }
             }
