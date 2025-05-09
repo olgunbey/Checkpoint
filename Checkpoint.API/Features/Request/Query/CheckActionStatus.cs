@@ -70,7 +70,7 @@ namespace Checkpoint.API.Features.Request.Query
                         switch (@event)
                         {
                             case RequestEvent req:
-                                results.Add(requestUrl, req.Processed);
+                                results.Add(requestUrl, req.RequestStatus);
                                 break;
                         }
                     }
