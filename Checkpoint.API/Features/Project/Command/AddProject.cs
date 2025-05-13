@@ -11,7 +11,7 @@ using Shared.Dtos;
 
 namespace Checkpoint.API.Features.Project.Command
 {
-    internal static class Processor
+    internal static class AddProject
     {
         internal sealed class Mediatr
         {

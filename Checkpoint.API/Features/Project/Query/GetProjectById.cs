@@ -9,7 +9,7 @@ using Shared.Common;
 
 namespace Checkpoint.API.Features.Project.Query
 {
-    internal static class Processor
+    internal static class GetProjectById
     {
         internal sealed class Mediatr
         {
