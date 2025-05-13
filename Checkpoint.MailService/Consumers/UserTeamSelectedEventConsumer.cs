@@ -1,4 +1,5 @@
-﻿using Checkpoint.MailService.Interfaces;
+﻿using Checkpoint.MailService.Exceptions;
+using Checkpoint.MailService.Interfaces;
 using MassTransit;
 using Shared.Events;
 
@@ -18,11 +19,7 @@ namespace Checkpoint.MailService.Consumers
             }
             catch (Exception)
             {
-                mailDbContext.NotSentMail.Add(new Entities.NotSentMail()
-                {
-                    Email = context.Message.MailAddress,
-                });
-                await mailDbContext.SaveChangesAsync(context.CancellationToken);
+                throw new NotSendEmailApiException("api analizi için mail gönderilemedi!!");
             }
         }
     }
