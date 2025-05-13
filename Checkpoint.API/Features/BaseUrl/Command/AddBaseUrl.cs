@@ -1,4 +1,8 @@
-﻿using Checkpoint.API.Interfaces;
+﻿using Carter;
+using Checkpoint.API.Interfaces;
+using Checkpoint.API.ResponseHandler;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Shared.Common;
 
 namespace Checkpoint.API.Features.BaseUrl.Command
@@ -40,6 +44,21 @@ namespace Checkpoint.API.Features.BaseUrl.Command
                 public string BaseUrl { get; set; }
                 public int ProjectId { get; set; }
             }
+        }
+
+        public sealed class Endpoint : ApiResponseController, ICarterModule
+        {
+            public void AddRoutes(IEndpointRouteBuilder app)
+            {
+                app.MapPost("api/baseUrl/addBaseUrl", Handle);
+            }
+            public async Task<IActionResult> Handle([FromServices] IMediator mediator, HttpContext context, [FromBody] Dto.Request request)
+            {
+                var response = await mediator.Send(new Mediatr.Request() { RequestDto = request });
+
+                return Handlers(response, context);
+            }
+
         }
     }
 }

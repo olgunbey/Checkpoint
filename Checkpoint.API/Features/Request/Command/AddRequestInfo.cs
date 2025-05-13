@@ -13,7 +13,7 @@ using Shared.Dtos;
 
 namespace Checkpoint.API.Features.Request.Command
 {
-    internal static class Proccessor
+    internal static class AddRequestInfo
     {
         internal sealed class Mediatr
         {
