@@ -8,9 +8,9 @@ namespace Checkpoint.API.Common
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public int CreateUserId { get; set; }
-        public DateTime UpdatedDate { get; set; }
-        public int UpdateUserId { get; set; }
+        //public DateTime CreatedDate { get; set; }
+        //public int CreateUserId { get; set; }
+        //public DateTime UpdatedDate { get; set; }
+        //public int UpdateUserId { get; set; }
     }
 }

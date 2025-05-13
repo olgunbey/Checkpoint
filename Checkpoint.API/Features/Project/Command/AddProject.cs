@@ -1,7 +1,6 @@
 ﻿using Carter;
 using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
-using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -33,16 +32,6 @@ namespace Checkpoint.API.Features.Project.Command
                     await applicationDbContext.SaveChangesAsync(cancellationToken);
                     return ResponseDto<NoContent>.Success(204);
                 }
-            }
-        }
-
-        internal sealed class Validator : AbstractValidator<Dto.Request>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.ProjectName).NotEmpty().NotNull();
-                RuleFor(x => x.TeamId).Empty().Null();
-                RuleFor(y => y.IndividualId).Empty().Null();
             }
         }
         internal sealed class Dto
