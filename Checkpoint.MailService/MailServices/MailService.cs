@@ -1,4 +1,4 @@
-﻿using Checkpoint.MailService.Enums;
+﻿using Checkpoint.MailService.Dtos;
 using Checkpoint.MailService.Interfaces;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
@@ -8,8 +8,7 @@ namespace Checkpoint.MailService.MailServices
 {
     public class MailService(SmtpClient smtpClient, IOptions<MailInformation> mailInformation) : IMailService
     {
-
-        public async Task SendEmail(string toEmail, string subject, string verificationCode, SendEmailType sendEmailType)
+        public async Task SendEmailAsync(string toEmail, string subject, string verificationCode)
         {
             using (MimeMessage mailMessage = new())
             {
@@ -17,11 +16,9 @@ namespace Checkpoint.MailService.MailServices
                 mailMessage.From.Add(MailboxAddress.Parse(mailInformation.Value.Username));
                 mailMessage.To.Add(MailboxAddress.Parse(toEmail));
 
-                if (SendEmailType.Verification == sendEmailType)
+                mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
                 {
-                    mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
-                    {
-                        Text = $@"<!DOCTYPE html>
+                    Text = $@"<!DOCTYPE html>
 <html lang=""tr"">
 
 <head>
@@ -87,20 +84,26 @@ namespace Checkpoint.MailService.MailServices
 </body>
 
 </html>",
-                    };
-                }
-                else if (SendEmailType.Analysis == sendEmailType)
-                {
-                    mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
-                    {
-                        Text = $@""
-                    };
-                }
-
-
+                };
 
                 await smtpClient.SendAsync(mailMessage);
 
+            }
+        }
+        public async Task SendEmailApiAnalysisAsync(SendEmailApiAnalysisDto sendEmailApiAnalysisDto)
+        {
+            using (MimeMessage mailMessage = new())
+            {
+                mailMessage.Subject = sendEmailApiAnalysisDto.Subject;
+                mailMessage.From.Add(MailboxAddress.Parse(mailInformation.Value.Username));
+                mailMessage.To.Add(MailboxAddress.Parse(sendEmailApiAnalysisDto.ToMail));
+
+                mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                {
+                    Text = @$"{sendEmailApiAnalysisDto.Url} istek süresinde performans kayıbı mevcut, lütfen performan iyileştirmesi yapınız"
+                };
+
+                await smtpClient.SendAsync(mailMessage);
             }
         }
 

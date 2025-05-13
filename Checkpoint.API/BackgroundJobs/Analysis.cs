@@ -102,7 +102,8 @@ namespace Checkpoint.API.BackgroundJobs
                                      AnalysisNotAvgEvent analysisStartEvent = new()
                                      {
                                          IndividualId = notProcessedEvent.Value.IndividualId,
-                                         TeamId = notProcessedEvent.Value.TeamId
+                                         TeamId = notProcessedEvent.Value.TeamId,
+                                         ApiUrl = notProcessedEvent.Value.Url
                                      };
                                      var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
                                      await getSendEndpoint.Send(analysisStartEvent);

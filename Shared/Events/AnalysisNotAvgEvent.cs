@@ -4,5 +4,6 @@
     {
         public int? TeamId { get; set; }
         public int? IndividualId { get; set; }
+        public string ApiUrl { get; set; }
     }
 }

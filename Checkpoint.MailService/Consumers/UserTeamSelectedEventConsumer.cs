@@ -10,7 +10,11 @@ namespace Checkpoint.MailService.Consumers
         {
             try
             {
-                await mailService.SendEmail(context.Message.MailAddress, "Api Analysis", null, Enums.SendEmailType.Analysis);
+                await mailService.SendEmailApiAnalysisAsync(new Dtos.SendEmailApiAnalysisDto()
+                {
+                    Url = context.Message.ApiUrl,
+                    ToMail = context.Message.MailAddress
+                });
             }
             catch (Exception)
             {

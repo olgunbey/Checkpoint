@@ -20,6 +20,7 @@ namespace Checkpoint.IdentityServer.Consumers
                 UserTeamSelectedEvent userTeamSelectedEvent = new UserTeamSelectedEvent()
                 {
                     MailAddress = individual.Mail,
+                    ApiUrl = context.Message.ApiUrl,
                 };
                 await sendEndPoint.Send(userTeamSelectedEvent);
 
