@@ -4,7 +4,7 @@ namespace Checkpoint.API
 {
     public static class RequestPayloadDeserializer
     {
-        public static void ParseJsonElementValue(JsonElement jsonElement, out object data)
+        public static void ParseJsonElementValue(JsonElement jsonElement, out object? data)
         {
             data = jsonElement.ValueKind switch
             {
