@@ -34,19 +34,17 @@ namespace Checkpoint.API.Features.BaseUrl.Query
                     }).ToList();
 
                     return ResponseDto<List<Dto.Response>>.Success(responseData, 200);
-
-
                 }
             }
         }
         internal sealed class NotFoundProjectException(string msg) : Exception(msg) { }
         internal sealed class Dto
         {
-            internal sealed class Request
+            internal sealed record Request
             {
                 public int ProjectId { get; set; }
             }
-            internal sealed class Response
+            internal sealed record Response
             {
                 public int Id { get; set; }
                 public string BaseUrl { get; set; }
@@ -57,7 +55,7 @@ namespace Checkpoint.API.Features.BaseUrl.Query
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("project/getBaseUrlAccordingToProjectId", Handle);
+                app.MapGet("api/project/getBaseUrlAccordingToProjectId", Handle);
             }
             public async Task<IActionResult> Handle([FromServices] IMediator mediator, [FromQuery] int projectId, HttpContext httpContext)
             {
