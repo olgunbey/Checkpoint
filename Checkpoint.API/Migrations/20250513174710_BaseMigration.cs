@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Checkpoint.API.RequestPayloads;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.API.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedData : Migration
+    public partial class BaseMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,11 +23,7 @@ namespace Checkpoint.API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ProjectName = table.Column<string>(type: "text", nullable: false),
                     TeamId = table.Column<int>(type: "integer", nullable: true),
-                    IndividualId = table.Column<int>(type: "integer", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                    IndividualId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -55,11 +50,7 @@ namespace Checkpoint.API.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     BasePath = table.Column<string>(type: "text", nullable: false),
-                    ProjectId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                    ProjectId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,11 +70,7 @@ namespace Checkpoint.API.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ControllerPath = table.Column<string>(type: "text", nullable: false),
-                    BaseUrlId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                    BaseUrlId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,11 +94,7 @@ namespace Checkpoint.API.Migrations
                     RequestType = table.Column<int>(type: "integer", nullable: false),
                     Body = table.Column<List<Body>>(type: "jsonb", nullable: true),
                     Header = table.Column<List<Header>>(type: "jsonb", nullable: true),
-                    Query = table.Column<List<Query>>(type: "jsonb", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdateUserId = table.Column<int>(type: "integer", nullable: false)
+                    Query = table.Column<List<Query>>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -126,29 +109,29 @@ namespace Checkpoint.API.Migrations
 
             migrationBuilder.InsertData(
                 table: "Project",
-                columns: new[] { "Id", "CreateUserId", "CreatedDate", "IndividualId", "ProjectName", "TeamId", "UpdateUserId", "UpdatedDate" },
+                columns: new[] { "Id", "IndividualId", "ProjectName", "TeamId" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Job Projesi", 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, "Otoyol Projesi", 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, null, "Job Projesi", 1 },
+                    { 2, null, "Otoyol Projesi", 1 }
                 });
 
             migrationBuilder.InsertData(
                 table: "BaseUrl",
-                columns: new[] { "Id", "BasePath", "CreateUserId", "CreatedDate", "ProjectId", "UpdateUserId", "UpdatedDate" },
+                columns: new[] { "Id", "BasePath", "ProjectId" },
                 values: new object[,]
                 {
-                    { 1, "https://localhost:5000/api", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, "https://localhost:5001/api", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, "https://localhost:5000/api", 1 },
+                    { 2, "https://localhost:5001/api", 2 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Controller",
-                columns: new[] { "Id", "BaseUrlId", "ControllerPath", "CreateUserId", "CreatedDate", "UpdateUserId", "UpdatedDate" },
+                columns: new[] { "Id", "BaseUrlId", "ControllerPath" },
                 values: new object[,]
                 {
-                    { 1, 1, "User", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, 1, "Teacher", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, 1, "User" },
+                    { 2, 1, "Teacher" }
                 });
 
             migrationBuilder.CreateIndex(
