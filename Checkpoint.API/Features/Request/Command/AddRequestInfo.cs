@@ -36,7 +36,6 @@ namespace Checkpoint.API.Features.Request.Command
 
                         Entities.Action addAction = new()
                         {
-                            CreateUserId = request.RequestDto.CreateUserId,
                             ControllerId = request.RequestDto.ControllerId,
                             ActionPath = request.RequestDto.ActionPath,
                             Query = JsonConvert.DeserializeObject<List<RequestPayloads.Query>>(request.RequestDto.Query),
@@ -91,7 +90,6 @@ namespace Checkpoint.API.Features.Request.Command
                 public string Query { get; set; }
                 public string Header { get; set; }
                 public string Body { get; set; }
-                public int CreateUserId { get; set; }
             }
         }
         public sealed class Endpoint : ApiResponseController, ICarterModule

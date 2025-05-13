@@ -1,5 +1,4 @@
 ﻿using Carter;
-using Checkpoint.API.Entities;
 using Checkpoint.API.Enums;
 using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
@@ -24,7 +23,7 @@ namespace Checkpoint.API.Features.Request.Query
 
                 public async Task<ResponseDto<Dto.Response>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    BaseUrl? baseUrl = await applicationDbContext.BaseUrl.FindAsync(request.RequestDto.Id);
+                    var baseUrl = await applicationDbContext.BaseUrl.FindAsync(request.RequestDto.Id);
                     if (baseUrl == null)
                         throw new BaseUrlNotFoundException($"Not found BaseUrl-{request.RequestDto.Id} ");
 

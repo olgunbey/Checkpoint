@@ -11,18 +11,14 @@ namespace Checkpoint.API.Data.Configurations
             builder.HasData(new BaseUrl()
             {
                 Id = 1,
-                CreateUserId = 1,
                 ProjectId = 1,
                 BasePath = "https://localhost:5000/api",
-                UpdateUserId = 1
             },
             new BaseUrl()
             {
                 Id = 2,
-                CreateUserId = 1,
                 ProjectId = 2,
                 BasePath = "https://localhost:5001/api",
-                UpdateUserId = 1
             });
         }
     }

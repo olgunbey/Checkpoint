@@ -25,7 +25,6 @@ namespace Checkpoint.API.Features.Project.Command
                     applicationDbContext.Project.Add(new Entities.Project()
                     {
                         ProjectName = request.RequestDto.ProjectName,
-                        CreateUserId = request.RequestDto.CreateUserId,
                         IndividualId = request.RequestDto.IndividualId,
                         TeamId = request.RequestDto.TeamId
                     });
@@ -39,7 +38,6 @@ namespace Checkpoint.API.Features.Project.Command
             internal sealed record Request
             {
                 public string ProjectName { get; set; }
-                public int CreateUserId { get; set; }
                 public int? TeamId { get; set; }
                 public int? IndividualId { get; set; }
             }

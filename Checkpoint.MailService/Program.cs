@@ -2,6 +2,7 @@ using Checkpoint.MailService;
 using Checkpoint.MailService.BackgroundJobs;
 using Checkpoint.MailService.Consumers;
 using Checkpoint.MailService.Data;
+using Checkpoint.MailService.Interfaces;
 using Checkpoint.MailService.MailServices;
 using Hangfire;
 using Hangfire.MemoryStorage;
@@ -20,7 +21,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddServices();
 builder.Services.Configure<MailInformation>(builder.Configuration.GetSection("MailInformation"));
 builder.Services.AddHangfire(y => y.UseMemoryStorage());
-builder.Services.AddSingleton<MailService>();
+builder.Services.AddSingleton<IMailService, MailService>();
 builder.Services.AddSingleton<SmtpClient>(y =>
 {
     var smtpClient = new SmtpClient();

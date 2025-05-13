@@ -15,16 +15,14 @@ namespace Checkpoint.API.Data.Configurations
                 Id = 1,
                 ProjectName = "Job Projesi",
                 TeamId = 1,
-                CreateUserId = 1,
-                UpdateUserId = 1,
+
             },
             new Project()
             {
                 Id = 2,
                 ProjectName = "Otoyol Projesi",
                 TeamId = 1,
-                CreateUserId= 1,
-                UpdateUserId= 1,
+
             });
         }
     }

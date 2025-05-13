@@ -12,16 +12,12 @@ namespace Checkpoint.API.Data.Configurations
             {
                 Id = 1,
                 BaseUrlId = 1,
-                CreateUserId = 1,
-                UpdateUserId = 1,
                 ControllerPath = "User"
             },
             new Controller()
             {
                 Id = 2,
                 BaseUrlId = 1,
-                CreateUserId = 1,
-                UpdateUserId = 1,
                 ControllerPath = "Teacher"
             });
         }
