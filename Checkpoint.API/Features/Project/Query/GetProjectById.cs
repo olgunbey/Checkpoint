@@ -3,7 +3,6 @@ using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 
 namespace Checkpoint.API.Features.Project.Query
@@ -25,11 +24,6 @@ namespace Checkpoint.API.Features.Project.Query
 
                     if (project == null)
                         return ResponseDto<Dto.Response>.Fail("Proje bulunamadı!!!", 400);
-
-                    await applicationDbContext.Project.Entry(project).Collection(y => y.BaseUrls).Query()
-                          .Include(y => y.Controllers)
-                          .ThenInclude(y => y.Actions)
-                          .LoadAsync(cancellationToken);
 
                     var response = new Dto.Response()
                     {
