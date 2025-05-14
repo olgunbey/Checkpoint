@@ -1,7 +1,6 @@
 using Carter;
 using Checkpoint.API.BackgroundJobs;
 using Checkpoint.API.Data;
-using Checkpoint.API.Interfaces;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
