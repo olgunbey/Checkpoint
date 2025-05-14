@@ -116,7 +116,7 @@ namespace Checkpoint.API.Features.Request.Query
         }
         internal sealed class Dto
         {
-            internal sealed class Response
+            internal sealed record Response
             {
                 public string Controller { get; set; }
                 public int SuccessCount { get; set; }

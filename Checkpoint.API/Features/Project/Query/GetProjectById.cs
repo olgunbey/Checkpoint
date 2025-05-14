@@ -36,11 +36,10 @@ namespace Checkpoint.API.Features.Project.Query
         }
         internal sealed class Dto
         {
-            internal sealed class Response
+            internal sealed record Response
             {
                 public int Id { get; set; }
                 public string ProjectName { get; set; }
-
             }
 
             internal sealed record Request(int Id);

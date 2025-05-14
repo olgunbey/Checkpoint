@@ -71,15 +71,15 @@ namespace Checkpoint.API.Features.Request.Query
         internal sealed class Dto
         {
             internal sealed record Request(int Id);
-            internal sealed class Response
+            internal sealed record Response
             {
-                internal sealed class Controller
+                internal sealed record Controller
                 {
                     public int Id { get; set; }
                     public string ControllerPath { get; set; }
                     public List<Action> Actions { get; set; }
                 }
-                internal sealed class Action
+                internal sealed record Action
                 {
                     public int Id { get; set; }
                     public string ActionPath { get; set; }
