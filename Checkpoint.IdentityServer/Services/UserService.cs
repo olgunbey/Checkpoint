@@ -1,4 +1,5 @@
-﻿using Checkpoint.IdentityServer.Dtos;
+﻿using Checkpoint.IdentityServer.Constants;
+using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Entities;
 using Checkpoint.IdentityServer.Interfaces;
 using Checkpoint.IdentityServer.TokenServices;
@@ -37,7 +38,7 @@ namespace Checkpoint.IdentityServer.Services
                 .ThenInclude(y => y.Permission)
                  .LoadAsync();
 
-            var responseToken = await corporateTokenService.CorporateToken(corporate.Entity, hasClient.Issuer, hasClient.Audience, hasClient.ClientSecret);
+            var responseToken = await corporateTokenService.CorporateTokenAsync(corporate.Entity, hasClient.Issuer, hasClient.Audience, hasClient.ClientSecret);
 
             CacheRefreshTokenDto cacheRefreshTokenDto = new()
             {
@@ -46,7 +47,7 @@ namespace Checkpoint.IdentityServer.Services
                 ValidityPeriod = responseToken.RefreshToken_LifeTime
             };
 
-            var getRedisRefreshToken = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>("refresh-token");
+            var getRedisRefreshToken = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>(IdentityServerConstants.RedisRefreshTokenKey);
 
             List<CacheRefreshTokenDto> refreshTokenDtos = new();
             if (getRedisRefreshToken != null)
@@ -55,7 +56,7 @@ namespace Checkpoint.IdentityServer.Services
             }
 
             refreshTokenDtos.Add(cacheRefreshTokenDto);
-            await redisClientAsync.SetAsync("refresh-token", refreshTokenDtos);
+            await redisClientAsync.SetAsync(IdentityServerConstants.RedisRefreshTokenKey, refreshTokenDtos);
             return ResponseDto<TokenResponseDto>.Success(responseToken, 200);
 
         }
