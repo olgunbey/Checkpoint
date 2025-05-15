@@ -12,16 +12,7 @@ namespace Checkpoint.IdentityServer.Controllers
         [HttpGet]
         public async Task<IActionResult> RemoveRefreshToken([FromQuery] int userId)
         {
-            //var refreshTokens = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>("refresh-token");
-
-            //var removeRefreshToken = refreshTokens.Single(y => y.UserId == userId);
-
-            //refreshTokens.Remove(removeRefreshToken);
-
-            //await redisClientAsync.SetAsync<List<CacheRefreshTokenDto>>("refresh-token", refreshTokens);
-
             var responseDto = await tokenService.RemoveRefreshTokenAsync(userId);
-
             return Handlers(responseDto);
         }
         [HttpPost]
@@ -32,11 +23,10 @@ namespace Checkpoint.IdentityServer.Controllers
 
         }
         [HttpPost]
-        public async Task<IActionResult> GenerateAccessToken([FromBody] string refreshToken)
+        public async Task<IActionResult> GenerateAccessToken([FromBody] GenerateAccessTokenDto generateAccessTokenDto)
         {
-            //accesstoken üretmek için bir refresh token alınır. Bu refresh tokene göre yeni bir access token üretilir
-            //ve refres token güncellenir
-            return Ok();
+            var responseDto = await tokenService.GenerateAccessTokenAsync(generateAccessTokenDto);
+            return Handlers(responseDto);
         }
     }
 }
