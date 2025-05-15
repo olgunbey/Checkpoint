@@ -1,8 +1,11 @@
-﻿using Checkpoint.IdentityServer.Data;
+﻿using Checkpoint.IdentityServer.Constants;
+using Checkpoint.IdentityServer.Data;
 using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Entities;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using ServiceStack.Redis;
+using Shared.Common;
 using Shared.Hash;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,7 +14,7 @@ using System.Security.Claims;
 
 namespace Checkpoint.IdentityServer.TokenServices
 {
-    public class TokenService(IdentityDbContext identityDbContext)
+    public class TokenService(IdentityDbContext identityDbContext, IRedisClientAsync redisClientAsync)
     {
         public Task<TokenResponseDto> CorporateToken(Corporate corporate, string issuer, string audience, string clientSecret)
         {
@@ -60,6 +63,28 @@ namespace Checkpoint.IdentityServer.TokenServices
         private string GenerateRefreshToken()
         {
             return Guid.NewGuid().ToString();
+        }
+        public async Task<ResponseDto<NoContent>> ControlRefreshTokenAsync(ControlRefreshTokenDto controlRefreshTokenDto)
+        {
+            var getAllRefreshToken = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>(IdentityServerConstants.RedisRefreshTokenKey);
+
+            if (getAllRefreshToken.Any(y => y.ValidityPeriod <= DateTime.UtcNow))
+            {
+                return ResponseDto<NoContent>.Success(204);
+            }
+            return ResponseDto<NoContent>.Fail("Refresh token bulunamadı veya geçersiz", 400);
+        }
+        public async Task<ResponseDto<NoContent>> RemoveRefreshTokenAsync(int userId)
+        {
+            var refreshTokens = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>(IdentityServerConstants.RedisRefreshTokenKey);
+
+            var removeRefreshToken = refreshTokens.Single(y => y.UserId == userId);
+
+            refreshTokens.Remove(removeRefreshToken);
+
+            await redisClientAsync.SetAsync<List<CacheRefreshTokenDto>>(IdentityServerConstants.RedisRefreshTokenKey, refreshTokens);
+
+            return ResponseDto<NoContent>.Success(204);
         }
     }
 }

@@ -1,6 +1,0 @@
-@Checkpoint.MailService_HostAddress = http://localhost:5156
-
-GET {{Checkpoint.MailService_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
