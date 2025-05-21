@@ -1,4 +1,5 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
+using Checkpoint.IdentityServer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using Shared.Hash;
@@ -6,7 +7,7 @@ using System.Text.Json;
 
 namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
 {
-    public class RegisterOutboxTransaction(IdentityDbContext identityDbContext)
+    public class RegisterOutboxTransaction(IIdentityDbContext identityDbContext)
     {
         public async Task<ResponseDto<NoContent>> AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
         {
@@ -42,10 +43,7 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
                 CompanyId = hasCompany.Id
             });
             await identityDbContext.SaveChangesAsync(cancellationToken);
-
-
             return ResponseDto<NoContent>.Success(204);
-
 
         }
         public async Task<List<Entities.Outbox.RegisterOutbox>> ProcessedRegister()
