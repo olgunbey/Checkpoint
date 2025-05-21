@@ -53,6 +53,17 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Client");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Audience = "https://localhost:5000",
+                            ClientId = "checkpoint-client",
+                            ClientSecret = "checkpointsecret",
+                            GrantType = "resourceowner",
+                            Issuer = "https://localhost:7253"
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Company", b =>

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.IdentityServer.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20250426154941_RoleAndPermissionConnectedToTeam")]
-    partial class RoleAndPermissionConnectedToTeam
+    [Migration("20250521154859_basemig")]
+    partial class basemig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,6 +56,17 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Client");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Audience = "https://localhost:5000",
+                            ClientId = "checkpoint-client",
+                            ClientSecret = "checkpointsecret",
+                            GrantType = "resourceowner",
+                            Issuer = "https://localhost:7253"
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Company", b =>
@@ -175,12 +186,7 @@ namespace Checkpoint.IdentityServer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TeamId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TeamId");
 
                     b.ToTable("Permission");
                 });
@@ -317,17 +323,6 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Permission", b =>
-                {
-                    b.HasOne("Checkpoint.IdentityServer.Entities.Team", "Team")
-                        .WithMany("Permissions")
-                        .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Team");
-                });
-
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Role", b =>
                 {
                     b.HasOne("Checkpoint.IdentityServer.Entities.Team", "Team")
@@ -438,8 +433,6 @@ namespace Checkpoint.IdentityServer.Migrations
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Team", b =>
                 {
-                    b.Navigation("Permissions");
-
                     b.Navigation("Roles");
 
                     b.Navigation("UserTeams");

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.IdentityServer.Migrations
 {
     /// <inheritdoc />
-    public partial class rolepermissiontableupdated : Migration
+    public partial class basemig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,7 +63,8 @@ namespace Checkpoint.IdentityServer.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    CreateUserId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -83,32 +84,6 @@ namespace Checkpoint.IdentityServer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RegisterOutbox", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Role",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Role", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Team",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Team", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -136,53 +111,42 @@ namespace Checkpoint.IdentityServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompanyPermission",
+                name: "Team",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CompanyId = table.Column<int>(type: "integer", nullable: false),
-                    PermissionId = table.Column<int>(type: "integer", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    CompanyId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompanyPermission", x => x.Id);
+                    table.PrimaryKey("PK_Team", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CompanyPermission_Company_CompanyId",
+                        name: "FK_Team_Company_CompanyId",
                         column: x => x.CompanyId,
                         principalTable: "Company",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CompanyPermission_Permission_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "Permission",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompanyRole",
+                name: "Role",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CompanyId = table.Column<int>(type: "integer", nullable: false),
-                    RoleId = table.Column<int>(type: "integer", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
+                    TeamId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompanyRole", x => x.Id);
+                    table.PrimaryKey("PK_Role", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CompanyRole_Company_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Company",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CompanyRole_Role_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Role",
+                        name: "FK_Role_Team_TeamId",
+                        column: x => x.TeamId,
+                        principalTable: "Team",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -270,29 +234,24 @@ namespace Checkpoint.IdentityServer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyPermission_CompanyId",
-                table: "CompanyPermission",
-                column: "CompanyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyPermission_PermissionId",
-                table: "CompanyPermission",
-                column: "PermissionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyRole_CompanyId",
-                table: "CompanyRole",
-                column: "CompanyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyRole_RoleId",
-                table: "CompanyRole",
-                column: "RoleId");
+            migrationBuilder.InsertData(
+                table: "Client",
+                columns: new[] { "Id", "Audience", "ClientId", "ClientSecret", "GrantType", "Issuer" },
+                values: new object[] { 1, "https://localhost:5000", "checkpoint-client", "checkpointsecret", "resourceowner", "https://localhost:7253" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Corporate_CompanyId",
                 table: "Corporate",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Role_TeamId",
+                table: "Role",
+                column: "TeamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Team_CompanyId",
+                table: "Team",
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
@@ -336,12 +295,6 @@ namespace Checkpoint.IdentityServer.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Client");
-
-            migrationBuilder.DropTable(
-                name: "CompanyPermission");
-
-            migrationBuilder.DropTable(
-                name: "CompanyRole");
 
             migrationBuilder.DropTable(
                 name: "RegisterOutbox");
