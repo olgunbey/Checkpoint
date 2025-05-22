@@ -22,9 +22,9 @@ namespace Checkpoint.IdentityServer.Controllers
             return Handlers(await userServices.LoginAsync(corporateLoginDto));
         }
         [HttpGet]
-        public async Task<IActionResult> Verification([FromQuery] string email, [FromHeader] string verificationData)
+        public async Task<IActionResult> Verification([FromQuery] int id, [FromHeader] string verificationData)
         {
-            return Handlers(await registerOutboxTransaction.CorporateVerification(email, verificationData));
+            return Handlers(await registerOutboxTransaction.CorporateVerification(id, verificationData));
 
         }
         [HttpGet]

@@ -9,6 +9,7 @@ namespace Checkpoint.IdentityServer.Data.Configurations
         public void Configure(EntityTypeBuilder<Corporate> builder)
         {
             builder.Property(y => y.InvitationId).IsRequired(false);
+            builder.Property(y => y.Id).UseHiLo();
         }
     }
 }

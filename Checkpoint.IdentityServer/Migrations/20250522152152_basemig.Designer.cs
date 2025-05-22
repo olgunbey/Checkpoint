@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.IdentityServer.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20250521154859_basemig")]
+    [Migration("20250522152152_basemig")]
     partial class basemig
     {
         /// <inheritdoc />
@@ -24,6 +24,9 @@ namespace Checkpoint.IdentityServer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.HasSequence("EntityFrameworkHiLoSequence")
+                .IncrementsBy(10);
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Client", b =>
                 {
@@ -96,7 +99,7 @@ namespace Checkpoint.IdentityServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "EntityFrameworkHiLoSequence");
 
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");

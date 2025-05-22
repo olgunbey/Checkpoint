@@ -9,7 +9,7 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
 {
     public class RegisterOutboxTransaction(IIdentityDbContext identityDbContext)
     {
-        public async Task<ResponseDto<NoContent>> AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
+        public async Task<ResponseDto<RegisterResponseDto>> AddRegisterAsync(RegisterCorporateDto registerCorporateDto, CancellationToken cancellationToken)
         {
             string companyName = registerCorporateDto.Mail.Split('@')[1].Split(".")[0];
 
@@ -35,15 +35,20 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             {
                 throw new Exception("Not found Company!!");
             }
-            identityDbContext.Corporate.Add(new Entities.Corporate()
+            var addedCorporate = new Entities.Corporate()
             {
                 Mail = registerCorporateDto.Mail,
                 Password = hashingPassword,
                 VerificationCode = verificationCode,
                 CompanyId = hasCompany.Id
-            });
+            };
+            await identityDbContext.Corporate.AddAsync(addedCorporate);
             await identityDbContext.SaveChangesAsync(cancellationToken);
-            return ResponseDto<NoContent>.Success(204);
+            var response = new RegisterResponseDto()
+            {
+                Id = addedCorporate.Id,
+            };
+            return ResponseDto<RegisterResponseDto>.Success(response, 200);
 
         }
         public async Task<List<Entities.Outbox.RegisterOutbox>> ProcessedRegister()
@@ -53,9 +58,9 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             await notProcessedDate.ExecuteUpdateAsync(setter => setter.SetProperty(x => x.ProcessedDate, DateTime.UtcNow));
             return data;
         }
-        public async Task<ResponseDto<NoContent>> CorporateVerification(string email, string verificationCode)
+        public async Task<ResponseDto<NoContent>> CorporateVerification(int id, string verificationCode)
         {
-            bool hasCorporate = await identityDbContext.Corporate.AnyAsync(y => y.Mail == email && y.VerificationCode == verificationCode);
+            bool hasCorporate = await identityDbContext.Corporate.AnyAsync(y => y.Id == id && y.VerificationCode == verificationCode);
 
             if (!hasCorporate)
             {

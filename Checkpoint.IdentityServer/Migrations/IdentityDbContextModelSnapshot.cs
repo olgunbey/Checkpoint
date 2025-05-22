@@ -22,6 +22,9 @@ namespace Checkpoint.IdentityServer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence("EntityFrameworkHiLoSequence")
+                .IncrementsBy(10);
+
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Client", b =>
                 {
                     b.Property<int>("Id")
@@ -93,7 +96,7 @@ namespace Checkpoint.IdentityServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "EntityFrameworkHiLoSequence");
 
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
