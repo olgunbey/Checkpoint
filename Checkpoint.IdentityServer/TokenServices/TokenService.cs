@@ -81,37 +81,36 @@ namespace Checkpoint.IdentityServer.TokenServices
 
             var getRefreshToken = getAllRefreshToken.FirstOrDefault(y => y.RefreshToken == controlRefreshTokenDto.RefreshToken);
 
-            if (getRefreshToken != null && getRefreshToken.ValidityPeriod >= DateTime.UtcNow)
+            if (getRefreshToken == null || getRefreshToken.ValidityPeriod >= DateTime.UtcNow)
+                return ResponseDto<TokenResponseDto>.Fail("Refresh token bulunamadı veya geçersiz", 400);
+
+            int userId = getRefreshToken.UserId;
+
+            var corporateUser = (await identityDbContext.Corporate.FindAsync(userId))!;
+
+            await identityDbContext.Corporate.Entry(corporateUser).Collection(y => y.UserTeams)
+            .Query()
+            .Include(y => y.UserTeamRoles)
+            .ThenInclude(y => y.Role)
+            .Include(y => y.UserTeamPermissions)
+            .ThenInclude(y => y.Permission)
+             .LoadAsync();
+
+
+            var response = await CorporateTokenAsync(corporateUser);
+
+            getAllRefreshToken.Remove(getRefreshToken);
+
+            getAllRefreshToken.Add(new CacheRefreshTokenDto
             {
-                int userId = getRefreshToken.UserId;
+                RefreshToken = response.RefreshToken,
+                UserId = userId,
+                ValidityPeriod = DateTime.UtcNow
+            });
 
-                var corporateUser = (await identityDbContext.Corporate.FindAsync(userId))!;
+            await redisClientAsync.SetAsync(IdentityServerConstants.RedisRefreshTokenKey, getAllRefreshToken);
 
-                await identityDbContext.Corporate.Entry(corporateUser).Collection(y => y.UserTeams)
-                .Query()
-                .Include(y => y.UserTeamRoles)
-                .ThenInclude(y => y.Role)
-                .Include(y => y.UserTeamPermissions)
-                .ThenInclude(y => y.Permission)
-                 .LoadAsync();
-
-
-                var response = await CorporateTokenAsync(corporateUser);
-
-                getAllRefreshToken.Remove(getRefreshToken);
-
-                getAllRefreshToken.Add(new CacheRefreshTokenDto
-                {
-                    RefreshToken = response.RefreshToken,
-                    UserId = userId,
-                    ValidityPeriod = DateTime.UtcNow
-                });
-
-                await redisClientAsync.SetAsync(IdentityServerConstants.RedisRefreshTokenKey, getAllRefreshToken);
-
-                return ResponseDto<TokenResponseDto>.Success(response, 200);
-            }
-            return ResponseDto<TokenResponseDto>.Fail("Refresh token bulunamadı veya geçersiz", 400);
+            return ResponseDto<TokenResponseDto>.Success(response, 200);
         }
         public async Task<ResponseDto<NoContent>> RemoveRefreshTokenAsync(int userId)
         {
