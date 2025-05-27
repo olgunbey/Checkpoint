@@ -8,6 +8,12 @@ namespace Checkpoint.IdentityServer.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<UserTeam> builder)
         {
+            builder.HasData(new UserTeam
+            {
+                Id = 1,
+                CorporateId = 1,
+                TeamId = 1,
+            });
             builder.Property(y => y.IndividualId).IsRequired(false);
             builder.Property(y => y.CorporateId).IsRequired(false);
         }

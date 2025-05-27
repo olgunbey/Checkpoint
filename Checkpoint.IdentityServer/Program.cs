@@ -2,6 +2,7 @@ using Checkpoint.IdentityServer;
 using Checkpoint.IdentityServer.BackgroundJobs;
 using Checkpoint.IdentityServer.Consumers;
 using Checkpoint.IdentityServer.Data;
+using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Policies;
 using Hangfire;
 using Hangfire.MemoryStorage;
@@ -43,8 +44,7 @@ builder.Services.AddAuthorization(configure =>
     configureBuilder.AddRequirements(new AddRequirement()));
 });
 
-
-
+builder.Services.Configure<TokenConf>(builder.Configuration.GetSection("TokenConf"));
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
 builder.Services.AddMassTransit<IBus>(configure =>
 {

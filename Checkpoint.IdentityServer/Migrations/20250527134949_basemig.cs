@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Checkpoint.IdentityServer.Migrations
 {
     /// <inheritdoc />
@@ -67,8 +69,7 @@ namespace Checkpoint.IdentityServer.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    CreateUserId = table.Column<int>(type: "integer", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,7 +141,6 @@ namespace Checkpoint.IdentityServer.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    CreateUserId = table.Column<int>(type: "integer", nullable: false),
                     TeamId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -241,6 +241,59 @@ namespace Checkpoint.IdentityServer.Migrations
                 table: "Client",
                 columns: new[] { "Id", "Audience", "ClientId", "ClientSecret", "GrantType", "Issuer" },
                 values: new object[] { 1, "https://localhost:5000", "checkpoint-client", "checkpointsecret", "resourceowner", "https://localhost:7253" });
+
+            migrationBuilder.InsertData(
+                table: "Company",
+                columns: new[] { "Id", "Key", "Name" },
+                values: new object[] { 1, "hotmail", "Koç Sistem" });
+
+            migrationBuilder.InsertData(
+                table: "Permission",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Admin" },
+                    { 2, "Okuma" },
+                    { 3, "Yazma" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Corporate",
+                columns: new[] { "Id", "CompanyId", "InvitationId", "Mail", "Password", "Verification", "VerificationCode" },
+                values: new object[] { 1, 1, null, "olgunsahin0161@hotmail.com", "acf3d886b0df7919742e5191fd5a0a745e887e6e1e3e75985394dd217c83979589543bde8e3037e69bff84f884fc55d1cd846cb3a7dbf04b25ca104ed93d7c5b", false, "A123-B213" });
+
+            migrationBuilder.InsertData(
+                table: "Team",
+                columns: new[] { "Id", "CompanyId", "Name" },
+                values: new object[,]
+                {
+                    { 1, 1, "Sigorta" },
+                    { 2, 1, "Araç kiralama" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Role",
+                columns: new[] { "Id", "Name", "TeamId" },
+                values: new object[] { 1, "Jr developer", 1 });
+
+            migrationBuilder.InsertData(
+                table: "UserTeam",
+                columns: new[] { "Id", "CorporateId", "IndividualId", "TeamId" },
+                values: new object[] { 1, 1, null, 1 });
+
+            migrationBuilder.InsertData(
+                table: "UserTeamPermission",
+                columns: new[] { "Id", "PermissionId", "UserTeamId" },
+                values: new object[,]
+                {
+                    { 1, 1, 1 },
+                    { 2, 2, 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserTeamRole",
+                columns: new[] { "Id", "RoleId", "UserTeamId" },
+                values: new object[] { 1, 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Corporate_CompanyId",

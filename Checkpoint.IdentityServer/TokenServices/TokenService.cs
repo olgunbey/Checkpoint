@@ -2,6 +2,8 @@
 using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Entities;
 using Checkpoint.IdentityServer.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using ServiceStack;
@@ -15,9 +17,42 @@ using System.Security.Claims;
 
 namespace Checkpoint.IdentityServer.TokenServices
 {
-    public class TokenService(IIdentityDbContext identityDbContext, IRedisClientAsync redisClientAsync)
+    public class TokenService(IIdentityDbContext identityDbContext, IRedisClientAsync redisClientAsync, IOptions<TokenConf> tokenConf)
     {
-        public Task<TokenResponseDto> CorporateTokenAsync(Corporate corporate, string issuer, string audience, string clientSecret)
+        private string GenerateRefreshToken()
+        {
+            return Guid.NewGuid().ToString();
+        }
+        private Task<TokenResponseDto> CreateTokenAsync(IEnumerable<Claim> claims)
+        {
+            DateTime accessTokenExpire = DateTime.UtcNow.AddMinutes(30);
+            DateTime refreshTokenExpire = DateTime.UtcNow.AddDays(3);
+
+            string clientSecret = tokenConf.Value.ClientSecret;
+            string issuer = tokenConf.Value.Issuer;
+            string audience = tokenConf.Value.Audience;
+
+            var securityKey = new SymmetricSecurityKey(Hashing.Hash(clientSecret));
+
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var secretToken = new JwtSecurityToken(issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: accessTokenExpire,
+                signingCredentials: credentials
+                );
+
+            var token = new JwtSecurityTokenHandler().WriteToken(secretToken);
+
+            return Task.FromResult(new TokenResponseDto
+            {
+                AccessToken = token,
+                AccessToken_LifeTime = accessTokenExpire,
+                RefreshToken = GenerateRefreshToken(),
+                RefreshToken_LifeTime = refreshTokenExpire,
+            });
+        }
+        public async Task<TokenResponseDto> CorporateTokenAsync(Corporate corporate)
         {
             var teams = corporate.UserTeams.Select(y => new
             {
@@ -28,7 +63,6 @@ namespace Checkpoint.IdentityServer.TokenServices
 
             var teamsJson = JsonConvert.SerializeObject(teams);
 
-
             var claims = new List<Claim>
             {
                 new Claim("teams", teamsJson),
@@ -36,44 +70,37 @@ namespace Checkpoint.IdentityServer.TokenServices
                 new Claim(JwtRegisteredClaimNames.Sub,corporate.Id.ToString())
             };
 
-
-
-            DateTime expires = DateTime.UtcNow.AddMinutes(30);
-
-            var securityKey = new SymmetricSecurityKey(Hashing.Hash(clientSecret));
-
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var secretToken = new JwtSecurityToken(issuer: issuer,
-                audience: audience,
-                claims: claims,
-                expires: expires,
-                signingCredentials: credentials
-                );
-
-            var token = new JwtSecurityTokenHandler().WriteToken(secretToken);
-
-            return Task.FromResult(new TokenResponseDto()
-            {
-                AccessToken = token,
-                AccessToken_LifeTime = expires,
-                RefreshToken = GenerateRefreshToken(),
-                RefreshToken_LifeTime = DateTime.UtcNow.AddDays(5)
-            });
+            var responseTokenDto = await CreateTokenAsync(claims);
+            return responseTokenDto;
 
         }
-        private string GenerateRefreshToken()
-        {
-            return Guid.NewGuid().ToString();
-        }
-        public async Task<ResponseDto<NoContent>> ControlRefreshTokenAsync(ControlRefreshTokenDto controlRefreshTokenDto)
+
+        public async Task<ResponseDto<TokenResponseDto>> ControlRefreshTokenAsync(ControlRefreshTokenDto controlRefreshTokenDto)
         {
             var getAllRefreshToken = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>(IdentityServerConstants.RedisRefreshTokenKey);
 
-            if (getAllRefreshToken.Any(y => y.ValidityPeriod <= DateTime.UtcNow))
+            var getRefreshToken = getAllRefreshToken.FirstOrDefault(y => y.RefreshToken == controlRefreshTokenDto.RefreshToken);
+
+            if (getRefreshToken != null && getRefreshToken.ValidityPeriod >= DateTime.UtcNow)
             {
-                return ResponseDto<NoContent>.Success(204);
+                int userId = getRefreshToken.UserId;
+
+                var corporateUser = (await identityDbContext.Corporate.FindAsync(userId))!;
+
+                await identityDbContext.Corporate.Entry(corporateUser).Collection(y => y.UserTeams)
+                .Query()
+                .Include(y => y.UserTeamRoles)
+                .ThenInclude(y => y.Role)
+                .Include(y => y.UserTeamPermissions)
+                .ThenInclude(y => y.Permission)
+                 .LoadAsync();
+
+
+                var response = await CorporateTokenAsync(corporateUser);
+
+                return ResponseDto<TokenResponseDto>.Success(response, 200);
             }
-            return ResponseDto<NoContent>.Fail("Refresh token bulunamadı veya geçersiz", 400);
+            return ResponseDto<TokenResponseDto>.Fail("Refresh token bulunamadı veya geçersiz", 400);
         }
         public async Task<ResponseDto<NoContent>> RemoveRefreshTokenAsync(int userId)
         {
@@ -103,12 +130,14 @@ namespace Checkpoint.IdentityServer.TokenServices
 
             Corporate? corporate = await identityDbContext.Corporate.FindAsync(generateAccessTokenDto.UserId);
 
+            var load = identityDbContext.Corporate.Entry(corporate).Collection(y => y.UserTeams).LoadAsync();
+
             if (corporate == null)
                 return ResponseDto<TokenResponseDto>.Fail("Kullanıcı bulunamadı", 400);
 
-            var getClient = (await identityDbContext.Client.FindAsync(1))!;
 
-            var generateToken = await CorporateTokenAsync(corporate, getClient.Issuer, getClient.Audience, getClient.ClientSecret);
+            await load;
+            var generateToken = await CorporateTokenAsync(corporate);
 
             getRefreshTokenDto.RefreshToken = generateToken.RefreshToken;
             getRefreshTokenDto.ValidityPeriod = generateToken.RefreshToken_LifeTime;

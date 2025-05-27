@@ -2,6 +2,6 @@
 {
     public class ControlRefreshTokenDto
     {
-        public DateTime RefreshTokenTime { get; set; }
+        public string RefreshToken { get; set; }
     }
 }

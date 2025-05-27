@@ -88,6 +88,14 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Company");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Key = "hotmail",
+                            Name = "Koç Sistem"
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Corporate", b =>
@@ -124,6 +132,17 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Corporate");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CompanyId = 1,
+                            Mail = "olgunsahin0161@hotmail.com",
+                            Password = "acf3d886b0df7919742e5191fd5a0a745e887e6e1e3e75985394dd217c83979589543bde8e3037e69bff84f884fc55d1cd846cb3a7dbf04b25ca104ed93d7c5b",
+                            Verification = false,
+                            VerificationCode = "A123-B213"
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Individual", b =>
@@ -179,9 +198,6 @@ namespace Checkpoint.IdentityServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CreateUserId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -189,6 +205,23 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Permission");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Okuma"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Yazma"
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Role", b =>
@@ -198,9 +231,6 @@ namespace Checkpoint.IdentityServer.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CreateUserId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -214,6 +244,14 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("Role");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Jr developer",
+                            TeamId = 1
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Team", b =>
@@ -236,6 +274,20 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Team");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CompanyId = 1,
+                            Name = "Sigorta"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CompanyId = 1,
+                            Name = "Araç kiralama"
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeam", b =>
@@ -264,6 +316,14 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("UserTeam");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CorporateId = 1,
+                            TeamId = 1
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeamPermission", b =>
@@ -287,6 +347,20 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasIndex("UserTeamId");
 
                     b.ToTable("UserTeamPermission");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            PermissionId = 1,
+                            UserTeamId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            PermissionId = 2,
+                            UserTeamId = 1
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.UserTeamRole", b =>
@@ -310,6 +384,14 @@ namespace Checkpoint.IdentityServer.Migrations
                     b.HasIndex("UserTeamId");
 
                     b.ToTable("UserTeamRole");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            RoleId = 1,
+                            UserTeamId = 1
+                        });
                 });
 
             modelBuilder.Entity("Checkpoint.IdentityServer.Entities.Corporate", b =>

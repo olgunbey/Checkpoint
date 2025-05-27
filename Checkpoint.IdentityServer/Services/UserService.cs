@@ -38,7 +38,7 @@ namespace Checkpoint.IdentityServer.Services
                 .ThenInclude(y => y.Permission)
                  .LoadAsync();
 
-            var responseToken = await corporateTokenService.CorporateTokenAsync(corporate.Entity, hasClient.Issuer, hasClient.Audience, hasClient.ClientSecret);
+            var responseToken = await corporateTokenService.CorporateTokenAsync(corporate.Entity);
 
             CacheRefreshTokenDto cacheRefreshTokenDto = new()
             {
@@ -61,12 +61,11 @@ namespace Checkpoint.IdentityServer.Services
 
         }
 
-        public async Task<ResponseDto<NoContent>> AddRoleAsync(int teamId, string roleName, int userId)
+        public async Task<ResponseDto<NoContent>> AddRoleAsync(int teamId, string roleName)
         {
             identityDbContext.Role.Add(
                 new Role()
                 {
-                    CreateUserId = userId,
                     Name = roleName,
                     TeamId = teamId,
                 });
