@@ -17,18 +17,28 @@ namespace Checkpoint.API.Features.Request.Query
         {
             internal sealed class Request : CustomIRequest<Dictionary<string, bool>>
             {
-
+                public Dto.Request RequestDto { get; set; }
             }
             internal sealed class Handler(EventStoreClient eventStoreClient, IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, Dictionary<string, bool>>
             {
                 public async Task<ResponseDto<Dictionary<string, bool>>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    var actionList = await applicationDbContext.Action.
-                          Include(y => y.Controller)
-                          .ThenInclude(y => y.BaseUrl)
-                          .ToListAsync();
+                    var getProject = (await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId))!;
+
+                    await applicationDbContext.Project.Entry(getProject)
+                         .Collection(y => y.BaseUrls)
+                         .Query()
+                         .Include(y => y.Controllers)
+                         .ThenInclude(y => y.Actions)
+                         .LoadAsync();
 
                     Dictionary<string, bool> results = new Dictionary<string, bool>();
+
+                    var actionList = getProject.BaseUrls
+                        .SelectMany(y => y.Controllers)
+                        .SelectMany(y => y.Actions)
+                        .ToList();
+
                     foreach (var action in actionList)
                     {
                         string requestUrl = string.Empty;
@@ -79,6 +89,13 @@ namespace Checkpoint.API.Features.Request.Query
                 }
             }
         }
+        internal sealed class Dto
+        {
+            internal sealed class Request
+            {
+                public int ProjectId { get; set; }
+            }
+        }
 
         public sealed class Endpoint : ApiResponseController, ICarterModule
         {
@@ -86,9 +103,9 @@ namespace Checkpoint.API.Features.Request.Query
             {
                 app.MapGet("api/endpoint/CheckRequestStatus", Handler);
             }
-            public async Task<IActionResult> Handler([FromServices] IMediator mediator, HttpContext httpContext)
+            public async Task<IActionResult> Handler([FromServices] IMediator mediator, HttpContext httpContext, [FromQuery] int projectId)
             {
-                var response = await mediator.Send(new Mediatr.Request());
+                var response = await mediator.Send(new Mediatr.Request() { RequestDto = new Dto.Request() { ProjectId = projectId } });
                 return Handlers(response, httpContext);
             }
         }
