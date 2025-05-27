@@ -98,6 +98,17 @@ namespace Checkpoint.IdentityServer.TokenServices
 
                 var response = await CorporateTokenAsync(corporateUser);
 
+                getAllRefreshToken.Remove(getRefreshToken);
+
+                getAllRefreshToken.Add(new CacheRefreshTokenDto
+                {
+                    RefreshToken = response.RefreshToken,
+                    UserId = userId,
+                    ValidityPeriod = DateTime.UtcNow
+                });
+
+                await redisClientAsync.SetAsync(IdentityServerConstants.RedisRefreshTokenKey, getAllRefreshToken);
+
                 return ResponseDto<TokenResponseDto>.Success(response, 200);
             }
             return ResponseDto<TokenResponseDto>.Fail("Refresh token bulunamadı veya geçersiz", 400);
