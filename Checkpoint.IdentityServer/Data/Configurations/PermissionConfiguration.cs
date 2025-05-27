@@ -12,15 +12,46 @@ namespace Checkpoint.IdentityServer.Data.Configurations
             {
                 Id = 1,
                 Name = "Admin"
-
-            }, new Permission
+            }
+            , new Permission
             {
                 Id = 2,
-                Name = "Okuma"
-            }, new Permission
+                Name = "Ekleme"
+            }
+            , new Permission
             {
                 Id = 3,
-                Name = "Yazma"
+                Name = "Güncelleme"
+            }
+            , new Permission
+            {
+                Id = 4,
+                Name = "Onay"
+            }
+            , new Permission
+            {
+                Id = 5,
+                Name = "Rol Atama"
+            }
+            , new Permission
+            {
+                Id = 6,
+                Name = "Rol Güncelleme"
+            }
+            , new Permission
+            {
+                Id = 7,
+                Name = "Rol Silme"
+            }
+            , new Permission
+            {
+                Id = 8,
+                Name = "Rol Ekleme"
+            }
+            , new Permission
+            {
+                Id = 9,
+                Name = "Okuma"
             });
         }
     }

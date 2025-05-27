@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Checkpoint.IdentityServer.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20250527134949_basemig")]
+    [Migration("20250527144122_basemig")]
     partial class basemig
     {
         /// <inheritdoc />
@@ -218,12 +218,42 @@ namespace Checkpoint.IdentityServer.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "Okuma"
+                            Name = "Ekleme"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Yazma"
+                            Name = "Güncelleme"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Onay"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Rol Atama"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Rol Güncelleme"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Rol Silme"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Rol Ekleme"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "Okuma"
                         });
                 });
 

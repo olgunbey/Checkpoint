@@ -253,8 +253,14 @@ namespace Checkpoint.IdentityServer.Migrations
                 values: new object[,]
                 {
                     { 1, "Admin" },
-                    { 2, "Okuma" },
-                    { 3, "Yazma" }
+                    { 2, "Ekleme" },
+                    { 3, "Güncelleme" },
+                    { 4, "Onay" },
+                    { 5, "Rol Atama" },
+                    { 6, "Rol Güncelleme" },
+                    { 7, "Rol Silme" },
+                    { 8, "Rol Ekleme" },
+                    { 9, "Okuma" }
                 });
 
             migrationBuilder.InsertData(
