@@ -28,7 +28,7 @@ namespace Checkpoint.API.Features.BaseUrl.Command
                         });
                         await applicationDbContext.SaveChangesAsync(cancellationToken);
 
-                        return ResponseDto<NoContent>.Success(201);
+                        return ResponseDto<NoContent>.Success(204);
                     }
                     catch (Exception)
                     {
