@@ -17,17 +17,27 @@ namespace Checkpoint.API.Features.Endpoint.Query
         {
             internal sealed class Request : CustomIRequest<List<Dto.Response>>
             {
-
+                public Dto.Request RequestDto { get; set; }
             }
             internal sealed class Handler(EventStoreClient eventStoreClient, IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, List<Dto.Response>>
             {
                 public async Task<ResponseDto<List<Dto.Response>>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    var controllers = await applicationDbContext.Controller
-                         .Include(y => y.Actions)
-                         .Include(y => y.BaseUrl)
-                         .ToListAsync();
 
+                    var getProject = (await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId))!;
+
+                    await applicationDbContext.Project
+                         .Entry(getProject)
+                         .Collection(y => y.BaseUrls)
+                         .Query()
+                         .Include(y => y.Controllers)
+                         .ThenInclude(y => y.Actions)
+                         .LoadAsync();
+
+                    var controllers = await applicationDbContext.Project
+                        .SelectMany(y => y.BaseUrls)
+                        .SelectMany(y => y.Controllers)
+                        .ToListAsync();
 
                     List<Dto.Response> response = new List<Dto.Response>();
                     foreach (var controller in controllers)
@@ -125,17 +135,18 @@ namespace Checkpoint.API.Features.Endpoint.Query
             {
                 public string Name { get; set; }
             }
+            internal sealed record Request(int ProjectId);
         }
 
         public sealed class Endpoint : ApiResponseController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("/api/endpoint/CheckControllerStatus", Handle);
+                app.MapGet("/api/endpoint/ListEndpointDetail", Handle);
             }
-            public async Task<IActionResult> Handle([FromServices] IMediator mediator, HttpContext httpContext)
+            public async Task<IActionResult> Handle([FromQuery] int projectId, [FromServices] IMediator mediator, HttpContext httpContext)
             {
-                var response = await mediator.Send(new Mediatr.Request());
+                var response = await mediator.Send(new Mediatr.Request() { RequestDto = new Dto.Request(projectId) });
                 return Handlers(httpContext, response);
             }
         }
