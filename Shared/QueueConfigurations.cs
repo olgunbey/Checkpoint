@@ -7,5 +7,7 @@
         public const string StateMachine = "orchestration-machine";
         public const string Checkpoint_Api_AnalysisNotAvgTime_Identity = "checkpoint-api-analysisnotavgtime-identity-service";
         public const string Identity_Server_UserTeamSelected_Mail_Service = "identity-server-userteamselected-mail-service";
+        public const string Checkpoint_Api_ListProject_Identity = "checkpoint-api-listproject-identity-service";
+        public const string Identity_GetTeamName_Checkpoint_Api = "identity-service-getteamname-checkpoint-api";
     }
 }

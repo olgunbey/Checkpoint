@@ -54,7 +54,7 @@ namespace Checkpoint.API.Features.Project.Query
             {
                 var response = await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(id) });
 
-                return Handlers(response, httpContext);
+                return Handlers(httpContext, response);
             }
         }
     }

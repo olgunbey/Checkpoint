@@ -4,12 +4,22 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Checkpoint.IdentityServer.Data.Configurations
 {
-    public class TeamConfiguration : IEntityTypeConfiguration<UserTeam>
+    public class TeamConfiguration : IEntityTypeConfiguration<Team>
     {
-        public void Configure(EntityTypeBuilder<UserTeam> builder)
+        public void Configure(EntityTypeBuilder<Team> builder)
         {
-            builder.Property(y => y.IndividualId).IsRequired(false);
-            builder.Property(y=>y.CorporateId).IsRequired(false);
+            builder.HasData(new Team
+            {
+                Id = 1,
+                CompanyId = 1,
+                Name = "Sigorta"
+            },
+            new Team
+            {
+                Id = 2,
+                CompanyId = 1,
+                Name = "Araç kiralama"
+            });
         }
     }
 }

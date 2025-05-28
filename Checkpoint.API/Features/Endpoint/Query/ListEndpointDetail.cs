@@ -9,25 +9,35 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Common;
 using System.Text.Json;
 
-namespace Checkpoint.API.Features.Request.Query
+namespace Checkpoint.API.Features.Endpoint.Query
 {
-    internal static class CheckControllerStatus
+    internal static class ListEndpointDetail
     {
         internal sealed class Mediatr
         {
             internal sealed class Request : CustomIRequest<List<Dto.Response>>
             {
-
+                public Dto.Request RequestDto { get; set; }
             }
             internal sealed class Handler(EventStoreClient eventStoreClient, IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, List<Dto.Response>>
             {
                 public async Task<ResponseDto<List<Dto.Response>>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    var controllers = await applicationDbContext.Controller
-                         .Include(y => y.Actions)
-                         .Include(y => y.BaseUrl)
-                         .ToListAsync();
 
+                    var getProject = (await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId))!;
+
+                    await applicationDbContext.Project
+                         .Entry(getProject)
+                         .Collection(y => y.BaseUrls)
+                         .Query()
+                         .Include(y => y.Controllers)
+                         .ThenInclude(y => y.Actions)
+                         .LoadAsync();
+
+                    var controllers = await applicationDbContext.Project
+                        .SelectMany(y => y.BaseUrls)
+                        .SelectMany(y => y.Controllers)
+                        .ToListAsync();
 
                     List<Dto.Response> response = new List<Dto.Response>();
                     foreach (var controller in controllers)
@@ -48,8 +58,7 @@ namespace Checkpoint.API.Features.Request.Query
 
                             foreach (var action in controller.Actions)
                             {
-                                string finishEndUrl = "";
-                                finishEndUrl = string.Join("/", endUrl, action.ActionPath);
+                                endUrl = string.Join('/', endUrl, action.ActionPath);
                                 if (action.Query != null)
                                 {
                                     string queryUrl = string.Join("&", action.Query.Where(y => y.Value != null)
@@ -57,31 +66,28 @@ namespace Checkpoint.API.Features.Request.Query
                                     endUrl = string.Join("?", endUrl, queryUrl);
                                 }
 
+                                var lastEventResult = eventStoreClient.ReadStreamAsync(
+                                direction: Direction.Backwards,
+                                streamName: endUrl,
+                                revision: StreamPosition.End,
+                                maxCount: 1);
 
-                                var getAll = eventStoreClient.ReadStreamAsync(
-                                direction: Direction.Forwards,
-                                streamName: finishEndUrl,
-                                revision: StreamPosition.Start);
+                                var lastResolvedEvent = await lastEventResult.SingleAsync();
 
-                                var getAllEvents = await getAll.ToListAsync();
-
-
-                                foreach (var requestEvent in getAllEvents)
+                                var type = lastResolvedEvent.Event.EventType;
+                                Type selectType = type switch
                                 {
-                                    var type = requestEvent.Event.EventType;
-                                    Type selectType = type switch
-                                    {
-                                        nameof(RequestEvent) => typeof(RequestEvent)
-                                    };
-                                    object deserializerEvent = JsonSerializer.Deserialize(requestEvent.Event.Data.ToArray(), selectType)!;
+                                    nameof(RequestEvent) => typeof(RequestEvent)
+                                };
+                                object deserializerEvent = JsonSerializer.Deserialize(lastResolvedEvent.Event.Data.ToArray(), selectType)!;
 
-                                    switch (deserializerEvent)
-                                    {
-                                        case RequestEvent req:
-                                            requestEvents.Add(req);
-                                            break;
-                                    }
+                                switch (deserializerEvent)
+                                {
+                                    case RequestEvent req:
+                                        requestEvents.Add(req);
+                                        break;
                                 }
+
                             }
                         }
                         var groupBy = requestEvents.GroupBy(u =>
@@ -106,7 +112,8 @@ namespace Checkpoint.API.Features.Request.Query
                             {
                                 Controller = groupByEvents.Key,
                                 SuccessCount = successCount,
-                                UnSuccessCount = unSuccessCount
+                                UnSuccessCount = unSuccessCount,
+                                Actions = controller.Actions.Select(y => new Dto.Action { Name = y.ActionPath }).ToList()
                             });
                         }
                     }
@@ -121,20 +128,26 @@ namespace Checkpoint.API.Features.Request.Query
                 public string Controller { get; set; }
                 public int SuccessCount { get; set; }
                 public int UnSuccessCount { get; set; }
+                public List<Action> Actions { get; set; }
 
             }
+            internal sealed class Action
+            {
+                public string Name { get; set; }
+            }
+            internal sealed record Request(int ProjectId);
         }
 
         public sealed class Endpoint : ApiResponseController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("/api/endpoint/CheckControllerStatus", Handle);
+                app.MapGet("/api/endpoint/ListEndpointDetail", Handle);
             }
-            public async Task<IActionResult> Handle([FromServices] IMediator mediator, HttpContext httpContext)
+            public async Task<IActionResult> Handle([FromQuery] int projectId, [FromServices] IMediator mediator, HttpContext httpContext)
             {
-                var response = await mediator.Send(new Mediatr.Request());
-                return Handlers(response, httpContext);
+                var response = await mediator.Send(new Mediatr.Request() { RequestDto = new Dto.Request(projectId) });
+                return Handlers(httpContext, response);
             }
         }
     }

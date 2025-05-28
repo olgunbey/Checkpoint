@@ -2,6 +2,7 @@ using Checkpoint.IdentityServer;
 using Checkpoint.IdentityServer.BackgroundJobs;
 using Checkpoint.IdentityServer.Consumers;
 using Checkpoint.IdentityServer.Data;
+using Checkpoint.IdentityServer.Dtos;
 using Checkpoint.IdentityServer.Policies;
 using Hangfire;
 using Hangfire.MemoryStorage;
@@ -53,12 +54,12 @@ builder.Services.AddAuthorization(configure =>
     configureBuilder.AddRequirements(new AddRequirement()));
 });
 
-
-
+builder.Services.Configure<TokenConf>(builder.Configuration.GetSection("TokenConf"));
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
 builder.Services.AddMassTransit<IBus>(configure =>
 {
     configure.AddConsumer<AnalysisNotAvgEventConsumer>();
+    configure.AddConsumer<GetAllProjectByTeamIdEventConsumer>();
     configure.UsingRabbitMq((context, configurator) =>
     {
         configurator.Host(builder.Configuration.GetSection("AmqpConf")["Host"], config =>
@@ -68,6 +69,8 @@ builder.Services.AddMassTransit<IBus>(configure =>
 
         });
         configurator.ReceiveEndpoint(QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity, cnf => cnf.ConfigureConsumer<AnalysisNotAvgEventConsumer>(context));
+        configurator.ReceiveEndpoint(QueueConfigurations.Checkpoint_Api_ListProject_Identity, cnf => cnf.ConfigureConsumer<GetAllProjectByTeamIdEventConsumer>(context));
+
     });
 
 });

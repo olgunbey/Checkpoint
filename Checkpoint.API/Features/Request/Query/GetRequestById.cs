@@ -25,7 +25,7 @@ namespace Checkpoint.API.Features.Request.Query
                 {
                     var baseUrl = await applicationDbContext.BaseUrl.FindAsync(request.RequestDto.Id);
                     if (baseUrl == null)
-                        throw new BaseUrlNotFoundException($"Not found BaseUrl-{request.RequestDto.Id} ");
+                        throw new BaseUrlNotFoundException($"Not found BaseUrl-{request.RequestDto.Id}");
 
 
                     await applicationDbContext.BaseUrl.Entry(baseUrl)
@@ -105,7 +105,7 @@ namespace Checkpoint.API.Features.Request.Query
             public async Task<IActionResult> Handler([FromQuery] int id, [FromServices] IMediator mediator, HttpContext httpContext)
             {
                 var data = await mediator.Send(new Mediatr.Request() { RequestDto = new Dto.Request(id) });
-                return Handlers(data, httpContext);
+                return Handlers(httpContext, data);
             }
         }
     }

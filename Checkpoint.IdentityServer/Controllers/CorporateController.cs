@@ -31,7 +31,7 @@ namespace Checkpoint.IdentityServer.Controllers
         [Authorize(Policy = "Add")]
         public async Task<IActionResult> AddRole([FromQuery] int teamId, [FromHeader] string roleName)
         {
-            return Handlers(await userServices.AddRoleAsync(teamId, roleName, corporateTokenDto.CorporateId));
+            return Handlers(await userServices.AddRoleAsync(teamId, roleName));
         }
 
     }

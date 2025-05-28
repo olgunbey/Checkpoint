@@ -63,7 +63,7 @@ namespace Checkpoint.API.Features.BaseUrl.Query
                 {
                     RequestDto = new Dto.Request() { ProjectId = projectId },
                 });
-                return Handlers(response, httpContext);
+                return Handlers(httpContext, response);
             }
         }
     }
