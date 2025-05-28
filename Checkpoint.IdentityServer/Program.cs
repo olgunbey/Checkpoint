@@ -49,6 +49,7 @@ builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Config
 builder.Services.AddMassTransit<IBus>(configure =>
 {
     configure.AddConsumer<AnalysisNotAvgEventConsumer>();
+    configure.AddConsumer<GetAllProjectByTeamIdEventConsumer>();
     configure.UsingRabbitMq((context, configurator) =>
     {
         configurator.Host(builder.Configuration.GetSection("AmqpConf")["Host"], config =>
@@ -58,6 +59,8 @@ builder.Services.AddMassTransit<IBus>(configure =>
 
         });
         configurator.ReceiveEndpoint(QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity, cnf => cnf.ConfigureConsumer<AnalysisNotAvgEventConsumer>(context));
+        configurator.ReceiveEndpoint(QueueConfigurations.Checkpoint_Api_ListProject_Identity, cnf => cnf.ConfigureConsumer<GetAllProjectByTeamIdEventConsumer>(context));
+
     });
 
 });

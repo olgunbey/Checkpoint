@@ -25,7 +25,8 @@ namespace Checkpoint.API.Features.Endpoint.Query
                 public async Task<ResponseDto<Dto.Response>> Handle(Request request, CancellationToken cancellationToken)
                 {
 
-                    var getProject = (await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId));
+                    var getProject = (await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId))!;
+
 
                     await applicationDbContext.Project
                          .Entry(getProject)

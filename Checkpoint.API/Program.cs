@@ -1,11 +1,14 @@
 using Carter;
 using Checkpoint.API.BackgroundJobs;
+using Checkpoint.API.Consumers;
 using Checkpoint.API.Data;
 using Hangfire;
 using Hangfire.MemoryStorage;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Shared;
 using Shared.Hash;
 using Shared.Middlewares;
 
@@ -55,7 +58,22 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddMediatR(conf => conf.RegisterServicesFromAssemblyContaining<Program>());
 
+builder.Services.AddMassTransit<IBus>(configure =>
+{
+    configure.AddConsumer<TeamNameReceivedConsumer>();
+    configure.UsingRabbitMq((context, configurator) =>
+    {
+        configurator.Host(builder.Configuration.GetSection("AmqpConf")["Host"], config =>
+        {
+            config.Username(builder.Configuration.GetSection("AmqpConf")["Username"]!);
+            config.Password(builder.Configuration.GetSection("AmqpConf")["Password"]!);
 
+        });
+        configurator.ReceiveEndpoint(QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity, cnf => cnf.ConfigureConsumer<TeamNameReceivedConsumer>(context));
+
+    });
+
+});
 
 builder.Services.AddCarter();
 
