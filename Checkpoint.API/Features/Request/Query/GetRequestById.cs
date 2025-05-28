@@ -25,7 +25,7 @@ namespace Checkpoint.API.Features.Request.Query
                 {
                     var baseUrl = await applicationDbContext.BaseUrl.FindAsync(request.RequestDto.Id);
                     if (baseUrl == null)
-                        throw new BaseUrlNotFoundException($"Not found BaseUrl-{request.RequestDto.Id} ");
+                        throw new BaseUrlNotFoundException($"Not found BaseUrl-{request.RequestDto.Id}");
 
 
                     await applicationDbContext.BaseUrl.Entry(baseUrl)
