@@ -1,10 +1,14 @@
 ﻿using Carter;
+using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Shared;
+using Shared.Common;
+using Shared.Dtos;
 using Shared.Events;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace Checkpoint.API.Features.Team.Query
 {
@@ -12,27 +16,27 @@ namespace Checkpoint.API.Features.Team.Query
     {
         internal sealed class Mediatr
         {
-            internal sealed class Request : IRequest
+            internal sealed class Request : CustomIRequest<List<GetAllProjectAndTeamResponseDto>>
             {
                 public Dto.Request RequestDto { get; set; }
             }
-            internal sealed class Handler(IBus bus) : IRequestHandler<Request>
+            internal sealed class Handler(IRequestClient<GetAllProjectByTeamIdEvent> requestClient) : CustomIRequestHandler<Request, List<GetAllProjectAndTeamResponseDto>>
             {
-                public async Task Handle(Request request, CancellationToken cancellationToken)
+                public async Task<ResponseDto<List<GetAllProjectAndTeamResponseDto>>> Handle(Request request, CancellationToken cancellationToken)
                 {
+                    var response = await requestClient.GetResponse<Shared.Common.ResponseDto<List<GetAllProjectAndTeamResponseDto>>>(
+                      new GetAllProjectByTeamIdEvent()
+                      {
+                          TeamId = request.RequestDto.TeamsId
+                      });
 
-                    var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.Checkpoint_Api_ListProject_Identity}"));
-
-                    await getSendEndpoint.Send(new GetAllProjectByTeamIdEvent()
-                    {
-                        TeamId = request.RequestDto.TeamsId,
-                    });
+                    return response.Message;
                 }
             }
         }
         internal sealed class Dto
         {
-            internal sealed record Request(int UserId, int[] TeamsId);
+            internal sealed record Request(int UserId, List<int> TeamsId);
         }
         public class Endpoint : ApiResponseController, ICarterModule
         {
@@ -43,13 +47,18 @@ namespace Checkpoint.API.Features.Team.Query
             public async Task<IActionResult> Handle([FromServices] IMediator mediatr, HttpContext httpContext)
             {
                 var getAllClaims = httpContext.User.Claims.ToList();
-                var teamsId = getAllClaims.Where(y => y.Type == "teams").ToList().Select(y => int.Parse(y.Value)).ToArray();
-                //buraları düzgün doldur
-                int userId = int.Parse(getAllClaims.FirstOrDefault(y => y.Type == "")!.Value);
-                await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(userId, teamsId) });
 
-                return Handlers(httpContext);
+
+                var teams = getAllClaims.Where(y => y.Type == "teams").Single();
+
+                var deserdata = JsonSerializer.Deserialize<List<CorporateJwtModel>>(teams.Value)!;
+
+                int userId = int.Parse(getAllClaims.FirstOrDefault(y => y.Type == ClaimTypes.NameIdentifier)!.Value);
+                var response = await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(userId, deserdata.Select(y => y.TeamId).ToList()) });
+
+                return Handlers(httpContext, response);
             }
         }
+
     }
 }

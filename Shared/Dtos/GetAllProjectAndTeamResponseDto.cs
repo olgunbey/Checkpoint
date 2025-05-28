@@ -1,4 +1,4 @@
-﻿namespace Checkpoint.API.Dtos
+﻿namespace Shared.Dtos
 {
     public class GetAllProjectAndTeamResponseDto
     {

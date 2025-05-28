@@ -9,7 +9,7 @@ namespace Shared.Common
 {
     public class ResponseDto<T>
     {
-        [JsonIgnore]
+
         public int StatusCode { get; set; }
         public T? Data { get; set; }
         public List<string> Errors { get; set; } = new();

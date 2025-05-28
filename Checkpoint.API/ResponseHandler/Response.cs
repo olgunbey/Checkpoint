@@ -14,10 +14,6 @@ namespace Checkpoint.API.ResponseHandler
             return new ObjectResult(responseDto);
 
         }
-        protected IActionResult Handlers(HttpContext httpContext)
-        {
-            return new ObjectResult(null);
 
-        }
     }
 }
