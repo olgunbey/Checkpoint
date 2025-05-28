@@ -41,7 +41,7 @@ namespace Checkpoint.API.Features.Team.Query
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("api/analysis/projectEndpointOverview", Handle);
+                app.MapGet("api/team/getAllTeamAndProject", Handle);
             }
             public async Task<IActionResult> Handle([FromServices] IMediator mediatr, HttpContext httpContext)
             {
