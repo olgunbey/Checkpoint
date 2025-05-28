@@ -106,7 +106,7 @@ namespace Checkpoint.API.Features.Request.Query
             public async Task<IActionResult> Handler([FromServices] IMediator mediator, HttpContext httpContext, [FromQuery] int projectId)
             {
                 var response = await mediator.Send(new Mediatr.Request() { RequestDto = new Dto.Request() { ProjectId = projectId } });
-                return Handlers(response, httpContext);
+                return Handlers(httpContext, response);
             }
         }
 

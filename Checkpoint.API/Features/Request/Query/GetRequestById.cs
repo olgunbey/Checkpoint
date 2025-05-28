@@ -105,7 +105,7 @@ namespace Checkpoint.API.Features.Request.Query
             public async Task<IActionResult> Handler([FromQuery] int id, [FromServices] IMediator mediator, HttpContext httpContext)
             {
                 var data = await mediator.Send(new Mediatr.Request() { RequestDto = new Dto.Request(id) });
-                return Handlers(data, httpContext);
+                return Handlers(httpContext, data);
             }
         }
     }

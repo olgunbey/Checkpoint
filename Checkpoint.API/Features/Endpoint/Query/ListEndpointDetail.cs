@@ -1,4 +1,5 @@
 ﻿using Carter;
+using Checkpoint.API.Events;
 using Checkpoint.API.Interfaces;
 using Checkpoint.API.ResponseHandler;
 using EventStore.Client;
@@ -6,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
+using System.Text.Json;
 
 namespace Checkpoint.API.Features.Endpoint.Query
 {
@@ -15,64 +17,97 @@ namespace Checkpoint.API.Features.Endpoint.Query
         {
             internal sealed class Request : CustomIRequest<List<Dto.Response>>
             {
-                public Dto.Request RequestDto { get; set; }
-            }
-            internal sealed class Handler(IApplicationDbContext applicationDbContext, EventStoreClient eventStoreClient) : CustomIRequestHandler<Request, List<Dto.Response>>
-            {
 
+            }
+            internal sealed class Handler(EventStoreClient eventStoreClient, IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, List<Dto.Response>>
+            {
                 public async Task<ResponseDto<List<Dto.Response>>> Handle(Request request, CancellationToken cancellationToken)
                 {
-
-                    var getProject = (await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId))!;
-
-
-                    await applicationDbContext.Project
-                         .Entry(getProject)
-                         .Collection(y => y.BaseUrls)
-                         .Query()
-                         .Include(y => y.Controllers)
-                         .ThenInclude(y => y.Actions)
-                         .LoadAsync();
+                    var controllers = await applicationDbContext.Controller
+                         .Include(y => y.Actions)
+                         .Include(y => y.BaseUrl)
+                         .ToListAsync();
 
 
-                    var controllerList = getProject.BaseUrls
-                         .SelectMany(y => y.Controllers)
-                         .ToList();
-
-                    List<Dto.Response> responseList = new List<Dto.Response>();
-
-
-                    foreach (var controller in controllerList)
+                    List<Dto.Response> response = new List<Dto.Response>();
+                    foreach (var controller in controllers)
                     {
-
-                        List<string> endAction = new List<string>();
-                        foreach (var action in controller.Actions)
+                        List<RequestEvent> requestEvents = new List<RequestEvent>();
+                        int successCount = 0;
+                        int unSuccessCount = 0;
+                        List<string> requestUrls = new List<string>()
                         {
-                            string requestUrl = action.ActionPath;
+                            controller.BaseUrl.BasePath,
+                            controller.ControllerPath,
+                        };
 
-                            if (action.Query != null && action.Query.Any())
+                        var endUrl = string.Join("/", requestUrls);
+
+                        if (controller.Actions.Select(y => y.Query).Any() && controller.Actions.Select(y => y.Query) != null)
+                        {
+
+                            foreach (var action in controller.Actions)
                             {
-                                string queryUrl = string.Join("&", action.Query.Where(y => y.Value != null)
-                                       .Select(y => $"{y.Key}={Uri.EscapeDataString(y.Value.ToString()!)}"));
+                                endUrl = string.Join('/', endUrl, action.ActionPath);
+                                if (action.Query != null)
+                                {
+                                    string queryUrl = string.Join("&", action.Query.Where(y => y.Value != null)
+                                  .Select(y => $"{y.Key}={Uri.EscapeDataString(y.Value.ToString()!)}"));
+                                    endUrl = string.Join("?", endUrl, queryUrl);
+                                }
 
-                                requestUrl = string.Join("?", requestUrl, queryUrl);
+                                var lastEventResult = eventStoreClient.ReadStreamAsync(
+                                direction: Direction.Backwards,
+                                streamName: endUrl,
+                                revision: StreamPosition.End,
+                                maxCount: 1);
+
+                                var lastResolvedEvent = await lastEventResult.SingleAsync();
+
+                                var type = lastResolvedEvent.Event.EventType;
+                                Type selectType = type switch
+                                {
+                                    nameof(RequestEvent) => typeof(RequestEvent)
+                                };
+                                object deserializerEvent = JsonSerializer.Deserialize(lastResolvedEvent.Event.Data.ToArray(), selectType)!;
+
+                                switch (deserializerEvent)
+                                {
+                                    case RequestEvent req:
+                                        requestEvents.Add(req);
+                                        break;
+                                }
+
                             }
-                            endAction.Add(requestUrl);
                         }
-
-                        responseList.Add(new Dto.Response
+                        var groupBy = requestEvents.GroupBy(u =>
                         {
-                            ControllerName = controller.ControllerPath,
-                            Actions = endAction.Select(y => new Dto.Action
-                            {
-                                Name = y
-                            }).ToList()
+                            return u.Url.Split('/')[0] + '/' + u.Url.Split('/')[1] + '/' + u.Url.Split('/')[2] + '/' + u.Url.Split('/')[3] + '/' + u.Url.Split('/')[4];
                         });
 
-
+                        foreach (var groupByEvents in groupBy)
+                        {
+                            foreach (var _groupBy in groupByEvents)
+                            {
+                                if (_groupBy.RequestStatus)
+                                {
+                                    successCount++;
+                                }
+                                else
+                                {
+                                    unSuccessCount++;
+                                }
+                            }
+                            response.Add(new Dto.Response
+                            {
+                                Controller = groupByEvents.Key,
+                                SuccessCount = successCount,
+                                UnSuccessCount = unSuccessCount,
+                                Actions = controller.Actions.Select(y => new Dto.Action { Name = y.ActionPath }).ToList()
+                            });
+                        }
                     }
-                    return ResponseDto<List<Dto.Response>>.Success(responseList, 200);
-
+                    return ResponseDto<List<Dto.Response>>.Success(response, 200);
                 }
             }
         }
@@ -80,28 +115,28 @@ namespace Checkpoint.API.Features.Endpoint.Query
         {
             internal sealed record Response
             {
-                public string ControllerName { get; set; }
-                public List<Dto.Action> Actions { get; set; }
-                public int Active { get; set; }
-                public int Pasive { get; set; }
+                public string Controller { get; set; }
+                public int SuccessCount { get; set; }
+                public int UnSuccessCount { get; set; }
+                public List<Action> Actions { get; set; }
+
             }
-            internal sealed record Action
+            internal sealed class Action
             {
                 public string Name { get; set; }
             }
-            internal sealed record Request(int ProjectId);
         }
-        public class Endpoint : ApiResponseController, ICarterModule
+
+        public sealed class Endpoint : ApiResponseController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("api/analysis/EndpointDetail", Handle);
+                app.MapGet("/api/endpoint/CheckControllerStatus", Handle);
             }
-            public async Task<IActionResult> Handle([FromQuery] int projectId, [FromServices] IMediator mediatr, HttpContext httpContext)
+            public async Task<IActionResult> Handle([FromServices] IMediator mediator, HttpContext httpContext)
             {
-                var response = await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(projectId) });
-
-                return Handlers(response, httpContext);
+                var response = await mediator.Send(new Mediatr.Request());
+                return Handlers(httpContext, response);
             }
         }
     }

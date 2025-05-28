@@ -125,7 +125,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
             {
                 var response = await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(projectId) });
 
-                return Handlers(response, httpContext);
+                return Handlers(httpContext, response);
             }
         }
     }

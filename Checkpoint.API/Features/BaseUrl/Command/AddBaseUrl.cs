@@ -56,7 +56,7 @@ namespace Checkpoint.API.Features.BaseUrl.Command
             {
                 var response = await mediator.Send(new Mediatr.Request() { RequestDto = request });
 
-                return Handlers(response, context);
+                return Handlers(context, response);
             }
 
         }

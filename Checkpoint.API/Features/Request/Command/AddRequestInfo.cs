@@ -101,7 +101,7 @@ namespace Checkpoint.API.Features.Request.Command
             public async Task<IActionResult> Handler([FromBody] Dto.Request requestDto, IMediator mediator, HttpContext httpContext)
             {
                 var response = await mediator.Send(new Mediatr.Request() { RequestDto = requestDto });
-                return Handlers(response, httpContext);
+                return Handlers(httpContext, response);
             }
         }
         public class EndpointFilter : IEndpointFilter
