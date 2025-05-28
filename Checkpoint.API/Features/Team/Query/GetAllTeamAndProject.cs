@@ -20,16 +20,13 @@ namespace Checkpoint.API.Features.Team.Query
             {
                 public async Task Handle(Request request, CancellationToken cancellationToken)
                 {
-                    foreach (int teamId in request.RequestDto.TeamsId)
+
+                    var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.Checkpoint_Api_ListProject_Identity}"));
+
+                    await getSendEndpoint.Send(new GetAllProjectByTeamIdEvent()
                     {
-                        var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.Checkpoint_Api_ListProject_Identity}"));
-
-                        await getSendEndpoint.Send(new GetAllProjectByTeamIdEvent()
-                        {
-                            TeamId = teamId,
-                        });
-
-                    }
+                        TeamId = request.RequestDto.TeamsId,
+                    });
                 }
             }
         }
@@ -47,7 +44,7 @@ namespace Checkpoint.API.Features.Team.Query
             {
                 var getAllClaims = httpContext.User.Claims.ToList();
                 var teamsId = getAllClaims.Where(y => y.Type == "teams").ToList().Select(y => int.Parse(y.Value)).ToArray();
-
+                //buraları düzgün doldur
                 int userId = int.Parse(getAllClaims.FirstOrDefault(y => y.Type == "")!.Value);
                 await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(userId, teamsId) });
 
