@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Shared.Common;
-using Shared.Constants;
-using Shared.Dtos;
 
 namespace Checkpoint.API.Features.Request.Command
 {
@@ -96,7 +94,7 @@ namespace Checkpoint.API.Features.Request.Command
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapPost("api/request/addrequestInfo", Handler).AddEndpointFilter<EndpointFilter>();
+                app.MapPost("api/request/addrequestInfo", Handler);/*.AddEndpointFilter<EndpointFilter>();*/
             }
             public async Task<IActionResult> Handler([FromBody] Dto.Request requestDto, IMediator mediator, HttpContext httpContext)
             {
@@ -104,31 +102,31 @@ namespace Checkpoint.API.Features.Request.Command
                 return Handlers(httpContext, response);
             }
         }
-        public class EndpointFilter : IEndpointFilter
-        {
-            public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
-            {
-                var requestDto = context.Arguments.FirstOrDefault(arg => arg is Dto.Request) as Dto.Request;
-                if (context.HttpContext.Items.TryGetValue("AdminByPass", out object? data))
-                {
-                    return await next(context);
-                }
+        //public class EndpointFilter : IEndpointFilter
+        //{
+        //    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+        //    {
+        //        var requestDto = context.Arguments.FirstOrDefault(arg => arg is Dto.Request) as Dto.Request;
+        //        if (context.HttpContext.Items.TryGetValue("AdminByPass", out object? data))
+        //        {
+        //            return await next(context);
+        //        }
 
 
-                var userTeams = context.HttpContext.User.Claims.FirstOrDefault(y => y.Type == "teams");
-                if (userTeams == null)
-                {
-                    return Results.Forbid();
-                }
+        //        var userTeams = context.HttpContext.User.Claims.FirstOrDefault(y => y.Type == "teams");
+        //        if (userTeams == null)
+        //        {
+        //            return Results.Forbid();
+        //        }
 
-                var deserializerData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
-                if (!deserializerData.Any(y => y.Permissions.Any(y => y == Permission.Ekleme)))
-                {
-                    return Results.Forbid();
-                }
-                return await next(context);
-            }
-        }
+        //        var deserializerData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
+        //        if (!deserializerData.Any(y => y.Permissions.Any(y => y == Permission.Ekleme)))
+        //        {
+        //            return Results.Forbid();
+        //        }
+        //        return await next(context);
+        //    }
+        //}
 
     }
 }
