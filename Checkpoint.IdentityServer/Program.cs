@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Shared;
+using Shared.Events;
 using Shared.Hash;
 using Shared.Middlewares;
 
@@ -60,6 +61,7 @@ builder.Services.AddMassTransit<IBus>(configure =>
 {
     configure.AddConsumer<AnalysisNotAvgEventConsumer>();
     configure.AddConsumer<GetAllProjectByTeamIdEventConsumer>();
+    configure.AddRequestClient<TeamNameReceivedEvent>();
     configure.UsingRabbitMq((context, configurator) =>
     {
         configurator.Host(builder.Configuration.GetSection("AmqpConf")["Host"], config =>

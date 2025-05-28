@@ -1,6 +1,6 @@
-﻿using Checkpoint.API.Dtos;
-using Checkpoint.API.Interfaces;
+﻿using Checkpoint.API.Interfaces;
 using MassTransit;
+using Shared.Dtos;
 using Shared.Events;
 
 namespace Checkpoint.API.Consumers
@@ -11,6 +11,7 @@ namespace Checkpoint.API.Consumers
         {
             var teamIds = context.Message.Teams.Select(y => y.TeamId);
             var projects = applicationDbContext.Project
+                .AsEnumerable()
                 .Where(y => y.TeamId.HasValue)
                 .IntersectBy(teamIds, project => project.TeamId!.Value);
 
@@ -18,7 +19,7 @@ namespace Checkpoint.API.Consumers
             {
                 TeamId = y.TeamId,
                 ProjectName = y.ProjectName,
-                TeamName = context.Message.Teams.Single(y => y.TeamId == y.TeamId).TeamName
+                TeamName = context.Message.Teams.AsEnumerable().IntersectBy(context.Message.Teams.Select(y => y.TeamId), keySelector => keySelector.TeamId).Single().TeamName
             }).ToList();
 
             await context.RespondAsync(Shared.Common.ResponseDto<List<GetAllProjectAndTeamResponseDto>>.Success(response, 200));

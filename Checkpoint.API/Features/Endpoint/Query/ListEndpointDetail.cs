@@ -47,7 +47,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
                         int unSuccessCount = 0;
                         List<string> requestUrls = new List<string>()
                         {
-                            controller.BaseUrl.BasePath,
+                            controller.BaseUrl!.BasePath,
                             controller.ControllerPath,
                         };
 
@@ -55,10 +55,10 @@ namespace Checkpoint.API.Features.Endpoint.Query
 
                         if (controller.Actions.Select(y => y.Query).Any() && controller.Actions.Select(y => y.Query) != null)
                         {
-
                             foreach (var action in controller.Actions)
                             {
-                                endUrl = string.Join('/', endUrl, action.ActionPath);
+                                string finisUrl = string.Empty;
+                                finisUrl = string.Join('/', endUrl, action.ActionPath);
                                 if (action.Query != null)
                                 {
                                     string queryUrl = string.Join("&", action.Query.Where(y => y.Value != null)
@@ -68,7 +68,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
 
                                 var lastEventResult = eventStoreClient.ReadStreamAsync(
                                 direction: Direction.Backwards,
-                                streamName: endUrl,
+                                streamName: finisUrl,
                                 revision: StreamPosition.End,
                                 maxCount: 1);
 

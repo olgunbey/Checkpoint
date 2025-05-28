@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Shared;
+using Shared.Events;
 using Shared.Hash;
 using Shared.Middlewares;
 
@@ -61,6 +62,7 @@ builder.Services.AddMediatR(conf => conf.RegisterServicesFromAssemblyContaining<
 builder.Services.AddMassTransit<IBus>(configure =>
 {
     configure.AddConsumer<TeamNameReceivedConsumer>();
+    configure.AddRequestClient<GetAllProjectByTeamIdEvent>();
     configure.UsingRabbitMq((context, configurator) =>
     {
         configurator.Host(builder.Configuration.GetSection("AmqpConf")["Host"], config =>

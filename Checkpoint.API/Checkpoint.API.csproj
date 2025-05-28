@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Dtos\" />
     <Folder Include="Features\Endpoint\Command\" />
     <Folder Include="Features\Team\Command\" />
   </ItemGroup>

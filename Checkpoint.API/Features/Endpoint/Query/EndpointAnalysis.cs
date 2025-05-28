@@ -91,10 +91,6 @@ namespace Checkpoint.API.Features.Endpoint.Query
                 public bool RequestStatus { get; set; }
 
             }
-            internal sealed class Action
-            {
-                public string Name { get; set; }
-            }
             internal sealed record Request(int ActionId);
         }
 
