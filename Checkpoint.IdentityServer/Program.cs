@@ -33,6 +33,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Hashing.Hash("checkpointsecret"))
         };
     });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()  // Geliþtirme için: dikkatli kullanýn
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddServices();
 builder.Services.AddHttpContextAccessor();
 
@@ -75,6 +85,7 @@ RecurringJob.AddOrUpdate<RegisterOutboxJob>("registerOutbox", y => y.ExecuteJob(
 
 
 app.MapOpenApi();
+app.UseCors();
 
 
 app.UseHttpsRedirection();
