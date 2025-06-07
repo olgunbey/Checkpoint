@@ -15,13 +15,13 @@ namespace Checkpoint.API.Features.Endpoint.Query
     {
         internal sealed class Mediatr
         {
-            internal sealed class Request : CustomIRequest<List<Dto.Response>>
+            internal sealed class Request : CustomIRequest<Dto.Response>
             {
                 public Dto.Request RequestDto { get; set; }
             }
-            internal sealed class Handler(EventStoreClient eventStoreClient, IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, List<Dto.Response>>
+            internal sealed class Handler(EventStoreClient eventStoreClient, IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, Dto.Response>
             {
-                public async Task<ResponseDto<List<Dto.Response>>> Handle(Request request, CancellationToken cancellationToken)
+                public async Task<ResponseDto<Dto.Response>> Handle(Request request, CancellationToken cancellationToken)
                 {
 
                     var getProject = (await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId))!;
@@ -39,7 +39,8 @@ namespace Checkpoint.API.Features.Endpoint.Query
                         .SelectMany(y => y.Controllers)
                         .ToListAsync();
 
-                    List<Dto.Response> response = new List<Dto.Response>();
+                    Dto.Response response = new();
+                    response.ProjectName = getProject.ProjectName;
                     foreach (var controller in controllers)
                     {
                         List<RequestEvent> requestEvents = new List<RequestEvent>();
@@ -108,32 +109,40 @@ namespace Checkpoint.API.Features.Endpoint.Query
                                     unSuccessCount++;
                                 }
                             }
-                            response.Add(new Dto.Response
+
+                            response.Controllers.Add(new Dto.Controller
                             {
-                                Controller = groupByEvents.Key,
+                                ControllerName = groupByEvents.Key,
                                 SuccessCount = successCount,
                                 UnSuccessCount = unSuccessCount,
-                                Actions = controller.Actions.Select(y => new Dto.Action { Name = y.ActionPath }).ToList()
+                                Actions = controller.Actions.Select(y => new Dto.Action { ActionName = y.ActionPath, Id = y.Id }).ToList()
                             });
                         }
                     }
-                    return ResponseDto<List<Dto.Response>>.Success(response, 200);
+                    return ResponseDto<Dto.Response>.Success(response, 200);
                 }
             }
         }
         internal sealed class Dto
         {
+
             internal sealed record Response
             {
-                public string Controller { get; set; }
+                public string ProjectName { get; set; }
+                public List<Controller> Controllers { get; set; } = new List<Controller>();
+            }
+            internal sealed record Controller
+            {
+                public string ControllerName { get; set; }
                 public int SuccessCount { get; set; }
                 public int UnSuccessCount { get; set; }
                 public List<Action> Actions { get; set; }
 
             }
-            internal sealed class Action
+            internal sealed record Action
             {
-                public string Name { get; set; }
+                public int Id { get; set; }
+                public string ActionName { get; set; }
             }
             internal sealed record Request(int ProjectId);
         }
