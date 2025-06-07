@@ -27,7 +27,8 @@ namespace Checkpoint.API.Features.Request.Command
 
                     var baseUrlFilter = applicationDbContext.BaseUrl
                         .Where(y => y.Id == request.RequestDto.BaseUrlId)
-                        .Include(y => y.Controllers);
+                        .Include(y => y.Controllers.Where(x => x.Id == request.RequestDto.ControllerId));
+                        
 
                     if (request.RequestDto.ControllerId != 0)
                     {
@@ -44,8 +45,8 @@ namespace Checkpoint.API.Features.Request.Command
 
                         var getBaseUrl = await baseUrlFilter
                             .ThenInclude(y => y.Actions)
-                             .Where(y => y.Controllers.Any(y => y.Id == request.RequestDto.ControllerId))
-                             .SingleAsync();
+                             .SingleAsync(y => y.Controllers.Any(x => x.Id == request.RequestDto.ControllerId));
+
 
                         getBaseUrl.Controllers.Single().Actions.Add(addAction);
 

@@ -55,6 +55,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Hashing.Hash("checkpointsecret"))
         };
     });
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()  // Geliþtirme için: dikkatli kullanýn
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddMediatR(conf => conf.RegisterServicesFromAssemblyContaining<Program>());
@@ -89,6 +100,7 @@ RecurringJob.AddOrUpdate<Request>("request-job", req => req.ExecuteJob(Cancellat
 app.MapScalarApiReference();
 
 app.MapOpenApi();
+app.UseCors();
 
 app.UseHttpsRedirection();
 app.UseHangfireDashboard();
