@@ -34,10 +34,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
                          .ThenInclude(y => y.Actions)
                          .LoadAsync();
 
-                    var controllers = await applicationDbContext.Project
-                        .SelectMany(y => y.BaseUrls)
-                        .SelectMany(y => y.Controllers)
-                        .ToListAsync();
+                    var controllers = getProject.BaseUrls.SelectMany(y => y.Controllers);
 
                     Dto.Response response = new();
                     response.ProjectName = getProject.ProjectName;
