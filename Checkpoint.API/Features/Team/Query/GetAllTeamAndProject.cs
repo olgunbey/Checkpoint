@@ -47,12 +47,8 @@ namespace Checkpoint.API.Features.Team.Query
             public async Task<IActionResult> Handle([FromServices] IMediator mediatr, HttpContext httpContext)
             {
                 var getAllClaims = httpContext.User.Claims.ToList();
-
-
                 var teams = getAllClaims.Where(y => y.Type == "teams").Single();
-
                 var deserdata = JsonSerializer.Deserialize<List<CorporateJwtModel>>(teams.Value)!;
-
                 int userId = int.Parse(getAllClaims.FirstOrDefault(y => y.Type == ClaimTypes.NameIdentifier)!.Value);
                 var response = await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(userId, deserdata.Select(y => y.TeamId).ToList()) });
 

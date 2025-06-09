@@ -129,24 +129,22 @@ namespace Checkpoint.IdentityServer.TokenServices
         {
             var cacheRefreshTokenList = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>(IdentityServerConstants.RedisRefreshTokenKey);
 
-            var getRefreshTokenDto = cacheRefreshTokenList.FirstOrDefault(y => y.UserId == generateAccessTokenDto.UserId);
+            var getRefreshTokenDto = cacheRefreshTokenList.FirstOrDefault(y => y.RefreshToken == generateAccessTokenDto.RefreshToken);
 
             if (getRefreshTokenDto == null)
                 return ResponseDto<TokenResponseDto>.Fail("kullanıcı bulunamadı", 400);
 
 
-            if (getRefreshTokenDto.RefreshToken != getRefreshTokenDto.RefreshToken || getRefreshTokenDto.ValidityPeriod != DateTime.UtcNow)
+            if (getRefreshTokenDto.ValidityPeriod != DateTime.UtcNow)
                 return ResponseDto<TokenResponseDto>.Fail("Süresi bitmiş", 401);
 
-            Corporate? corporate = await identityDbContext.Corporate.FindAsync(generateAccessTokenDto.UserId);
-
-            var load = identityDbContext.Corporate.Entry(corporate).Collection(y => y.UserTeams).LoadAsync();
+            Corporate? corporate = await identityDbContext.Corporate.FindAsync(getRefreshTokenDto.UserId);
 
             if (corporate == null)
                 return ResponseDto<TokenResponseDto>.Fail("Kullanıcı bulunamadı", 400);
 
+            await identityDbContext.Corporate.Entry(corporate).Collection(y => y.UserTeams).LoadAsync();
 
-            await load;
             var generateToken = await CorporateTokenAsync(corporate);
 
             getRefreshTokenDto.RefreshToken = generateToken.RefreshToken;
