@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
-
+builder.Services.Configure<TokenConf>(builder.Configuration.GetSection("TokenConf"));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -28,23 +28,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidIssuer = "https://localhost:7253",
-            ValidAudience = "https://localhost:5000",
+            ValidIssuer = builder.Configuration.GetSection("TokenConf").Get<TokenConf>()!.Issuer,
+            ValidAudience = builder.Configuration.GetSection("TokenConf").Get<TokenConf>()!.Audience,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Hashing.Hash("checkpointsecret"))
+            IssuerSigningKey = new SymmetricSecurityKey(Hashing.Hash(builder.Configuration.GetSection("TokenConf").Get<TokenConf>()!.ClientSecret))
         };
     });
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()  // Geliþtirme için: dikkatli kullanýn
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
-
 builder.Services.AddServices();
 builder.Services.AddHttpContextAccessor();
 
@@ -55,7 +54,7 @@ builder.Services.AddAuthorization(configure =>
     configureBuilder.AddRequirements(new AddRequirement()));
 });
 
-builder.Services.Configure<TokenConf>(builder.Configuration.GetSection("TokenConf"));
+
 builder.Services.AddDbContext<IdentityDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
 builder.Services.AddMassTransit<IBus>(configure =>
 {

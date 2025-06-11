@@ -46,7 +46,6 @@ namespace Checkpoint.IdentityServer.Services
                 UserId = corporate.Entity.Id,
                 ValidityPeriod = responseToken.RefreshToken_LifeTime
             };
-
             var getRedisRefreshToken = await redisClientAsync.GetAsync<List<CacheRefreshTokenDto>>(IdentityServerConstants.RedisRefreshTokenKey);
 
             List<CacheRefreshTokenDto> refreshTokenDtos = new();
@@ -61,8 +60,6 @@ namespace Checkpoint.IdentityServer.Services
             }
             refreshTokenDtos.Add(cacheRefreshTokenDto);
             await redisClientAsync.SetAsync(IdentityServerConstants.RedisRefreshTokenKey, refreshTokenDtos);
-
-
             return ResponseDto<TokenResponseDto>.Success(responseToken, 200);
 
         }

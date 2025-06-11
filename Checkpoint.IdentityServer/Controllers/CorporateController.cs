@@ -14,7 +14,6 @@ namespace Checkpoint.IdentityServer.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterCorporateDto registerCorporateDto)
         {
             return Handlers(await registerOutboxTransaction.AddRegisterAsync(registerCorporateDto, CancellationToken.None));
-
         }
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] CorporateLoginDto corporateLoginDto)
@@ -25,7 +24,6 @@ namespace Checkpoint.IdentityServer.Controllers
         public async Task<IActionResult> Verification([FromQuery] int id, [FromHeader] string verificationData)
         {
             return Handlers(await registerOutboxTransaction.CorporateVerification(id, verificationData));
-
         }
         [HttpGet]
         [Authorize(Policy = "Add")]
