@@ -52,11 +52,17 @@ namespace Checkpoint.IdentityServer.Services
             List<CacheRefreshTokenDto> refreshTokenDtos = new();
             if (getRedisRefreshToken != null)
             {
+                var getRedisRefresh = getRedisRefreshToken.FirstOrDefault(y => y.UserId == corporate.Entity.Id);
+                if (getRedisRefresh is not null)
+                {
+                    getRedisRefreshToken.Remove(getRedisRefresh);
+                }
                 refreshTokenDtos = getRedisRefreshToken;
             }
-
             refreshTokenDtos.Add(cacheRefreshTokenDto);
             await redisClientAsync.SetAsync(IdentityServerConstants.RedisRefreshTokenKey, refreshTokenDtos);
+
+
             return ResponseDto<TokenResponseDto>.Success(responseToken, 200);
 
         }
