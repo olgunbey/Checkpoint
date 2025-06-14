@@ -20,7 +20,7 @@ namespace Checkpoint.API.Features.Project.Query
 
                 public async Task<ResponseDto<Dto.Response>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    Entities.Project? project = await applicationDbContext.Project.FindAsync(request.RequestDto.Id);
+                    Entities.Project? project = await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId);
 
                     if (project == null)
                         return ResponseDto<Dto.Response>.Fail("Proje bulunamadı!!!", 400);

@@ -81,8 +81,8 @@ namespace Checkpoint.IdentityServer.TokenServices
 
             var getRefreshToken = getAllRefreshToken.FirstOrDefault(y => y.RefreshToken == controlRefreshTokenDto.RefreshToken);
 
-            if (getRefreshToken == null || getRefreshToken.ValidityPeriod >= DateTime.UtcNow)
-                return ResponseDto<TokenResponseDto>.Fail("Refresh token bulunamadı veya geçersiz", 400);
+            if (getRefreshToken == null || getRefreshToken.ValidityPeriod <= DateTime.UtcNow)
+                return ResponseDto<TokenResponseDto>.Fail("Refresh token bulunamadı veya geçersiz", 401);
 
             int userId = getRefreshToken.UserId;
 
@@ -135,7 +135,7 @@ namespace Checkpoint.IdentityServer.TokenServices
                 return ResponseDto<TokenResponseDto>.Fail("kullanıcı bulunamadı", 400);
 
 
-            if (getRefreshTokenDto.ValidityPeriod != DateTime.UtcNow)
+            if (getRefreshTokenDto.ValidityPeriod <= DateTime.UtcNow)
                 return ResponseDto<TokenResponseDto>.Fail("Süresi bitmiş", 401);
 
             Corporate? corporate = await identityDbContext.Corporate.FindAsync(getRefreshTokenDto.UserId);
@@ -146,7 +146,9 @@ namespace Checkpoint.IdentityServer.TokenServices
             await identityDbContext.Corporate.Entry(corporate).Collection(y => y.UserTeams)
                 .Query()
                 .Include(y => y.UserTeamRoles)
-                .Include(y => y.UserTeamPermissions).LoadAsync();
+                .ThenInclude(y => y.Role)
+                .Include(y => y.UserTeamPermissions)
+                .ThenInclude(y => y.Permission).LoadAsync();
 
             var generateToken = await CorporateTokenAsync(corporate);
 

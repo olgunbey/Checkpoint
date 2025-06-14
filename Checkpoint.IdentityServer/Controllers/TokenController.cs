@@ -16,14 +16,7 @@ namespace Checkpoint.IdentityServer.Controllers
             return Handlers(responseDto);
         }
         [HttpPost]
-        public async Task<IActionResult> ControlRefreshToken([FromBody] ControlRefreshTokenDto refreshToken)
-        {
-            var responseDto = await tokenService.ControlRefreshTokenAsync(refreshToken);
-            return Handlers(responseDto);
-
-        }
-        [HttpPost]
-        public async Task<IActionResult> GenerateAccessToken([FromBody] GenerateAccessTokenDto generateAccessTokenDto)
+        public async Task<IActionResult> GenerateAccessTokenByRefreshToken([FromBody] GenerateAccessTokenDto generateAccessTokenDto)
         {
             var responseDto = await tokenService.GenerateAccessTokenAsync(generateAccessTokenDto);
             return Handlers(responseDto);
