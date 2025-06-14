@@ -45,9 +45,9 @@ namespace Checkpoint.API.Features.Request.Query
                             {
                                 ActionPath = y.ActionPath,
                                 Id = y.Id,
-                                //Body = y.Body,
-                                //Query = y.Query,
-                                //Header = y.Header,
+                                Body = y.Body,
+                                Query = y.Query,
+                                Header = y.Header,
                                 RequestType = y.RequestType
                             }).ToList()
 
@@ -84,9 +84,9 @@ namespace Checkpoint.API.Features.Request.Query
                     public int Id { get; set; }
                     public string ActionPath { get; set; }
                     public RequestType RequestType { get; set; }
-                    public string? Query { get; set; }
-                    public string? Header { get; set; }
-                    public string? Body { get; set; }
+                    public List<RequestPayloads.Query>? Query { get; set; }
+                    public List<RequestPayloads.Header>? Header { get; set; }
+                    public List<RequestPayloads.Body>? Body { get; set; }
                 }
                 public int Id { get; set; }
                 public string BasePath { get; set; }
