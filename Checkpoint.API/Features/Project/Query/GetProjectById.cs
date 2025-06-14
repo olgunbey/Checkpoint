@@ -27,7 +27,7 @@ namespace Checkpoint.API.Features.Project.Query
 
                     var response = new Dto.Response()
                     {
-                        Id = request.RequestDto.Id,
+                        Id = request.RequestDto.ProjectId,
                         ProjectName = project.ProjectName,
                     };
                     return ResponseDto<Dto.Response>.Success(response, 200);
