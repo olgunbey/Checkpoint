@@ -42,7 +42,7 @@ namespace Checkpoint.API.Features.Project.Query
                 public string ProjectName { get; set; }
             }
 
-            internal sealed record Request(int Id);
+            internal sealed record Request(int ProjectId);
         }
         public class Endpoint : ApiResponseController, ICarterModule
         {
@@ -50,9 +50,9 @@ namespace Checkpoint.API.Features.Project.Query
             {
                 app.MapGet("aip/project/getProjectById", Handle);
             }
-            public async Task<IActionResult> Handle([FromQuery] int id, [FromServices] IMediator mediatr, HttpContext httpContext)
+            public async Task<IActionResult> Handle([FromQuery] int projectId, [FromServices] IMediator mediatr, HttpContext httpContext)
             {
-                var response = await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(id) });
+                var response = await mediatr.Send(new Mediatr.Request() { RequestDto = new Dto.Request(projectId) });
 
                 return Handlers(httpContext, response);
             }
