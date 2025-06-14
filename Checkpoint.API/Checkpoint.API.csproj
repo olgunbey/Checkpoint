@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Endpoint\Command\" />
+    <Folder Include="Features\Team\Command\" />
   </ItemGroup>
 
 </Project>
