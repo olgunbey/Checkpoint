@@ -82,7 +82,7 @@ builder.Services.AddMassTransit<IBus>(configure =>
             config.Password(builder.Configuration.GetSection("AmqpConf")["Password"]!);
 
         });
-        configurator.ReceiveEndpoint(QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity, cnf => cnf.ConfigureConsumer<TeamNameReceivedConsumer>(context));
+        configurator.ReceiveEndpoint(QueueConfigurations.Identity_Server_TeamNameReceived_Checkpoint_Api, cnf => cnf.ConfigureConsumer<TeamNameReceivedConsumer>(context));
 
     });
 

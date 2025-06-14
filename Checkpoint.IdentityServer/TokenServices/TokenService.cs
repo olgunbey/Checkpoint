@@ -57,7 +57,7 @@ namespace Checkpoint.IdentityServer.TokenServices
             var teams = corporate.UserTeams.Select(y => new
             {
                 y.TeamId,
-                Role = y.UserTeamRoles.Select(y => y.Role.Name).Single(),
+                Role = y.UserTeamRoles.Select(y => y.Role.Name).SingleOrDefault(),
                 Permissions = y.UserTeamPermissions.Select(p => p.Permission.Name).ToList(),
             }).ToList();
 
@@ -143,7 +143,10 @@ namespace Checkpoint.IdentityServer.TokenServices
             if (corporate == null)
                 return ResponseDto<TokenResponseDto>.Fail("Kullanıcı bulunamadı", 400);
 
-            await identityDbContext.Corporate.Entry(corporate).Collection(y => y.UserTeams).LoadAsync();
+            await identityDbContext.Corporate.Entry(corporate).Collection(y => y.UserTeams)
+                .Query()
+                .Include(y => y.UserTeamRoles)
+                .Include(y => y.UserTeamPermissions).LoadAsync();
 
             var generateToken = await CorporateTokenAsync(corporate);
 

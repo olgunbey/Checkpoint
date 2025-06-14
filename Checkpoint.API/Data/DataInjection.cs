@@ -1,5 +1,7 @@
-﻿using Checkpoint.API.Interfaces;
+﻿using Checkpoint.API.Dtos;
+using Checkpoint.API.Interfaces;
 using EventStore.Client;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -14,6 +16,8 @@ namespace Checkpoint.API.Data
             var dataSource = dataSourceBuilder.Build();
             services.AddDbContext<CheckpointDbContext>(u => u.UseNpgsql(dataSource));
             services.AddScoped<IApplicationDbContext, CheckpointDbContext>();
+            services.AddSingleton<CorporateTokenInformationDto>();
+            services.AddSingleton<IAuthorizationHandler, Features.Team.Query.GetTeamAndProjectByUserId.Handler>();
             services.AddSingleton<EventStoreClient>(config =>
             {
                 EventStoreClientSettings clientSettings = EventStoreClientSettings.Create(configuration.GetSection("EventStore")["db"]);

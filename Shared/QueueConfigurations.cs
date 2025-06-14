@@ -9,5 +9,6 @@
         public const string Identity_Server_UserTeamSelected_Mail_Service = "identity-server-userteamselected-mail-service";
         public const string Checkpoint_Api_ListProject_Identity = "checkpoint-api-listproject-identity-service";
         public const string Identity_GetTeamName_Checkpoint_Api = "identity-service-getteamname-checkpoint-api";
+        public const string Identity_Server_TeamNameReceived_Checkpoint_Api = "identity-service-teamnamereceived-checkpoint-api";
     }
 }

@@ -9,19 +9,31 @@ namespace Checkpoint.API.Consumers
     {
         public async Task Consume(ConsumeContext<TeamNameReceivedEvent> context)
         {
-            var teamIds = context.Message.Teams.Select(y => y.TeamId);
+            var teamIds = context.Message.Teams.Select(t => t.TeamId);
+
             var projects = applicationDbContext.Project
-                .AsEnumerable()
-                .Where(y => y.TeamId.HasValue)
-                .IntersectBy(teamIds, project => project.TeamId!.Value);
+                .Where(p => p.TeamId != null && teamIds.Contains(p.TeamId.Value))
+                .Select(p => new
+                {
+                    p.TeamId,
+                    Project = new ProjectDto
+                    {
+                        ProjectId = p.Id,
+                        ProjectName = p.ProjectName
+                    }
+                })
+                .AsEnumerable();
 
-            var response = projects.Select(y => new GetAllProjectAndTeamResponseDto()
+
+            var response = context.Message.Teams.Select(t => new GetAllProjectAndTeamResponseDto
             {
-                TeamId = y.TeamId,
-                ProjectName = y.ProjectName,
-                TeamName = context.Message.Teams.AsEnumerable().IntersectBy(context.Message.Teams.Select(y => y.TeamId), keySelector => keySelector.TeamId).Single().TeamName
+                TeamId = t.TeamId,
+                TeamName = t.TeamName,
+                ProjectDto = projects
+                    .Where(p => p.TeamId == t.TeamId)
+                    .Select(p => p.Project)
+                    .ToList()
             }).ToList();
-
             await context.RespondAsync(Shared.Common.ResponseDto<List<GetAllProjectAndTeamResponseDto>>.Success(response, 200));
         }
     }
