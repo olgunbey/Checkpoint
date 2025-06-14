@@ -62,11 +62,12 @@ namespace Checkpoint.API.Features.Team.Query
         {
             protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, Requirement requirement)
             {
-                var getAllClaims = context.User.Claims.ToList();
+                var getAllClaims = context.User.Claims;
 
                 if (!getAllClaims.Any())
                 {
                     context.Fail();
+                    return Task.CompletedTask;
                 }
                 var teamsClaim = context.User.Claims.Single(y => y.Type == "teams");
 
