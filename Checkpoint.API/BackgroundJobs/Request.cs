@@ -84,13 +84,14 @@ namespace Checkpoint.API.BackgroundJobs
                                 Enums.RequestType.Post => HttpMethod.Post
                             };
                             HttpResponseMessage httpResponseMessage = new();
+                            Events.RequestEvent @event = new Events.RequestEvent();
                             try
                             {
                                 httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
                                 stopWatch.Stop();
                                 long responseTime = stopWatch.ElapsedMilliseconds;
 
-                                Events.RequestEvent @event = new Events.RequestEvent()
+                                @event = new Events.RequestEvent()
                                 {
                                     RequestStatus = httpResponseMessage.IsSuccessStatusCode,
                                     ResponseTimeMs = responseTime,
@@ -101,28 +102,11 @@ namespace Checkpoint.API.BackgroundJobs
                                     IndividualId = _action.Controller.BaseUrl.Project.IndividualId
                                 };
 
-                                EventData @eventData = new(
-                                   eventId: Uuid.NewUuid(),
-                                   type: @event.GetType().Name,
-                                   data: JsonSerializer.SerializeToUtf8Bytes(@event));
 
-
-                                await semaphore.WaitAsync(cancellationToken);
-                                try
-                                {
-                                    await eventStoreClient.AppendToStreamAsync(
-                                     streamName: endUrl,
-                                     expectedState: StreamState.Any,
-                                     eventData: [@eventData]);
-                                }
-                                finally
-                                {
-                                    semaphore.Release();
-                                }
                             }
                             catch (Exception)
                             {
-                                Events.RequestEvent @event = new Events.RequestEvent()
+                                @event = new Events.RequestEvent()
                                 {
                                     RequestStatus = false,
                                     ResponseTimeMs = 0,
@@ -132,24 +116,25 @@ namespace Checkpoint.API.BackgroundJobs
                                     TeamId = _action.Controller.BaseUrl.Project.TeamId,
                                     IndividualId = _action.Controller.BaseUrl.Project.IndividualId
                                 };
-                                EventData @eventData = new(
+
+                            }
+                            EventData @eventData = new(
                                    eventId: Uuid.NewUuid(),
                                    type: @event.GetType().Name,
                                    data: JsonSerializer.SerializeToUtf8Bytes(@event));
 
 
-                                await semaphore.WaitAsync(cancellationToken);
-                                try
-                                {
-                                    await eventStoreClient.AppendToStreamAsync(
-                                     streamName: endUrl,
-                                     expectedState: StreamState.Any,
-                                     eventData: [@eventData]);
-                                }
-                                finally
-                                {
-                                    semaphore.Release();
-                                }
+                            await semaphore.WaitAsync(cancellationToken);
+                            try
+                            {
+                                await eventStoreClient.AppendToStreamAsync(
+                                 streamName: endUrl,
+                                 expectedState: StreamState.Any,
+                                 eventData: [@eventData]);
+                            }
+                            finally
+                            {
+                                semaphore.Release();
                             }
 
 
