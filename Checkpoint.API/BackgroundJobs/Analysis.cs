@@ -25,75 +25,6 @@ namespace Checkpoint.API.BackgroundJobs
                   .ThenInclude(y => y.BaseUrl)
                   .ToListAsync();
 
-
-            foreach (var action in actionList2)
-            {
-                string requestUrl = string.Empty;
-                List<string> requestUrls = new List<string>()
-                 {
-                     action.Controller!.BaseUrl!.BasePath,
-                     action.Controller.ControllerPath,
-                     action.ActionPath
-                 };
-                requestUrl = string.Join("/", requestUrls);
-
-                if (action.Query != null && action.Query.Any())
-                {
-                    string queryUrl = string.Join("&", action.Query.Where(y => y.Value != null)
-                           .Select(y => $"{y.Key}={Uri.EscapeDataString(y.Value.ToString()!)}"));
-
-                    requestUrl = string.Join("?", requestUrl, queryUrl);
-                }
-                var last = eventStoreClient.ReadStreamAsync(
-                       direction: Direction.Backwards,
-                       streamName: requestUrl,
-                       revision: StreamPosition.End,
-                       maxCount: 1);
-
-
-                var lastEvent = await last.FirstOrDefaultAsync(cancellationToken);
-                long lastEventNumber = lastEvent.Event.EventNumber.ToInt64();
-
-                var eventStoreRead = eventStoreClient.ReadStreamAsync(Direction.Forwards, requestUrl, StreamPosition.Start, lastEventNumber);
-
-                Dictionary<string, RequestEvent> eventDictionary = new Dictionary<string, RequestEvent>();
-
-                var control = await eventStoreRead.Select(y => eventDictionary.TryAdd(y.Event.EventId.ToString(),
-                      JsonSerializer.Deserialize(y.Event.Data.ToArray(), typeof(RequestEvent)) as RequestEvent)).ToListAsync();
-
-
-
-                if (control.All(y => y))
-                {
-                    double averageResponseTime = (double)eventDictionary.Sum(y => y.Value.ResponseTimeMs) / eventDictionary.Count;
-
-                    var notProcessedEvents = eventDictionary.ExceptBy(applicationDbContext.RequestedEndpointId.Select(y => y.EventId), y => y.Key).ToDictionary();
-
-                    foreach (var notProcessedEvent in notProcessedEvents)
-                    {
-                        if (notProcessedEvent.Value.ResponseTimeMs > averageResponseTime)
-                        {
-                            AnalysisNotAvgEvent analysisStartEvent = new()
-                            {
-                                IndividualId = notProcessedEvent.Value.IndividualId,
-                                TeamId = notProcessedEvent.Value.TeamId,
-                                ApiUrl = notProcessedEvent.Value.Url
-                            };
-                            var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
-                            await getSendEndpoint.Send(analysisStartEvent);
-                        }
-                    }
-                    var processedEventIds = notProcessedEvents.Keys.Select(y => new RequestedEndpointId() { EventId = y }).ToList();
-
-                    applicationDbContext.RequestedEndpointId.AddRange(processedEventIds);
-                    await applicationDbContext.SaveChangesAsync(cancellationToken);
-                }
-
-
-            }
-
-
-
             await Parallel.ForEachAsync(actionList, async (action, ct) =>
              {
                  string requestUrl = string.Empty;
@@ -113,60 +44,51 @@ namespace Checkpoint.API.BackgroundJobs
                      requestUrl = string.Join("?", requestUrl, queryUrl);
 
 
-                     var last = eventStoreClient.ReadStreamAsync(
+                 }
+                 var last = eventStoreClient.ReadStreamAsync(
                         direction: Direction.Backwards,
                         streamName: requestUrl,
                         revision: StreamPosition.End,
                         maxCount: 1);
 
 
-                     var lastEvent = await last.FirstOrDefaultAsync(cancellationToken);
-                     long lastEventNumber = lastEvent.Event.EventNumber.ToInt64();
+                 var lastEvent = await last.FirstOrDefaultAsync(cancellationToken);
+                 long lastEventNumber = lastEvent.Event.EventNumber.ToInt64();
 
+                 var eventStoreRead = eventStoreClient.ReadStreamAsync(Direction.Forwards, requestUrl, StreamPosition.Start, lastEventNumber);
 
-                     var eventStoreRead = eventStoreClient.ReadStreamAsync(Direction.Forwards, requestUrl, StreamPosition.Start, lastEventNumber);
+                 Dictionary<string, RequestEvent> eventDictionary = new Dictionary<string, RequestEvent>();
 
+                 var control = eventStoreRead.Select(y => eventDictionary.TryAdd(y.Event.EventId.ToString(),
+                       JsonSerializer.Deserialize(y.Event.Data.ToArray(), typeof(RequestEvent)) as RequestEvent));
 
-                     Dictionary<string, RequestEvent> eventDictionary = new Dictionary<string, RequestEvent>();
+                 if (await control.AllAsync(y => y))
+                 {
+                     int dictionaryCount = eventDictionary.Count;
+                     long sumResponseTime = eventDictionary.Sum(y => y.Value.ResponseTimeMs);
+                     double averageResponseTime = (double)sumResponseTime / dictionaryCount;
 
+                     var notProcessedEvents = eventDictionary.ExceptBy(applicationDbContext.RequestedEndpointId.Select(y => y.EventId), y => y.Key).ToDictionary();
 
-
-
-                     var control = eventStoreRead.Select(y => eventDictionary.TryAdd(y.Event.EventId.ToString(),
-                           JsonSerializer.Deserialize(y.Event.Data.ToArray(), typeof(RequestEvent)) as RequestEvent));
-
-                     Console.WriteLine(requestUrls + " " + eventDictionary.Count);
-
-                     if (await control.AllAsync(y => y))
+                     foreach (var notProcessedEvent in notProcessedEvents)
                      {
-                         int dictionaryCount = eventDictionary.Count;
-                         long sumResponseTime = eventDictionary.Sum(y => y.Value.ResponseTimeMs);
-                         double averageResponseTime = (double)sumResponseTime / dictionaryCount;
-
-                         var notProcessedEvents = eventDictionary.ExceptBy(applicationDbContext.RequestedEndpointId.Select(y => y.EventId), y => y.Key).ToDictionary();
-
-                         foreach (var notProcessedEvent in notProcessedEvents)
+                         if ((double)notProcessedEvent.Value.ResponseTimeMs > averageResponseTime)
                          {
-                             if ((double)notProcessedEvent.Value.ResponseTimeMs > averageResponseTime)
+                             AnalysisNotAvgEvent analysisStartEvent = new()
                              {
-                                 AnalysisNotAvgEvent analysisStartEvent = new()
-                                 {
-                                     IndividualId = notProcessedEvent.Value.IndividualId,
-                                     TeamId = notProcessedEvent.Value.TeamId,
-                                     ApiUrl = notProcessedEvent.Value.Url
-                                 };
-                                 var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
-                                 await getSendEndpoint.Send(analysisStartEvent);
-                             }
+                                 IndividualId = notProcessedEvent.Value.IndividualId,
+                                 TeamId = notProcessedEvent.Value.TeamId,
+                                 ApiUrl = notProcessedEvent.Value.Url
+                             };
+                             var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
+                             await getSendEndpoint.Send(analysisStartEvent);
                          }
-                         var processedEventIds = notProcessedEvents.Keys.Select(y => new RequestedEndpointId() { EventId = y }).ToList();
-
-                         applicationDbContext.RequestedEndpointId.AddRange(processedEventIds);
-                         await applicationDbContext.SaveChangesAsync(cancellationToken);
                      }
+                     var processedEventIds = notProcessedEvents.Keys.Select(y => new RequestedEndpointId() { EventId = y }).ToList();
 
+                     applicationDbContext.RequestedEndpointId.AddRange(processedEventIds);
+                     await applicationDbContext.SaveChangesAsync(cancellationToken);
                  }
-
              });
         }
     }
