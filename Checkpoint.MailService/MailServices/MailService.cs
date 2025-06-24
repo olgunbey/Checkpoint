@@ -100,7 +100,7 @@ namespace Checkpoint.MailService.MailServices
 
                 mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
                 {
-                    Text = @$"{sendEmailApiAnalysisDto.Url} istek süresinde performans kayıbı mevcut, lütfen performan iyileştirmesi yapınız"
+                    Text = @$"{sendEmailApiAnalysisDto.Url} istek süresinde performans kayıbı mevcut, lütfen performans iyileştirmesi yapınız"
                 };
 
                 await smtpClient.SendAsync(mailMessage);

@@ -12,14 +12,15 @@ namespace Checkpoint.IdentityServer.Consumers
         public async Task Consume(ConsumeContext<AnalysisNotAvgEvent> context)
         {
 
-            var sendEndPoint = await context.GetSendEndpoint(new Uri($"{QueueConfigurations.Identity_Server_UserTeamSelected_Mail_Service}"));
-            if (context.Message.IndividualId != 0)
+            var sendEndPoint = await context.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.Identity_Server_UserTeamSelected_Mail_Service}"));
+            UserTeamSelectedEvent userTeamSelectedEvent = new();
+            if (context.Message.IndividualId != null)
             {
                 Individual individual = (await identityDbContext.Individual.FindAsync(context.Message.IndividualId))!;
 
-                UserTeamSelectedEvent userTeamSelectedEvent = new UserTeamSelectedEvent()
+                userTeamSelectedEvent = new UserTeamSelectedEvent()
                 {
-                    MailAddress = individual.Mail,
+                    MailAddress = individual!.Mail,
                     ApiUrl = context.Message.ApiUrl,
                 };
                 await sendEndPoint.Send(userTeamSelectedEvent);
@@ -28,26 +29,18 @@ namespace Checkpoint.IdentityServer.Consumers
             if (context.Message.TeamId != 0)
             {
                 var userTeam = await identityDbContext.UserTeam
-                    .Include(y => y.Individual)
-                    .Include(y => y.Corporate)
                     .Where(y => y.TeamId == context.Message.TeamId)
+                    .Include(y => y.Corporate)
                     .ToListAsync();
 
                 foreach (var team in userTeam)
                 {
                     string mailAddress = string.Empty;
-                    if (team.IndividualId != 0)
-                    {
-                        mailAddress = team.Individual.Mail;
-                    }
-                    if (team.IndividualId != 0)
-                    {
-                        mailAddress = team.Individual.Mail;
-                    }
 
-                    UserTeamSelectedEvent userTeamSelectedEvent = new UserTeamSelectedEvent()
+                    userTeamSelectedEvent = new UserTeamSelectedEvent()
                     {
-                        MailAddress = mailAddress,
+                        MailAddress = team.Corporate.Mail,
+                        ApiUrl = context.Message.ApiUrl
                     };
                     await sendEndPoint.Send(userTeamSelectedEvent);
                 }

@@ -22,7 +22,7 @@ builder.Services.AddServices();
 builder.Services.Configure<MailInformation>(builder.Configuration.GetSection("MailInformation"));
 builder.Services.AddHangfire(y => y.UseMemoryStorage());
 builder.Services.AddSingleton<IMailService, MailService>();
-builder.Services.AddSingleton<SmtpClient>(y =>
+builder.Services.AddTransient(y =>
 {
     var smtpClient = new SmtpClient();
     smtpClient.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
