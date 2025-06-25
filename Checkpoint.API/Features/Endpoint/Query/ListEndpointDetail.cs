@@ -87,7 +87,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
                             SuccessCount = successRequestCount,
                             UnSuccessCount = unSuccessRequestCount,
                             ControllerName = item.Key,
-                            Actions = controllers.Where(y => y.ControllerPath == item.Key).SelectMany(y => y.Actions)
+                            Actions = controllers.Where(y => y.ControllerPath == item.Key.Split('/')[4]).SelectMany(y => y.Actions)
                             .Select(y => new Dto.Action()
                             {
                                 Id = y.Id,
