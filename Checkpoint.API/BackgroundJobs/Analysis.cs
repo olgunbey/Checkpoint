@@ -56,7 +56,7 @@ namespace Checkpoint.API.BackgroundJobs
                             TeamId = notProcessedEvent.Value.TeamId,
                             ApiUrl = notProcessedEvent.Value.Url
                         };
-                        var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
+                        var getSendEndpoint = await bus.GetSendEndpoint(new Uri($"queue:{QueueConfigurations.Checkpoint_Api_AnalysisNotAvgTime_Identity}"));
                         await getSendEndpoint.Send(analysisStartEvent);
                     }
                 }
@@ -97,7 +97,7 @@ namespace Checkpoint.API.BackgroundJobs
                         revision: StreamPosition.End,
                         maxCount: 1);
 
-            var lastEvent = await last.FirstOrDefaultAsync(cancellationToken);
+            var lastEvent = await last.FirstAsync(cancellationToken);
             long lastEventNumber = lastEvent.Event.EventNumber.ToInt64();
 
             var eventStoreRead = eventStoreClient.ReadStreamAsync(Direction.Forwards, requestUrl, StreamPosition.Start, lastEventNumber + 1);
@@ -106,18 +106,10 @@ namespace Checkpoint.API.BackgroundJobs
 
             await foreach (var eventData in eventStoreRead.WithCancellation(cancellationToken))
             {
-                try
-                {
-                    var requestEvent = JsonSerializer.Deserialize<RequestEvent>(eventData.Event.Data.ToArray());
-                    if (requestEvent != null)
-                    {
-                        eventDictionary.TryAdd(eventData.Event.EventId.ToString(), requestEvent);
-                    }
-                }
-                catch (JsonException ex)
-                {
-                    Console.WriteLine($"Failed to deserialize event {eventData.Event.EventId}: {ex.Message}");
-                }
+
+                var requestEvent = JsonSerializer.Deserialize<RequestEvent>(eventData.Event.Data.ToArray())!;
+
+                eventDictionary.TryAdd(eventData.Event.EventId.ToString(), requestEvent);
 
             }
             return eventDictionary;

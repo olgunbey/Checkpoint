@@ -30,7 +30,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
                          .Reference(y => y.Controller)
                          .Query()
                          .Include(y => y.BaseUrl)
-                         .LoadAsync();
+                         .LoadAsync(cancellationToken);
 
                     string endUrl = string.Empty;
                     List<string> requestUrl = new List<string>()
@@ -49,33 +49,22 @@ namespace Checkpoint.API.Features.Endpoint.Query
                     }
 
 
-                    var last5Request = await eventStoreClient.ReadStreamAsync(
+                    var last5Request = eventStoreClient.ReadStreamAsync(
                          direction: Direction.Backwards,
                          streamName: endUrl,
                          revision: StreamPosition.End,
-                         maxCount: 5).ToListAsync();
+                         maxCount: 5);
 
-                    foreach (var req in last5Request)
+
+
+                    await foreach (var req in last5Request.WithCancellation(cancellationToken))
                     {
-                        string eventType = req.Event.EventType;
-
-                        Type _type = eventType switch
+                        RequestEvent @event = JsonSerializer.Deserialize<RequestEvent>(req.Event.Data.ToArray())!;
+                        response.Add(new Dto.Response
                         {
-                            nameof(RequestEvent) => typeof(RequestEvent),
-                        };
-
-                        object @event = JsonSerializer.Deserialize(req.Event.Data.ToArray(), _type)!;
-
-                        switch (@event)
-                        {
-                            case RequestEvent re:
-                                response.Add(new Dto.Response
-                                {
-                                    ResponseStatusMs = re.ResponseTimeMs,
-                                    RequestStatus = re.RequestStatus
-                                });
-                                break;
-                        }
+                            ResponseStatusMs = @event.ResponseTimeMs,
+                            RequestStatus = @event.RequestStatus
+                        });
                     }
 
 
