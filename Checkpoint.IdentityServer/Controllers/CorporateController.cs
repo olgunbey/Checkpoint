@@ -1,5 +1,6 @@
 ﻿using Checkpoint.IdentityServer.Data.DatabaseTransactions;
 using Checkpoint.IdentityServer.Dtos;
+using Checkpoint.IdentityServer.Filters;
 using Checkpoint.IdentityServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,9 +33,11 @@ namespace Checkpoint.IdentityServer.Controllers
             return Handlers(await userServices.AddRoleAsync(teamId, roleName));
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllCorporateByCompany([FromQuery] int companyId)
+        [Authorize]
+        [ServiceFilter(typeof(GetAllCorporateByCompanyServiceFilter))]
+        public async Task<IActionResult> GetAllCorporateByCompany()
         {
-            return Handlers(await userServices.GetAllCorporateByCompany(companyId));
+            return Handlers(await userServices.GetAllCorporateByCompany(corporateTokenDto.CompanyId));
         }
     }
 }

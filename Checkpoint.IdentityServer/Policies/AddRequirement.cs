@@ -18,6 +18,8 @@ namespace Checkpoint.IdentityServer.Policies
             {
                 return;
             }
+
+
             var selectedTeamId = Int16.Parse(httpContext.HttpContext!.Request.Headers["teamId"]!);
             var claims = context.User.Claims.ToList();
             var userTeams = claims.Single(y => y.Type == "teams");
