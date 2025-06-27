@@ -76,5 +76,28 @@ namespace Checkpoint.IdentityServer.Services
             await identityDbContext.SaveChangesAsync(CancellationToken.None);
             return ResponseDto<NoContent>.Success(204);
         }
+        public async Task<ResponseDto<List<GetAllCorporateByCompanyResponseDto>>> GetAllCorporateByCompany(int companyId)
+        {
+            Company? company = await identityDbContext.Company.FindAsync(companyId);
+
+            if (company == null)
+                return ResponseDto<List<GetAllCorporateByCompanyResponseDto>>.Fail("not found company", 400);
+
+            await identityDbContext.Company.Entry(company)
+                 .Collection(y => y.Corporates)
+                 .LoadAsync();
+
+            if (!company.Corporates.Any())
+            {
+                return ResponseDto<List<GetAllCorporateByCompanyResponseDto>>.Success(204);
+            }
+
+            var response = company.Corporates.Select(y => new GetAllCorporateByCompanyResponseDto()
+            {
+                Id = y.Id,
+                Mail = y.Mail,
+            }).ToList();
+            return ResponseDto<List<GetAllCorporateByCompanyResponseDto>>.Success(response, 200);
+        }
     }
 }
