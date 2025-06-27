@@ -87,7 +87,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("/api/analysis/endpointanalysis", Handle);
+                app.MapGet("/api/endpoint/endpointanalysis", Handle);
             }
             public async Task<IActionResult> Handle([FromQuery] int actionId, [FromServices] IMediator mediator, HttpContext httpContext)
             {

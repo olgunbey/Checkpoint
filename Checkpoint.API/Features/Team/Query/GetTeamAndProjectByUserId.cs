@@ -45,7 +45,7 @@ namespace Checkpoint.API.Features.Team.Query
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("api/team/getAllTeamAndProject", Handle).RequireAuthorization(configurePolicy =>
+                app.MapGet("api/team/getTeamAndProjectByUserId", Handle).RequireAuthorization(configurePolicy =>
                 configurePolicy.AddRequirements(new Requirement()));
             }
             public async Task<IActionResult> Handle([FromServices] IMediator mediatr, HttpContext httpContext)
