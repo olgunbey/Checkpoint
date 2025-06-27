@@ -75,19 +75,8 @@ namespace Checkpoint.API.Features.Endpoint.Query
                         string eventType = selectedEndpointResolvedEvent.Event.EventType;
                         var byteEvent = selectedEndpointResolvedEvent.Event.Data.ToArray();
 
-                        Type _typeof = eventType switch
-                        {
-                            nameof(RequestEvent) => typeof(RequestEvent)
-                        };
-
-                        var @event = JsonSerializer.Deserialize(byteEvent, _typeof);
-
-                        switch (@event)
-                        {
-                            case RequestEvent req:
-                                events.Add(req);
-                                break;
-                        }
+                        RequestEvent @event = JsonSerializer.Deserialize<RequestEvent>(byteEvent)!;
+                        events.Add(@event);
                     }
 
 

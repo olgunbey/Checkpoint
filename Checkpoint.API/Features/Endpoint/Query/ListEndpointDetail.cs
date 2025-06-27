@@ -95,82 +95,12 @@ namespace Checkpoint.API.Features.Endpoint.Query
                             }).ToList()
                         });
                     }
-
-                    return ResponseDto<Dto.Response>.Success(response, 200);
-
-                    foreach (var controller in controllers)
-                    {
-                        List<RequestEvent> requestEvents = new List<RequestEvent>();
-
-                        List<string> requestUrls = new List<string>()
-                        {
-                            controller.BaseUrl!.BasePath,
-                            controller.ControllerPath,
-                        };
-
-                        var endUrl = string.Join("/", requestUrls);
-
-                        if (controller.Actions.Select(y => y.Query).Any() && controller.Actions.Select(y => y.Query) != null)
-                        {
-                            foreach (var action in controller.Actions)
-                            {
-                                string finishUrl = string.Empty;
-                                finishUrl = string.Join('/', endUrl, action.ActionPath);
-                                if (action.Query != null)
-                                {
-                                    string queryUrl = string.Join("&", action.Query.Where(y => y.Value != null)
-                                  .Select(y => $"{y.Key}={Uri.EscapeDataString(y.Value.ToString()!)}"));
-                                    endUrl = string.Join("?", endUrl, queryUrl);
-                                }
-
-                                var lastEventResult = eventStoreClient.ReadStreamAsync(
-                                direction: Direction.Backwards,
-                                streamName: finishUrl,
-                                revision: StreamPosition.End,
-                                maxCount: 1);
-
-                                var lastResolvedEvent = await lastEventResult.SingleAsync();
-
-                                RequestEvent deserializerEvent = JsonSerializer.Deserialize<RequestEvent>(lastResolvedEvent.Event.Data.ToArray())!;
-                                requestEvents.Add(deserializerEvent);
-
-                            }
-                        }
-                        var groupBy = requestEvents.GroupBy(u =>
-                        {
-                            return u.Url.Split('/')[0] + '/' + u.Url.Split('/')[1] + '/' + u.Url.Split('/')[2] + '/' + u.Url.Split('/')[3] + '/' + u.Url.Split('/')[4];
-                        });
-
-                        //foreach (var groupByEvents in groupBy)
-                        //{
-                        //    foreach (var _groupBy in groupByEvents)
-                        //    {
-                        //        if (_groupBy.RequestStatus)
-                        //        {
-                        //            successCount++;
-                        //        }
-                        //        else
-                        //        {
-                        //            unSuccessCount++;
-                        //        }
-                        //    }
-
-                        //    response.Controllers.Add(new Dto.Controller
-                        //    {
-                        //        ControllerName = groupByEvents.Key,
-                        //        SuccessCount = successCount,
-                        //        UnSuccessCount = unSuccessCount,
-                        //        Actions = controller.Actions.Select(y => new Dto.Action { ActionName = y.ActionPath, Id = y.Id }).ToList()
-                        //    });
-                        //}
-                    }
                     return ResponseDto<Dto.Response>.Success(response, 200);
                 }
             }
         }
         internal sealed class Dto
         {
-
             internal sealed record Response
             {
                 public string ProjectName { get; set; }

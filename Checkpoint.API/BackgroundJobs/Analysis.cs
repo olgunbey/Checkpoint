@@ -26,9 +26,9 @@ namespace Checkpoint.API.BackgroundJobs
             await Parallel.ForEachAsync(actionList, async (action, ct) =>
              {
                  string requestUrl = BuildRequestUrl(action);
-                 var events = await ReadEventsFromEventStore(requestUrl, cancellationToken);
+                 Dictionary<string, RequestEvent>? events = await ReadEventsFromEventStore(requestUrl, cancellationToken);
 
-                 if (events.Any())
+                 if (events != null && events.Any())
                  {
                      eventStoreResults.TryAdd(requestUrl, events);
                  }
@@ -89,7 +89,7 @@ namespace Checkpoint.API.BackgroundJobs
             return requestUrl;
         }
 
-        private async Task<Dictionary<string, RequestEvent>> ReadEventsFromEventStore(string requestUrl, CancellationToken cancellationToken)
+        private async Task<Dictionary<string, RequestEvent>?> ReadEventsFromEventStore(string requestUrl, CancellationToken cancellationToken)
         {
             var last = eventStoreClient.ReadStreamAsync(
                         direction: Direction.Backwards,
@@ -97,6 +97,10 @@ namespace Checkpoint.API.BackgroundJobs
                         revision: StreamPosition.End,
                         maxCount: 1);
 
+            if (last == null)
+            {
+                return null;
+            }
             var lastEvent = await last.FirstAsync(cancellationToken);
             long lastEventNumber = lastEvent.Event.EventNumber.ToInt64();
 
