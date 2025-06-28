@@ -123,7 +123,10 @@ namespace Checkpoint.API.BackgroundJobs
                                    type: @event.GetType().Name,
                                    data: JsonSerializer.SerializeToUtf8Bytes(@event));
 
-
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                return;
+                            }
                             await semaphore.WaitAsync(cancellationToken);
                             try
                             {
