@@ -91,17 +91,19 @@ namespace Checkpoint.API.BackgroundJobs
 
         private async Task<Dictionary<string, RequestEvent>?> ReadEventsFromEventStore(string requestUrl, CancellationToken cancellationToken)
         {
-            var last = eventStoreClient.ReadStreamAsync(
+            var result = eventStoreClient.ReadStreamAsync(
                         direction: Direction.Backwards,
                         streamName: requestUrl,
                         revision: StreamPosition.End,
                         maxCount: 1);
 
-            if (last == null)
+
+            if (await result.ReadState == ReadState.StreamNotFound)
             {
                 return null;
             }
-            var lastEvent = await last.FirstAsync(cancellationToken);
+            var lastEvent = await result.FirstAsync(cancellationToken);
+
             long lastEventNumber = lastEvent.Event.EventNumber.ToInt64();
 
             var eventStoreRead = eventStoreClient.ReadStreamAsync(Direction.Forwards, requestUrl, StreamPosition.Start, lastEventNumber + 1);
