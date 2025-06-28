@@ -6,19 +6,23 @@ using MimeKit;
 
 namespace Checkpoint.MailService.MailServices
 {
-    public class MailService(SmtpClient smtpClient, IOptions<MailInformation> mailInformation) : IMailService
+    public class MailService(IOptions<MailInformation> mailInformation) : IMailService
     {
         public async Task SendEmailAsync(string toEmail, string subject, string verificationCode)
         {
-            using (MimeMessage mailMessage = new())
+            using (SmtpClient smtpClient = new())
             {
-                mailMessage.Subject = subject;
-                mailMessage.From.Add(MailboxAddress.Parse(mailInformation.Value.Username));
-                mailMessage.To.Add(MailboxAddress.Parse(toEmail));
-
-                mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                smtpClient.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                smtpClient.Authenticate(mailInformation.Value.Username, mailInformation.Value.Password);
+                using (MimeMessage mailMessage = new())
                 {
-                    Text = $@"<!DOCTYPE html>
+                    mailMessage.Subject = subject;
+                    mailMessage.From.Add(MailboxAddress.Parse(mailInformation.Value.Username));
+                    mailMessage.To.Add(MailboxAddress.Parse(toEmail));
+
+                    mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                    {
+                        Text = $@"<!DOCTYPE html>
 <html lang=""tr"">
 
 <head>
@@ -84,27 +88,36 @@ namespace Checkpoint.MailService.MailServices
 </body>
 
 </html>",
-                };
+                    };
 
-                await smtpClient.SendAsync(mailMessage);
+                    await smtpClient.SendAsync(mailMessage);
 
+                }
             }
         }
         public async Task SendEmailApiAnalysisAsync(SendEmailApiAnalysisDto sendEmailApiAnalysisDto)
         {
-            using (MimeMessage mailMessage = new())
+            using (SmtpClient smtpClient = new())
             {
-                mailMessage.Subject = sendEmailApiAnalysisDto.Subject;
-                mailMessage.From.Add(MailboxAddress.Parse(mailInformation.Value.Username));
-                mailMessage.To.Add(MailboxAddress.Parse(sendEmailApiAnalysisDto.ToMail));
+                smtpClient.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                smtpClient.Authenticate(mailInformation.Value.Username, mailInformation.Value.Password);
 
-                mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                using (MimeMessage mailMessage = new())
                 {
-                    Text = @$"{sendEmailApiAnalysisDto.Url} istek süresinde performans kayıbı mevcut, lütfen performans iyileştirmesi yapınız"
-                };
 
-                await smtpClient.SendAsync(mailMessage);
+                    mailMessage.Subject = sendEmailApiAnalysisDto.Subject;
+                    mailMessage.From.Add(MailboxAddress.Parse(mailInformation.Value.Username));
+                    mailMessage.To.Add(MailboxAddress.Parse(sendEmailApiAnalysisDto.ToMail));
+
+                    mailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                    {
+                        Text = @$"{sendEmailApiAnalysisDto.Url} istek süresinde performans kayıbı mevcut, lütfen performans iyileştirmesi yapınız"
+                    };
+
+                    await smtpClient.SendAsync(mailMessage);
+                }
             }
+
         }
 
     }
