@@ -6,7 +6,6 @@ using Checkpoint.MailService.Interfaces;
 using Checkpoint.MailService.MailServices;
 using Hangfire;
 using Hangfire.MemoryStorage;
-using MailKit.Net.Smtp;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Shared;
@@ -21,15 +20,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddServices();
 builder.Services.Configure<MailInformation>(builder.Configuration.GetSection("MailInformation"));
 builder.Services.AddHangfire(y => y.UseMemoryStorage());
-builder.Services.AddSingleton<IMailService, MailService>();
-builder.Services.AddTransient(y =>
-{
-    var smtpClient = new SmtpClient();
-    smtpClient.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-
-    smtpClient.Authenticate(builder.Configuration.GetSection("MailInformation").Get<MailInformation>()!.Username, builder.Configuration.GetSection("MailInformation").Get<MailInformation>()!.Password);
-    return smtpClient;
-});
+builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddHangfireServer();
 builder.Services.AddDbContext<MailDbContext>(y => y.UseNpgsql(builder.Configuration.GetConnectionString("checkpoint")));
 builder.Services.AddMassTransit<IBus>(config =>
