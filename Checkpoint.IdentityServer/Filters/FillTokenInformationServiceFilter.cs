@@ -25,16 +25,9 @@ namespace Checkpoint.IdentityServer.Filters
                 context.HttpContext!.Request.Query.TryGetValue("teamId", out value);
             }
 
-            if (StringValues.IsNullOrEmpty(value))
-            {
-                return;
-            }
-
-
             var claims = context.HttpContext.User.Claims.ToList();
             var userTeams = claims.Single(y => y.Type == "teams");
             var deserializeData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
-            CorporateJwtModel userGetSelectedTeamId = deserializeData.Single(y => y.TeamId == short.Parse(value.ToString()));
             tokenDto.SelectedTeamId = short.Parse(value.ToString());
             tokenDto.CompanyId = Int16.Parse(claims.Single(y => y.Type == "companyId").Value);
             tokenDto.CorporateId = Int16.Parse(claims.Single(y => y.Type == ClaimTypes.NameIdentifier).Value);
