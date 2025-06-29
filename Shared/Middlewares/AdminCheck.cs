@@ -18,12 +18,17 @@ namespace Shared.Middlewares
             var user = httpContext.User;
             StringValues value = StringValues.Empty;
 
-            httpContext.Request.Headers.TryGetValue("teamId", out value);
             httpContext.Request.Query.TryGetValue("teamId", out value);
+
+            if (String.IsNullOrEmpty(value))
+            {
+                httpContext.Request.Headers.TryGetValue("teamId", out value);
+            }
 
             if (StringValues.IsNullOrEmpty(value))
             {
                 await _next(httpContext);
+                return;
             }
 
             if (user.Identity is { IsAuthenticated: true })

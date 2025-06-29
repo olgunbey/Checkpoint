@@ -26,7 +26,7 @@ namespace Checkpoint.IdentityServer
             services.AddSingleton<IAuthorizationHandler, Add>();
             services.AddScoped<TeamService>();
             services.AddSingleton<IRedisClientAsync>(y => new RedisClient("localhost", 6379));
-            services.AddTransient<GetAllCorporateByCompanyServiceFilter>();
+            services.AddSingleton<FillTokenInformationServiceFilter>();
             return services;
         }
     }

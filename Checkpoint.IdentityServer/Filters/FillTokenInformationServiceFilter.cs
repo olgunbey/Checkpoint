@@ -1,13 +1,13 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Shared.Dtos;
 using System.Security.Claims;
 
 namespace Checkpoint.IdentityServer.Filters
 {
-    public class GetAllCorporateByCompanyServiceFilter(TokenDto tokenDto) : IActionFilter
+    public class FillTokenInformationServiceFilter(TokenDto tokenDto) : IActionFilter
     {
         public void OnActionExecuted(ActionExecutedContext context)
         {
@@ -16,16 +16,26 @@ namespace Checkpoint.IdentityServer.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (string.IsNullOrEmpty(context.HttpContext!.Request.Headers["teamId"]))
+            StringValues value = StringValues.Empty;
+
+            context.HttpContext!.Request.Headers.TryGetValue("teamId", out value);
+
+            if (String.IsNullOrEmpty(value))
+            {
+                context.HttpContext!.Request.Query.TryGetValue("teamId", out value);
+            }
+
+            if (StringValues.IsNullOrEmpty(value))
             {
                 return;
             }
-            var selectedTeamId = Int16.Parse(context.HttpContext!.Request.Headers["teamId"]!);
+
+
             var claims = context.HttpContext.User.Claims.ToList();
             var userTeams = claims.Single(y => y.Type == "teams");
             var deserializeData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
-            CorporateJwtModel userGetSelectedTeamId = deserializeData.Single(y => y.TeamId == selectedTeamId);
-            tokenDto.SelectedTeamId = selectedTeamId;
+            CorporateJwtModel userGetSelectedTeamId = deserializeData.Single(y => y.TeamId == short.Parse(value.ToString()));
+            tokenDto.SelectedTeamId = short.Parse(value.ToString());
             tokenDto.CompanyId = Int16.Parse(claims.Single(y => y.Type == "companyId").Value);
             tokenDto.CorporateId = Int16.Parse(claims.Single(y => y.Type == ClaimTypes.NameIdentifier).Value);
         }

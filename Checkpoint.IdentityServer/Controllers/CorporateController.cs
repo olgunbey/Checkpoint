@@ -28,13 +28,14 @@ namespace Checkpoint.IdentityServer.Controllers
         }
         [HttpGet]
         [Authorize(Policy = "Add")]
+        [ServiceFilter(typeof(FillTokenInformationServiceFilter))]
         public async Task<IActionResult> AddRole([FromQuery] int teamId, [FromHeader] string roleName)
         {
             return Handlers(await userServices.AddRoleAsync(teamId, roleName));
         }
         [HttpGet]
         [Authorize]
-        [ServiceFilter(typeof(GetAllCorporateByCompanyServiceFilter))]
+        [ServiceFilter(typeof(FillTokenInformationServiceFilter))]
         public async Task<IActionResult> GetAllCorporateByCompany()
         {
             return Handlers(await userServices.GetAllCorporateByCompany(corporateTokenDto.CompanyId));
