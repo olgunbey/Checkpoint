@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using Shared.Dtos;
+using System.Security.Claims;
 
 namespace Shared.Middlewares
 {
@@ -16,15 +15,10 @@ namespace Shared.Middlewares
             var user = httpContext.User;
             if (user.Identity is { IsAuthenticated: true })
             {
-                var userTeams = user.Claims.Single(y => y.Type == "teams");
-                var deserializeData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
-
-                bool isAdmin = bool.Parse(user.Claims.Single(y => y.Type == "IsAdmin").Value);
-                if (isAdmin)
+                if (user.Claims.Any(y => y.Type == ClaimTypes.Role && y.Value == "Admin"))
                 {
                     httpContext.Items["AdminByPass"] = true;
                 }
-
             }
             await _next(httpContext);
         }
