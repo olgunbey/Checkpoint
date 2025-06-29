@@ -47,6 +47,66 @@
       ],
       "UpstreamPathTemplate": "/corporate/AddRole",
       "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/corporate/GetAllCorporateByCompany",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7253
+        }
+      ],
+      "UpstreamPathTemplate": "/corporate/GetAllCorporateByCompany",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/team/AddTeam",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7253
+        }
+      ],
+      "UpstreamPathTemplate": "/team/AddTeam",
+      "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/team/AddCorporateToTeam",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7253
+        }
+      ],
+      "UpstreamPathTemplate": "/team/AddCorporateToTeam",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/token/RemoveRefreshToken",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7253
+        }
+      ],
+      "UpstreamPathTemplate": "/token/RemoveRefreshToken",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/token/AccessTokenRefreshWithRefreshToken",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7253
+        }
+      ],
+      "UpstreamPathTemplate": "/token/AccessTokenRefreshWithRefreshToken",
+      "UpstreamHttpMethod": [ "Post" ]
     }
   ]
 }
