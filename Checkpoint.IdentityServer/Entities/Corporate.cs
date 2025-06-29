@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Checkpoint.IdentityServer.Entities
 {
@@ -16,5 +16,6 @@ namespace Checkpoint.IdentityServer.Entities
         public ICollection<UserTeam> UserTeams { get; set; }
         public string VerificationCode { get; set; }
         public bool Verification { get; set; } = false;
+        public bool IsAdmin { get; set; } = false;
     }
 }
