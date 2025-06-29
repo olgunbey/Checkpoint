@@ -1,4 +1,5 @@
 ﻿using Checkpoint.IdentityServer.Dtos;
+using Checkpoint.IdentityServer.Filters;
 using Checkpoint.IdentityServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,15 +11,17 @@ namespace Checkpoint.IdentityServer.Controllers
     public class TeamController(TeamService teamService, TokenDto tokenDto) : BaseController
     {
         [HttpPost]
+        [ServiceFilter(typeof(FillTokenInformationServiceFilter))]
         public async Task<IActionResult> AddTeam(AddTeamRequestDto addTeamRequestDto)
         {
             return Handlers(await teamService.AddTeam(tokenDto.CorporateId, addTeamRequestDto.TeamName));
         }
         [HttpGet]
         [Authorize(Policy = "Add")]
-        public async Task<IActionResult> UserTeamRegister([FromQuery] int corporateId)
+        [ServiceFilter(typeof(FillTokenInformationServiceFilter))]
+        public async Task<IActionResult> AddCorporateToTeam([FromQuery] int corporateId)
         {
-            return Handlers(await teamService.UserTeamRegister(corporateId, tokenDto.SelectedTeamId));
+            return Handlers(await teamService.AddCorporateToTeam(corporateId, tokenDto.SelectedTeamId));
         }
     }
 }
