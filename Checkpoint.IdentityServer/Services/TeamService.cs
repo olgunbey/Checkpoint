@@ -16,12 +16,12 @@ namespace Checkpoint.IdentityServer.Services
 
             return ResponseDto<NoContent>.Success(200);
         }
-        public async Task<ResponseDto<NoContent>> UserTeamRegister(int corporateId, int teamId)
+        public async Task<ResponseDto<NoContent>> AddCorporateToTeam(int corporateId, short? teamId)
         {
             identityDbContext.UserTeam.Add(new Entities.UserTeam()
             {
                 CorporateId = corporateId,
-                TeamId = teamId
+                TeamId = int.Parse(teamId.ToString()!)
             });
 
             await identityDbContext.SaveChangesAsync(CancellationToken.None);
