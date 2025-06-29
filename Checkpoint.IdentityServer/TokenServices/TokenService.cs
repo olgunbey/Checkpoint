@@ -70,6 +70,10 @@ namespace Checkpoint.IdentityServer.TokenServices
                 new Claim(JwtRegisteredClaimNames.Sub,corporate.Id.ToString())
             };
 
+            if (corporate.IsAdmin)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
             var responseTokenDto = await CreateTokenAsync(claims);
             return responseTokenDto;
 
