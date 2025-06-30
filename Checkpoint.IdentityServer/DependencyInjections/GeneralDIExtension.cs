@@ -21,7 +21,7 @@ using Shared.Hash;
 
 namespace Checkpoint.IdentityServer.DependencyInjections
 {
-    public static class DIExtension
+    public static class GeneralDIExtension
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
