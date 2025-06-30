@@ -1,10 +1,14 @@
 ﻿using Carter;
 using Checkpoint.API.Interfaces;
-using Checkpoint.Shared.Requirements;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Shared;
 using Shared.Common;
+using Shared.Dtos;
+using System.Security.Claims;
+using System.Text;
 
 namespace Checkpoint.API.Features.Project.Command
 {
@@ -44,7 +48,7 @@ namespace Checkpoint.API.Features.Project.Command
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapPost("api/project/addProject", Handle).RequireAuthorization(cf => cf.AddRequirements(new AddRequirement()));
+                app.MapPost("api/project/addProject", Handle).RequireAuthorization(cf => cf.AddRequirements(new AuthorizationTransaction.Requirement()));
             }
             public async Task<IActionResult> Handle([FromBody] Dto.Request request, [FromServices] IMediator mediator, HttpContext httpContext)
             {
@@ -52,5 +56,56 @@ namespace Checkpoint.API.Features.Project.Command
                 return Handlers(httpContext, responseData);
             }
         }
+        public class AuthorizationTransaction
+        {
+            public class Requirement : IAuthorizationRequirement
+            {
+
+            }
+            public class Handler(IHttpContextAccessor httpContext) : AuthorizationHandler<Requirement>
+            {
+                protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, Requirement requirement)
+                {
+                    httpContext.HttpContext!.Request.EnableBuffering();
+
+                    httpContext.HttpContext!.Items.TryGetValue("AdminByPass", out var adminCheck);
+
+                    if (adminCheck is true)
+                    {
+                        context.Succeed(requirement);
+                        return;
+                    }
+
+                    string stringBuffer;
+                    using (var reader = new StreamReader(httpContext.HttpContext.Request.Body, Encoding.UTF8, leaveOpen: true))
+                    {
+                        stringBuffer = await reader.ReadToEndAsync();
+                        httpContext.HttpContext.Request.Body.Position = 0;
+                    }
+
+
+                    var requestDto = JsonConvert.DeserializeObject<Dto.Request>(stringBuffer);
+
+                    List<Claim> getAllUserClaim = context.User.Claims.ToList();
+
+                    Claim userTeams = getAllUserClaim.Single(y => y.Type == "teams");
+
+                    var deserializeTeam = JsonConvert.DeserializeObject<List<CorporateJwtTeamModel>>(userTeams.Value);
+
+                    CorporateJwtTeamModel userGetSelectedTeamId = deserializeTeam.Single(y => y.TeamId == requestDto.TeamId);
+
+
+                    if (userGetSelectedTeamId.Permissions.Any(permission => permission == Shared.Constants.Permission.Ekleme))
+                    {
+                        context.Succeed(requirement);
+                        return;
+                    }
+                    context.Fail();
+                    return;
+
+                }
+            }
+        }
+
     }
 }

@@ -1,7 +1,9 @@
 using Carter;
 using Checkpoint.API.BackgroundJobs;
 using Checkpoint.API.DependencyInjections;
+using Checkpoint.API.Features.Project.Command;
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Scalar.AspNetCore;
 using Shared.Middlewares;
 
@@ -11,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddServices(builder.Configuration);
-
+builder.Services.AddSingleton<IAuthorizationHandler, AddProject.AuthorizationTransaction.Handler>();
 //using var scope = builder.Services.BuildServiceProvider().CreateScope();
 //var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
 //dbContext.Action.Add(new Checkpoint.API.Entities.Action()
