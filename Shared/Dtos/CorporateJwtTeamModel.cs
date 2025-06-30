@@ -1,6 +1,6 @@
 ﻿namespace Shared.Dtos
 {
-    public class CorporateJwtModel
+    public class CorporateJwtTeamModel
     {
         public int TeamId { get; set; }
         public string Role { get; set; }
