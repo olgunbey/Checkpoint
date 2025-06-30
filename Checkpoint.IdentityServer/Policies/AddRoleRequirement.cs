@@ -28,9 +28,9 @@ namespace Checkpoint.IdentityServer.Policies
 
             var claims = context.User.Claims.ToList();
             var userTeams = claims.Single(y => y.Type == "teams");
-            var deserializeData = JsonConvert.DeserializeObject<List<CorporateJwtModel>>(userTeams.Value);
+            var deserializeData = JsonConvert.DeserializeObject<List<CorporateJwtTeamModel>>(userTeams.Value);
 
-            CorporateJwtModel userGetSelectedTeamId = deserializeData.Single(y => y.TeamId == short.Parse(value.ToString()));
+            CorporateJwtTeamModel userGetSelectedTeamId = deserializeData.Single(y => y.TeamId == short.Parse(value.ToString()));
 
 
             if (userGetSelectedTeamId.Permissions.Any(permission => permission == Permission.Ekleme))

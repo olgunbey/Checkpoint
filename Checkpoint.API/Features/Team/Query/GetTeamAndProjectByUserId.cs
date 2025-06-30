@@ -71,7 +71,7 @@ namespace Checkpoint.API.Features.Team.Query
                 }
                 var teamsClaim = context.User.Claims.Single(y => y.Type == "teams");
 
-                var deserData = JsonSerializer.Deserialize<List<CorporateJwtModel>>(teamsClaim.Value)!;
+                var deserData = JsonSerializer.Deserialize<List<CorporateJwtTeamModel>>(teamsClaim.Value)!;
                 int userId = int.Parse(getAllClaims.Single(y => y.Type == ClaimTypes.NameIdentifier)!.Value);
 
 
