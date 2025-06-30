@@ -1,5 +1,6 @@
 ﻿using Checkpoint.API.Interfaces;
 using MassTransit;
+using Shared.Common;
 using Shared.Dtos;
 using Shared.Events;
 
@@ -34,7 +35,7 @@ namespace Checkpoint.API.Consumers
                     .Select(p => p.Project)
                     .ToList()
             }).ToList();
-            await context.RespondAsync(Shared.Common.ResponseDto<List<GetAllProjectAndTeamResponseDto>>.Success(response, 200));
+            await context.RespondAsync(ResponseDto<List<GetAllProjectAndTeamResponseDto>>.Success(response, 200));
         }
     }
 }

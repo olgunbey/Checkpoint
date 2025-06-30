@@ -2,9 +2,9 @@
 {
     public class TeamNameReceivedEvent
     {
-        public List<Team> Teams { get; set; }
+        public List<TeamEvent> Teams { get; set; }
     }
-    public class Team
+    public class TeamEvent
     {
         public int TeamId { get; set; }
         public string TeamName { get; set; }

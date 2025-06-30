@@ -5,6 +5,8 @@ using Shared.Common;
 using Shared.Dtos;
 using Shared.Events;
 
+
+
 namespace Checkpoint.IdentityServer.Consumers
 {
     public class GetAllProjectByTeamIdEventConsumer(IIdentityDbContext identityDbContext, IRequestClient<TeamNameReceivedEvent> requestClient) : IConsumer<GetAllProjectByTeamIdEvent>
@@ -17,7 +19,8 @@ namespace Checkpoint.IdentityServer.Consumers
                 .AsEnumerable()
                 .IntersectBy(context.Message.TeamId, keySelector => keySelector.TeamId).ToList();
 
-            var sendEventTeams = listTeam.Select(y => new Shared.Events.Team
+
+            var sendEventTeams = listTeam.Select(y => new TeamEvent
             {
                 TeamId = y.Id,
                 TeamName = y.Team.Name,

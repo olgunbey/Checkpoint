@@ -1,11 +1,11 @@
 ﻿using Carter;
 using Checkpoint.API.Events;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
 using EventStore.Client;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared;
 using Shared.Common;
 using System.Text.Json;
 
@@ -104,7 +104,7 @@ namespace Checkpoint.API.Features.Endpoint.Query
 
             internal sealed record Request(int ProjectId);
         }
-        public class Endpoint : ApiResponseController, ICarterModule
+        public class Endpoint : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {

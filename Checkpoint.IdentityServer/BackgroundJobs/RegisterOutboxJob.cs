@@ -13,11 +13,11 @@ namespace Checkpoint.IdentityServer.BackgroundJobs
         {
             var registerOutboxes = await registerOutboxTransaction.ProcessedRegister();
 
-            var registerOutboxEvents = new List<Shared.Events.RegisterOutbox>();
+            var registerOutboxEvents = new List<RegisterOutbox>();
 
             foreach (var registerOutbox in registerOutboxes)
             {
-                if (registerOutbox.EventType == nameof(Shared.Events.RegisterOutbox))
+                if (registerOutbox.EventType == nameof(RegisterOutbox))
                 {
                     RegisterOutbox registerOutboxEvent = JsonSerializer.Deserialize<RegisterOutbox>(registerOutbox.Payload)!;
                     registerOutboxEvent.CompanyName = companyTransaction.GetCompanyByCompanyKey(registerOutboxEvent.CompanyName).Result!.Name;
@@ -28,7 +28,7 @@ namespace Checkpoint.IdentityServer.BackgroundJobs
             {
                 var startedEvent = new RegisterStartEvent()
                 {
-                    RegisterOutboxes = registerOutboxEvents.Select(y => new Shared.Events.RegisterOutbox()
+                    RegisterOutboxes = registerOutboxEvents.Select(y => new RegisterOutbox()
                     {
                         Mail = y.Mail,
                         CompanyName = y.CompanyName,

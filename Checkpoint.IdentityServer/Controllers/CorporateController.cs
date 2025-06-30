@@ -4,41 +4,42 @@ using Checkpoint.IdentityServer.Filters;
 using Checkpoint.IdentityServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared;
 
 namespace Checkpoint.IdentityServer.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserService userServices, TokenDto corporateTokenDto) : BaseController
+    public class CorporateController(RegisterOutboxTransaction registerOutboxTransaction, UserService userServices, TokenDto corporateTokenDto) : ResultController
     {
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterCorporateDto registerCorporateDto)
         {
-            return Handlers(await registerOutboxTransaction.AddRegisterAsync(registerCorporateDto, CancellationToken.None));
+            return Handlers(HttpContext, await registerOutboxTransaction.AddRegisterAsync(registerCorporateDto, CancellationToken.None));
         }
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] CorporateLoginDto corporateLoginDto)
         {
-            return Handlers(await userServices.LoginAsync(corporateLoginDto));
+            return Handlers(HttpContext, await userServices.LoginAsync(corporateLoginDto));
         }
         [HttpGet]
         public async Task<IActionResult> Verification([FromQuery] int id, [FromHeader] string verificationData)
         {
-            return Handlers(await registerOutboxTransaction.CorporateVerification(id, verificationData));
+            return Handlers(HttpContext, await registerOutboxTransaction.CorporateVerification(id, verificationData));
         }
         [HttpGet]
-        [Authorize(Policy = "Add")]
+        [Authorize(Policy = "AddRole")]
         [ServiceFilter(typeof(FillTokenInformationServiceFilter))]
         public async Task<IActionResult> AddRole([FromQuery] int teamId, [FromHeader] string roleName)
         {
-            return Handlers(await userServices.AddRoleAsync(teamId, roleName));
+            return Handlers(HttpContext, await userServices.AddRoleAsync(teamId, roleName));
         }
         [HttpGet]
         [Authorize]
         [ServiceFilter(typeof(FillTokenInformationServiceFilter))]
         public async Task<IActionResult> GetAllCorporateByCompany()
         {
-            return Handlers(await userServices.GetAllCorporateByCompany(corporateTokenDto.CompanyId));
+            return Handlers(HttpContext, await userServices.GetAllCorporateByCompany(corporateTokenDto.CompanyId));
         }
     }
 }

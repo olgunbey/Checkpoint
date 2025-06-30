@@ -1,12 +1,12 @@
 ﻿using Carter;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
 using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Shared;
 using Shared.Common;
 
 namespace Checkpoint.API.Features.Request.Command
@@ -28,7 +28,7 @@ namespace Checkpoint.API.Features.Request.Command
                     var baseUrlFilter = applicationDbContext.BaseUrl
                         .Where(y => y.Id == request.RequestDto.BaseUrlId)
                         .Include(y => y.Controllers.Where(x => x.Id == request.RequestDto.ControllerId));
-                        
+
 
                     if (request.RequestDto.ControllerId != 0)
                     {
@@ -91,7 +91,7 @@ namespace Checkpoint.API.Features.Request.Command
                 public string Body { get; set; }
             }
         }
-        public sealed class Endpoint : ApiResponseController, ICarterModule
+        public sealed class Endpoint : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {

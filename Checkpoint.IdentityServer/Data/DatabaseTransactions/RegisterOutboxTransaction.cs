@@ -2,6 +2,7 @@
 using Checkpoint.IdentityServer.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Shared.Common;
+using Shared.Events;
 using Shared.Hash;
 using System.Text.Json;
 
@@ -16,7 +17,7 @@ namespace Checkpoint.IdentityServer.Data.DatabaseTransactions
             string hashingPassword = Hashing.HashPassword(registerCorporateDto.Password);
             string verificationCode = Verification.GenerateVerification();
 
-            Shared.Events.RegisterOutbox registerOutboxEvent = new()
+            RegisterOutbox registerOutboxEvent = new()
             {
                 Mail = registerCorporateDto.Mail,
                 CompanyName = companyName,

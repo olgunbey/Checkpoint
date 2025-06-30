@@ -1,12 +1,10 @@
 ﻿using Carter;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
+using Checkpoint.Shared.Requirements;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Shared;
 using Shared.Common;
-using Shared.Constants;
-using Shared.Dtos;
 
 namespace Checkpoint.API.Features.Project.Command
 {
@@ -42,11 +40,11 @@ namespace Checkpoint.API.Features.Project.Command
                 public int? IndividualId { get; set; }
             }
         }
-        public sealed class Endpoint : ApiResponseController, ICarterModule
+        public sealed class Endpoint : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapPost("api/project/addProject", Handle).AddEndpointFilter<EndpointFilter>();
+                app.MapPost("api/project/addProject", Handle).RequireAuthorization(cf => cf.AddRequirements(new AddRequirement()));
             }
             public async Task<IActionResult> Handle([FromBody] Dto.Request request, [FromServices] IMediator mediator, HttpContext httpContext)
             {
@@ -54,31 +52,5 @@ namespace Checkpoint.API.Features.Project.Command
                 return Handlers(httpContext, responseData);
             }
         }
-        public class EndpointFilter : IEndpointFilter
-        {
-            public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
-            {
-                if (context.HttpContext!.Items.TryGetValue("AdminByPass", out object data))
-                {
-                    return await next(context);
-                }
-                var teamClaim = context.HttpContext.User.Claims.FirstOrDefault(y => y.Type == "teams");
-
-                if (teamClaim == null)
-                {
-                    return Results.Unauthorized();
-                }
-                var deserializerData = JsonConvert.DeserializeObject<CorporateJwtModel>(teamClaim.Value);
-
-                if (!deserializerData.Permissions.Any(y => y == Permission.Ekleme))
-                {
-                    return Results.Forbid();
-                }
-                return await next(context);
-
-
-            }
-        }
-
     }
 }

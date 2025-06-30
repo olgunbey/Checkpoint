@@ -1,8 +1,8 @@
 ﻿using Carter;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shared;
 using Shared.Common;
 
 namespace Checkpoint.API.Features.Project.Query
@@ -44,7 +44,7 @@ namespace Checkpoint.API.Features.Project.Query
 
             internal sealed record Request(int ProjectId);
         }
-        public class Endpoint : ApiResponseController, ICarterModule
+        public class Endpoint : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {

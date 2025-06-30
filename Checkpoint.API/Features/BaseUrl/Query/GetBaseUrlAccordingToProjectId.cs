@@ -1,8 +1,8 @@
 ﻿using Carter;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shared;
 using Shared.Common;
 
 namespace Checkpoint.API.Features.BaseUrl.Query
@@ -17,7 +17,7 @@ namespace Checkpoint.API.Features.BaseUrl.Query
             }
             internal sealed class Handler(IApplicationDbContext applicationDbContext) : CustomIRequestHandler<Request, List<Dto.Response>>
             {
-                public async Task<Shared.Common.ResponseDto<List<Dto.Response>>> Handle(Request request, CancellationToken cancellationToken)
+                public async Task<ResponseDto<List<Dto.Response>>> Handle(Request request, CancellationToken cancellationToken)
                 {
                     var getProject = await applicationDbContext.Project.FindAsync(request.RequestDto.ProjectId);
                     if (getProject == null)
@@ -51,7 +51,7 @@ namespace Checkpoint.API.Features.BaseUrl.Query
             }
         }
 
-        public sealed class Endpoint : ApiResponseController, ICarterModule
+        public sealed class Endpoint : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {

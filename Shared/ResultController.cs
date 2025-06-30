@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Shared.Common;
 
-namespace Checkpoint.API.ResponseHandler
+namespace Shared
 {
-    public class ApiResponseController : ControllerBase
+    public class ResultController : ControllerBase
     {
         protected IActionResult Handlers<T>(HttpContext httpContext, ResponseDto<T> responseDto)
         {
@@ -12,8 +13,6 @@ namespace Checkpoint.API.ResponseHandler
                 return new ObjectResult(null);
 
             return new ObjectResult(responseDto);
-
         }
-
     }
 }

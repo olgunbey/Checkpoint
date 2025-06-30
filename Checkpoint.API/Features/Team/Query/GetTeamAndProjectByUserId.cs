@@ -1,11 +1,11 @@
 ﻿using Carter;
 using Checkpoint.API.Dtos;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
 using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared;
 using Shared.Common;
 using Shared.Dtos;
 using Shared.Events;
@@ -26,7 +26,7 @@ namespace Checkpoint.API.Features.Team.Query
             {
                 public async Task<ResponseDto<List<GetAllProjectAndTeamResponseDto>>> Handle(Request request, CancellationToken cancellationToken)
                 {
-                    var response = await requestClient.GetResponse<Shared.Common.ResponseDto<List<GetAllProjectAndTeamResponseDto>>>(
+                    var response = await requestClient.GetResponse<ResponseDto<List<GetAllProjectAndTeamResponseDto>>>(
                       new GetAllProjectByTeamIdEvent()
                       {
                           UserId = request.RequestDto.UserId,
@@ -41,7 +41,7 @@ namespace Checkpoint.API.Features.Team.Query
         {
             internal sealed record Request(int UserId, List<int> TeamsId);
         }
-        public class Endpoint(CorporateTokenInformationDto corporateTokenInformationDto) : ApiResponseController, ICarterModule
+        public class Endpoint(CorporateTokenInformationDto corporateTokenInformationDto) : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {

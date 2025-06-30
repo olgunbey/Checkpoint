@@ -1,8 +1,8 @@
 ﻿using Carter;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Shared;
 using Shared.Common;
 
 namespace Checkpoint.API.Features.BaseUrl.Command
@@ -46,7 +46,7 @@ namespace Checkpoint.API.Features.BaseUrl.Command
             }
         }
 
-        public sealed class Endpoint : ApiResponseController, ICarterModule
+        public sealed class Endpoint : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {

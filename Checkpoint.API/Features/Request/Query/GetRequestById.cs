@@ -1,11 +1,11 @@
 ﻿using Carter;
 using Checkpoint.API.Enums;
 using Checkpoint.API.Interfaces;
-using Checkpoint.API.ResponseHandler;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shared;
 using Shared.Common;
 
 namespace Checkpoint.API.Features.Request.Query
@@ -96,7 +96,7 @@ namespace Checkpoint.API.Features.Request.Query
         }
 
         internal sealed class BaseUrlNotFoundException(string msg) : Exception(msg) { }
-        public sealed class Endpoint : ApiResponseController, ICarterModule
+        public sealed class Endpoint : ResultController, ICarterModule
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
