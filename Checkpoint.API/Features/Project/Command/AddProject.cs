@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using Shared;
 using Shared.Common;
 using Shared.Dtos;
-using System.Security.Claims;
 using System.Text;
 
 namespace Checkpoint.API.Features.Project.Command
@@ -67,7 +66,6 @@ namespace Checkpoint.API.Features.Project.Command
                 protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, Requirement requirement)
                 {
                     httpContext.HttpContext!.Request.EnableBuffering();
-
                     httpContext.HttpContext!.Items.TryGetValue("AdminByPass", out var adminCheck);
 
                     if (adminCheck is true)
@@ -85,13 +83,9 @@ namespace Checkpoint.API.Features.Project.Command
 
                     var requestDto = JsonConvert.DeserializeObject<Dto.Request>(stringBuffer);
 
-                    List<Claim> getAllUserClaim = context.User.Claims.ToList();
+                    var parsedTeam = TokenTeamParsed.GetJwtTeamModel(context.User);
 
-                    Claim userTeams = getAllUserClaim.Single(y => y.Type == "teams");
-
-                    var deserializeTeam = JsonConvert.DeserializeObject<List<CorporateJwtTeamModel>>(userTeams.Value);
-
-                    CorporateJwtTeamModel userGetSelectedTeamId = deserializeTeam.Single(y => y.TeamId == requestDto.TeamId);
+                    CorporateJwtTeamModel userGetSelectedTeamId = parsedTeam.Single(y => y.TeamId == requestDto.TeamId);
 
                     if (userGetSelectedTeamId.Permissions.Any(permission => permission == Shared.Constants.Permission.Ekleme))
                     {

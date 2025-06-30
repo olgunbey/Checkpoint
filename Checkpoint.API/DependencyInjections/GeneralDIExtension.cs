@@ -2,12 +2,14 @@
 using Checkpoint.API.Consumers;
 using Checkpoint.API.Data;
 using Checkpoint.API.Dtos;
+using Checkpoint.API.Features.Project.Command;
 using Checkpoint.API.Interfaces;
 using EventStore.Client;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
@@ -47,6 +49,7 @@ namespace Checkpoint.API.DependencyInjections
             dataSourceBuilder.EnableDynamicJson();
             var dataSource = dataSourceBuilder.Build();
             services.AddHttpContextAccessor();
+            services.AddSingleton<IAuthorizationHandler, AddProject.AuthorizationTransaction.Handler>();
             services.AddDbContext<CheckpointDbContext>(u => u.UseNpgsql(dataSource));
             services.AddScoped<IApplicationDbContext, CheckpointDbContext>();
             services.AddSingleton<CorporateTokenInformationDto>();

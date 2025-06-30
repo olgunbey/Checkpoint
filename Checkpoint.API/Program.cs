@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddServices(builder.Configuration);
-builder.Services.AddSingleton<IAuthorizationHandler, AddProject.AuthorizationTransaction.Handler>();
+
 //using var scope = builder.Services.BuildServiceProvider().CreateScope();
 //var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
 //dbContext.Action.Add(new Checkpoint.API.Entities.Action()
@@ -39,19 +39,16 @@ var app = builder.Build();
 
 
 app.UseHangfireDashboard();
-RecurringJob.AddOrUpdate<Request>("request-job", req => req.ExecuteJob(CancellationToken.None), "*/15 * * * * *");
-RecurringJob.AddOrUpdate<Analysis>("analysis-job", req => req.ExecuteJob(CancellationToken.None), "*/30 * * * * *");
+//RecurringJob.AddOrUpdate<Request>("request-job", req => req.ExecuteJob(CancellationToken.None), "*/15 * * * * *");
+//RecurringJob.AddOrUpdate<Analysis>("analysis-job", req => req.ExecuteJob(CancellationToken.None), "*/30 * * * * *");
 
 app.MapScalarApiReference();
-
 app.MapOpenApi();
 app.UseCors();
-
 app.UseHttpsRedirection();
 app.UseHangfireDashboard();
 app.UseAuthentication();
 app.UseMiddleware<AdminCheck>();
 app.UseAuthorization();
-
 app.MapCarter();
 app.Run();
