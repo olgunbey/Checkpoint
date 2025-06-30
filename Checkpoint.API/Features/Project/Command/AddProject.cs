@@ -83,7 +83,6 @@ namespace Checkpoint.API.Features.Project.Command
                         httpContext.HttpContext.Request.Body.Position = 0;
                     }
 
-
                     var requestDto = JsonConvert.DeserializeObject<Dto.Request>(stringBuffer);
 
                     List<Claim> getAllUserClaim = context.User.Claims.ToList();
@@ -93,7 +92,6 @@ namespace Checkpoint.API.Features.Project.Command
                     var deserializeTeam = JsonConvert.DeserializeObject<List<CorporateJwtTeamModel>>(userTeams.Value);
 
                     CorporateJwtTeamModel userGetSelectedTeamId = deserializeTeam.Single(y => y.TeamId == requestDto.TeamId);
-
 
                     if (userGetSelectedTeamId.Permissions.Any(permission => permission == Shared.Constants.Permission.Ekleme))
                     {

@@ -9,9 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
-
 builder.Services.AddServices(builder.Configuration);
-
 builder.Services.AddAuthorizationService();
 
 var app = builder.Build();
