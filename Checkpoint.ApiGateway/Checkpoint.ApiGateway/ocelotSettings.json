@@ -97,16 +97,112 @@
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
-      "DownstreamPathTemplate": "/api/token/AccessTokenRefreshWithRefreshToken",
+      "DownstreamPathTemplate": "api/baseUrl/addBaseUrl",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7253
+          "Port": 7221
         }
       ],
-      "UpstreamPathTemplate": "/token/AccessTokenRefreshWithRefreshToken",
+      "UpstreamPathTemplate": "/baseUrl/addBaseUrl",
       "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/project/getBaseUrlAccordingToProjectId",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/project/getBaseUrlAccordingToProjectId",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/endpoint/endpointanalysis",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/endpoint/endpointanalysis",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/endpoint/ListEndpointDetail",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/endpoint/ListEndpointDetail",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/endpoint/projectEndpointOverview",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/endpoint/projectEndpointOverview",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "api/project/addProject",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/project/addProject",
+      "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/project/getProjectById",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/project/getProjectById",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/request/addrequestInfo",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/request/addrequestInfo",
+      "UpstreamHttpMethod": [ "Post" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/request/getRequestById",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7221
+        }
+      ],
+      "UpstreamPathTemplate": "/request/getRequestById",
+      "UpstreamHttpMethod": [ "Get" ]
     }
   ]
 }

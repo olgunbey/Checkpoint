@@ -100,7 +100,7 @@ namespace Checkpoint.API.Features.Request.Query
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapGet("api/request/getRequestById", Handler);
+                app.MapGet("/api/request/getRequestById", Handler);
             }
             public async Task<IActionResult> Handler([FromQuery] int id, [FromServices] IMediator mediator, HttpContext httpContext)
             {

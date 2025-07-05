@@ -95,7 +95,7 @@ namespace Checkpoint.API.Features.Request.Command
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapPost("api/request/addrequestInfo", Handler);/*.AddEndpointFilter<EndpointFilter>();*/
+                app.MapPost("/api/request/addrequestInfo", Handler);/*.AddEndpointFilter<EndpointFilter>();*/
             }
             public async Task<IActionResult> Handler([FromBody] Dto.Request requestDto, IMediator mediator, HttpContext httpContext)
             {

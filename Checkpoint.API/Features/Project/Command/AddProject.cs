@@ -47,7 +47,7 @@ namespace Checkpoint.API.Features.Project.Command
         {
             public void AddRoutes(IEndpointRouteBuilder app)
             {
-                app.MapPost("api/project/addProject", Handle).RequireAuthorization(cf => cf.AddRequirements(new AuthorizationTransaction.Requirement()));
+                app.MapPost("/api/project/addProject", Handle).RequireAuthorization(cf => cf.AddRequirements(new AuthorizationTransaction.Requirement()));
             }
             public async Task<IActionResult> Handle([FromBody] Dto.Request request, [FromServices] IMediator mediator, HttpContext httpContext)
             {
@@ -55,13 +55,13 @@ namespace Checkpoint.API.Features.Project.Command
                 return Handlers(httpContext, responseData);
             }
         }
-        public class AuthorizationTransaction
+        internal sealed class AuthorizationTransaction
         {
-            public class Requirement : IAuthorizationRequirement
+            internal class Requirement : IAuthorizationRequirement
             {
 
             }
-            public class Handler(IHttpContextAccessor httpContext) : AuthorizationHandler<Requirement>
+            internal class Handler(IHttpContextAccessor httpContext) : AuthorizationHandler<Requirement>
             {
                 protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, Requirement requirement)
                 {

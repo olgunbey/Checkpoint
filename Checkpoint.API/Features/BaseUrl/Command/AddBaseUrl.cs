@@ -58,7 +58,13 @@ namespace Checkpoint.API.Features.BaseUrl.Command
 
                 return Handlers(context, response);
             }
+        }
+        internal sealed class AuthorizationTransaction
+        {
+            internal class AddBaseUrlRequirement
+            {
 
+            }
         }
     }
 }
